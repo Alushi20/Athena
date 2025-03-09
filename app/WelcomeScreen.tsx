@@ -12,12 +12,20 @@ export default function WelcomeScreen({ navigation }: WelcomeScreenProps) {
       source={require("./HOME_PAGE.jpg")}
       style={styles.background}
     >
+      {/* Geometric Overlay */}
+      <View style={styles.overlay}>
+        <View style={styles.diamond} />
+        <View style={styles.borderLayer} />
+        <View style={[styles.borderLayer, styles.borderLayer2]} />
+      </View>
+
+      {/* Content */}
       <View style={styles.container}>
-        <Text style={styles.title}>Welcome to GalWise</Text>
-        
+        <Text style={styles.title}>Welcome to Athena</Text>
+
         <TouchableOpacity
           style={styles.button}
-          onPress={() => navigation.navigate("LoginPage")} // ✅ Navigate to login page
+          onPress={() => navigation.navigate("LoginPage")}
         >
           <Text style={styles.buttonText}>Let's Get Started</Text>
         </TouchableOpacity>
@@ -33,6 +41,33 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: "100%",
     height: "100%",
+  },
+  overlay: {
+    position: "absolute",
+    width: "100%",
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  diamond: {
+    position: "absolute",
+    width: "70%",
+    height: "40%",
+    backgroundColor: "#dcdfe4",
+    transform: [{ rotate: "45deg" }],
+  },
+  borderLayer: {
+    position: "absolute",
+    width: "75%",
+    height: "45%",
+    borderWidth: 10,
+    borderColor: "#7b7191",
+    transform: [{ rotate: "45deg" }],
+  },
+  borderLayer2: {
+    width: "80%",
+    height: "50%",
+    borderColor: "#4a375d",
   },
   container: {
     backgroundColor: "rgba(0, 0, 0, 0.5)",

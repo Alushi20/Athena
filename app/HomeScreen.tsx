@@ -8,7 +8,8 @@ import InfoCard from "../components/InfoCard";
 type RootStackParamList = {
   LoginPage: undefined;
   Home: undefined;
-  Chat: undefined; // Make sure this matches the navigator
+  Chat: undefined;
+  Profile: undefined; // Added Profile screen
 };
 
 // Type the props using NativeStackScreenProps
@@ -45,10 +46,9 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
         content="GalWise is here to break barriers! We foster inclusive environments, provide mentorship, and promote STEM education for young women, empowering the next generation of female tech leaders."
       />
 
-      {/* ✅ Corrected button to navigate to Chat */}
+      {/* Navigation Buttons */}
       <CustomButton title="Go to Chat" onPress={() => navigation.navigate("Chat")} />
-
-      {/* Logout Button */}
+      <CustomButton title="Go to Profile" onPress={() => navigation.navigate("Profile")} /> {/* Added Profile button */}
       <CustomButton title="Logout" onPress={() => navigation.replace("LoginPage")} />
     </SafeAreaView>
   );
