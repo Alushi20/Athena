@@ -39,7 +39,7 @@
 
 ## Upcoming fetures and future roadmap
 
-In the future we would like to add the aability to choose who you want to chat with and a support center, videos with explanations and connect with famous woman that work in STEM that will also be connected in our app to help the woman that face challanges. In addition we want to find a way to find people STEM jobs that are searching for woman so it will be much easier to find a job.
+In the future we would like to add the aability to choose who you want to chat with and a support center, videos with explanations and connect with famous woman that work in STEM that will also be connected in our app to help the woman that face challanges. In addition we want to find a way to find people STEM jobs that are searching for woman so it will be much easier to find a job. in addition we want to add educational center with videos and tutorials related to STEM.
 
 
 ## Credits
