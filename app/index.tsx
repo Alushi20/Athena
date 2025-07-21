@@ -22,6 +22,10 @@ import EventsScreen from './EventsScreen';
 import WorkshopsScreen from './WorkshopsScreen';
 import MyMentorshipsScreen from './MyMentorshipsScreen';
 import FeedbackProgressScreen from './FeedbackProgressScreen';
+import SchedulingScreen from './SchedulingScreen';
+import SignUpScreen from './SignUpScreen';
+import MentorOnboardingScreen from './MentorOnboardingScreen';
+import MenteeOnboardingScreen from './MenteeOnboardingScreen';
 
 // Type definitions for navigation
 export type RootStackParamList = {
@@ -37,6 +41,13 @@ export type RootStackParamList = {
     MentorProfile: { mentorId: string };
     MentorshipRequests: undefined;
     MentorshipChat: { matchId: string };
+    MyMentorships: undefined;
+    Scheduling: { mentorId: string; matchId: string };
+    SignUp: undefined;
+    FeedbackProgress: undefined;
+    Feedback: { matchId: string; mentorId: string; menteeId: string };
+    MentorOnboarding: undefined;
+    MenteeOnboarding: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -112,12 +123,26 @@ const MainTabs: React.FC = () => (
         <Tab.Screen name="LearningCenterTab" component={LearningCenterScreen} options={{ title: 'Learning', tabBarIcon: ({ color, size }) => <Feather name="book-open" color={color} size={size} /> }} />
         <Tab.Screen name="EventsTab" component={EventsScreen} options={{ title: 'Events', tabBarIcon: ({ color, size }) => <Feather name="calendar" color={color} size={size} /> }} />
         <Tab.Screen name="WorkshopsTab" component={WorkshopsScreen} options={{ title: 'Workshops', tabBarIcon: ({ color, size }) => <Feather name="award" color={color} size={size} /> }} />
-        <Tab.Screen name="MyMentorshipsTab" component={MyMentorshipsScreen} options={{ title: 'My Mentorships', tabBarIcon: ({ color, size }) => <Feather name="users" color={color} size={size} /> }} />
-        <Tab.Screen name="FeedbackProgressTab" component={FeedbackProgressScreen} options={{ title: 'Progress', tabBarIcon: ({ color, size }) => <Feather name="bar-chart-2" color={color} size={size} /> }} />
+        <Tab.Screen name="MyMentorshipsTab" component={MyMentorshipsStack} options={{ title: 'My Mentorships', tabBarIcon: ({ color, size }) => <Feather name="users" color={color} size={size} /> }} />
+        <Tab.Screen name="FeedbackProgressTab" component={FeedbackProgressStack} options={{ title: 'Progress', tabBarIcon: ({ color, size }) => <Feather name="bar-chart-2" color={color} size={size} /> }} />
         <Tab.Screen name="CommunitiesTab" component={CommunitiesStack} options={{ title: 'Communities', tabBarIcon: ({ color, size }) => <Feather name="message-square" color={color} size={size} /> }} />
         <Tab.Screen name="ChatTab" component={ChatStack} options={{ title: 'Chat', tabBarIcon: ({ color, size }) => <Feather name="send" color={color} size={size} /> }} />
         <Tab.Screen name="ProfileTab" component={ProfileStack} options={{ title: 'Profile', tabBarIcon: ({ color, size }) => <Feather name="user" color={color} size={size} /> }} />
     </Tab.Navigator>
+);
+
+const FeedbackProgressStack: React.FC = () => (
+    <Stack.Navigator screenOptions={commonOptions}>
+        <Stack.Screen name="FeedbackProgress" component={FeedbackProgressScreen} />
+    </Stack.Navigator>
+);
+
+const MyMentorshipsStack: React.FC = () => (
+    <Stack.Navigator screenOptions={commonOptions}>
+        <Stack.Screen name="MyMentorships" component={MyMentorshipsScreen} />
+        <Stack.Screen name="Scheduling" component={SchedulingScreen} />
+        <Stack.Screen name="Feedback" component={FeedbackProgressScreen} />
+    </Stack.Navigator>
 );
 
 export default function App() {
@@ -125,6 +150,9 @@ export default function App() {
         <Stack.Navigator screenOptions={commonOptions} initialRouteName="Welcome">
             <Stack.Screen name="Welcome" component={WelcomeScreen} />
             <Stack.Screen name="LoginPage" component={LoginPage} />
+            <Stack.Screen name="SignUp" component={SignUpScreen} />
+            <Stack.Screen name="MentorOnboarding" component={MentorOnboardingScreen} />
+            <Stack.Screen name="MenteeOnboarding" component={MenteeOnboardingScreen} />
             <Stack.Screen name="Main" component={MainTabs} />
         </Stack.Navigator>
     );

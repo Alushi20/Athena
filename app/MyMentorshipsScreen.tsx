@@ -48,11 +48,11 @@ const MyMentorshipsScreen: React.FC = () => {
                     <Feather name="message-circle" size={18} color={COLORS.white} />
                     <Text style={styles.buttonText}>Chat</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={[styles.button, styles.scheduleBtn]}>
+                <TouchableOpacity style={[styles.button, styles.scheduleBtn]} onPress={() => navigation.navigate('Scheduling' as never, { mentorId: item.mentorId, matchId: item.$id } as never)}>
                     <Feather name="calendar" size={18} color={COLORS.white} />
                     <Text style={styles.buttonText}>Schedule</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={[styles.button, styles.feedbackBtn]}>
+                <TouchableOpacity style={[styles.button, styles.feedbackBtn]} onPress={() => navigation.navigate('Feedback' as never, { matchId: item.$id, mentorId: item.mentorId, menteeId: item.menteeId } as never)}>
                     <Feather name="star" size={18} color={COLORS.white} />
                     <Text style={styles.buttonText}>Feedback</Text>
                 </TouchableOpacity>

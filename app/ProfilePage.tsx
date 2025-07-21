@@ -7,6 +7,7 @@ import { client, config } from "../lib/appwrite";
 import { Feather, MaterialCommunityIcons, Ionicons, FontAwesome, Entypo } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
+import { COLORS } from "../constants/Colors";
 
 // Define the screen params for type safety
 type RootStackParamList = {
@@ -34,6 +35,7 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
   const [cvName, setCvName] = useState<string | null>(null);
   const [verificationStatus, setVerificationStatus] = useState<'unverified' | 'pending' | 'verified'>('unverified');
   const [verificationDocName, setVerificationDocName] = useState<string | null>(null);
+  const [role, setRole] = useState<'mentor' | 'mentee' | null>(null);
   const [uploading, setUploading] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [editAnim] = useState(new Animated.Value(0));
@@ -64,6 +66,7 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
         }
         setVerificationStatus(user.prefs.verificationStatus || 'unverified');
         setVerificationDocName(user.prefs.verificationDocName || null);
+        setRole(user.prefs.role || null);
       } catch (error) {
         setError("Failed to fetch user data.");
         console.error("Error fetching user:", error);
@@ -252,24 +255,17 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
         <Text style={styles.progressText}>{Math.round(completeness * 100)}% Complete</Text>
       </View>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Profile</Text>
-        <TouchableOpacity onPress={toggleEditMode}>
-          <Feather name={editMode ? "x" : "edit-2"} size={24} color="#a66cff" />
+        <TouchableOpacity onPress={pickImage}>
+          <Image source={profilePic ? { uri: profilePic } : require('../assets/images/icon.png')} style={styles.avatar} />
         </TouchableOpacity>
-      </View>
-      <View style={styles.profilePicWrapper}>
-        <TouchableOpacity onPress={pickImage} disabled={uploading} style={{ alignItems: 'center' }}>
-          {profilePic ? (
-            <Image source={{ uri: profilePic }} style={styles.profilePic} />
-          ) : (
-            <View style={styles.defaultAvatar}>
-              <Feather name="user" size={54} color="#fff" />
+        <View style={styles.headerText}>
+          <Text style={styles.name}>{displayName || "No Name"}</Text>
+          {role && (
+            <View style={[styles.badge, role === 'mentor' ? styles.mentorBadge : styles.menteeBadge]}>
+              <Text style={styles.badgeText}>{role.charAt(0).toUpperCase() + role.slice(1)}</Text>
             </View>
           )}
-          <View style={styles.cameraIconWrapper}>
-            <Feather name="camera" size={20} color="#fff" />
-          </View>
-        </TouchableOpacity>
+        </View>
       </View>
       <View style={styles.infoCard}>
         <View style={styles.infoRow}>
@@ -492,10 +488,40 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 24,
-    paddingTop: 24,
-    marginBottom: 8,
+    marginBottom: 16,
+  },
+  headerText: {
+    marginLeft: 16,
+  },
+  avatar: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    borderWidth: 2,
+    borderColor: '#a66cff',
+  },
+  name: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#7f5283',
+  },
+  badge: {
+    borderRadius: 12,
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    alignSelf: 'flex-start',
+    marginTop: 4,
+  },
+  mentorBadge: {
+    backgroundColor: COLORS.primary,
+  },
+  menteeBadge: {
+    backgroundColor: COLORS.secondary,
+  },
+  badgeText: {
+    color: COLORS.white,
+    fontWeight: 'bold',
+    fontSize: 12,
   },
   headerTitle: {
     fontSize: 28,

@@ -161,7 +161,7 @@ export default function LoginPage({ navigation }: { navigation: any }) {
                 activeOpacity={0.85}
                 onPressIn={() => animateBtnIn(signupBtnScale)}
                 onPressOut={() => animateBtnOut(signupBtnScale)}
-                onPress={signup}
+                onPress={() => navigation.navigate('SignUp')}
               >
                 <Feather name="user-plus" size={20} color={COLORS.primary} style={{ marginRight: 8 }} />
                 <Text style={[styles.buttonText, { color: COLORS.primary }]}>Sign Up</Text>

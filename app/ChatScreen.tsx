@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
-import {
-  View, Text, TextInput, FlatList, TouchableOpacity, SafeAreaView, StyleSheet,
+import { 
+  View, Text, TextInput, FlatList, TouchableOpacity, SafeAreaView, StyleSheet, 
   KeyboardAvoidingView, Platform, Keyboard, TouchableWithoutFeedback, Animated
 } from "react-native";
 import { Account, Databases, ID } from "react-native-appwrite";
@@ -97,13 +97,13 @@ export default function ChatScreen() {
       colors={["#f6e6ff", "#e7c6ff", "#b983ff"]}
       style={{ flex: 1 }}
     >
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={{ flex: 1 }}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 90}
-      >
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <SafeAreaView style={styles.container}>
+    <KeyboardAvoidingView 
+      behavior={Platform.OS === "ios" ? "padding" : "height"} 
+      style={{ flex: 1 }}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 90}
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <SafeAreaView style={styles.container}>
             {/* Messages List */}
             <FlatList
               ref={flatListRef}
@@ -118,22 +118,22 @@ export default function ChatScreen() {
             {/* Floating Input Bar */}
             <View style={styles.inputBarWrapper}>
               <View style={styles.inputBar}>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Type a message..."
-                  value={newMessage}
-                  onChangeText={setNewMessage}
-                  onSubmitEditing={sendMessage}
+            <TextInput
+              style={styles.input}
+              placeholder="Type a message..."
+              value={newMessage}
+              onChangeText={setNewMessage}
+              onSubmitEditing={sendMessage}
                   placeholderTextColor="#b983ff"
-                />
+            />
                 <TouchableOpacity style={styles.sendButton} onPress={sendMessage} activeOpacity={0.8}>
                   <Feather name="send" size={22} color="#fff" />
-                </TouchableOpacity>
+            </TouchableOpacity>
               </View>
             </View>
-          </SafeAreaView>
-        </TouchableWithoutFeedback>
-      </KeyboardAvoidingView>
+        </SafeAreaView>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
     </LinearGradient>
   );
 }
@@ -209,15 +209,15 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 4,
   },
-  input: {
-    flex: 1,
+    input: { 
+      flex: 1, 
     fontSize: 16,
     color: '#7f5283',
     backgroundColor: 'transparent',
     paddingVertical: 8,
     paddingHorizontal: 8,
-  },
-  sendButton: {
+    },
+    sendButton: { 
     backgroundColor: '#a66cff',
     borderRadius: 20,
     padding: 10,
@@ -228,5 +228,5 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 2,
   },
-});
+  });
 

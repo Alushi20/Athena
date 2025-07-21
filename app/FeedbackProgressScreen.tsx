@@ -1,41 +1,71 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, Switch } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Switch, Alert } from 'react-native';
 import { COLORS } from '../constants/Colors';
 import { Feather } from '@expo/vector-icons';
+import { account, database, config } from '../lib/appwrite';
 
-const FeedbackProgressScreen: React.FC = () => {
-  const [rating, setRating] = useState(0);
-  const [comment, setComment] = useState('');
-  const [isPrivate, setIsPrivate] = useState(false);
-  const progress = 0.6; // 60% complete
+const FeedbackProgressScreen: React.FC = ({ route, navigation }: any) => {
+    const { matchId, mentorId, menteeId } = route.params || {};
+    const [rating, setRating] = useState(0);
+    const [comment, setComment] = useState('');
+    const [isPrivate, setIsPrivate] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
+    const progress = 0.6; // 60% complete
 
-  return (
+    const handleSubmit = async () => {
+        setSubmitting(true);
+        try {
+            await database.createDocument(
+                config.dbId,
+                config.col.mentorshipFeedbackCol,
+                'unique()',
+                {
+                    matchId,
+                    mentorId,
+                    menteeId,
+                    rating,
+                    comment,
+                    private: isPrivate,
+                }
+            );
+            Alert.alert('Success', 'Your feedback has been submitted!');
+            navigation.goBack();
+        } catch (error) {
+            Alert.alert('Error', 'Could not submit feedback.');
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    return (
     <View style={styles.container}>
       <Text style={styles.title}>Feedback & Progress</Text>
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Leave Feedback</Text>
-        <View style={styles.starsRow}>
-          {[1,2,3,4,5].map(i => (
-            <TouchableOpacity key={i} onPress={() => setRating(i)}>
-              <Feather name="star" size={28} color={i <= rating ? COLORS.warning : COLORS.accent} />
-            </TouchableOpacity>
-          ))}
+      {matchId && (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Leave Feedback</Text>
+          <View style={styles.starsRow}>
+            {[1,2,3,4,5].map(i => (
+              <TouchableOpacity key={i} onPress={() => setRating(i)}>
+                <Feather name="star" size={28} color={i <= rating ? COLORS.warning : COLORS.accent} />
+              </TouchableOpacity>
+            ))}
+          </View>
+          <TextInput
+            style={styles.input}
+            placeholder="Add a comment..."
+            value={comment}
+            onChangeText={setComment}
+            multiline
+          />
+          <View style={styles.privateRow}>
+            <Text style={styles.privateLabel}>Private</Text>
+            <Switch value={isPrivate} onValueChange={setIsPrivate} />
+          </View>
+          <TouchableOpacity style={styles.submitBtn} onPress={handleSubmit} disabled={submitting}>
+              <Text style={styles.submitBtnText}>{submitting ? 'Submitting...' : 'Submit'}</Text>
+          </TouchableOpacity>
         </View>
-        <TextInput
-          style={styles.input}
-          placeholder="Add a comment..."
-          value={comment}
-          onChangeText={setComment}
-          multiline
-        />
-        <View style={styles.privateRow}>
-          <Text style={styles.privateLabel}>Private</Text>
-          <Switch value={isPrivate} onValueChange={setIsPrivate} />
-        </View>
-        <TouchableOpacity style={styles.submitBtn}>
-          <Text style={styles.submitBtnText}>Submit</Text>
-        </TouchableOpacity>
-      </View>
+      )}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Skill Track Progress</Text>
         <View style={styles.progressBarBg}>
