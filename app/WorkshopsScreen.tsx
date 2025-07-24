@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, Animated } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, ScrollView } from 'react-native';
 import { COLORS } from '../constants/Colors';
 import { Feather } from '@expo/vector-icons';
 
@@ -27,14 +27,13 @@ const WorkshopsScreen: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
-  const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     setLoading(true);
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       setLoading(false);
-      Animated.timing(fadeAnim, { toValue: 1, duration: 600, useNativeDriver: true }).start();
     }, 800);
+    return () => clearTimeout(timer);
   }, []);
 
   const handleRegister = (id: string) => {
@@ -50,13 +49,13 @@ const WorkshopsScreen: React.FC = () => {
     return <View style={styles.center}><Text style={styles.errorText}>{error}</Text></View>;
   }
   return (
-    <Animated.ScrollView style={[styles.container, { opacity: fadeAnim }] }>
+    <ScrollView style={styles.container}>
       <Text style={styles.title}>Workshops & Skill Labs</Text>
       <FlatList
         data={workshops}
         keyExtractor={item => item.id}
         renderItem={({ item }) => (
-          <Animated.View style={styles.card}>
+          <View style={styles.card}>
             <Text style={styles.workshopTitle}>{item.title}</Text>
             <Text style={styles.workshopInfo}><Feather name="calendar" size={14} color={COLORS.primary} /> {item.date}</Text>
             <Text style={styles.workshopInfo}><Feather name="award" size={14} color={COLORS.primary} /> {item.skill}</Text>
@@ -69,7 +68,7 @@ const WorkshopsScreen: React.FC = () => {
             >
               <Text style={styles.registerBtnText}>{item.registered ? 'Registered' : 'Register'}</Text>
             </TouchableOpacity>
-          </Animated.View>
+          </View>
         )}
         contentContainerStyle={{ paddingBottom: 40 }}
         showsVerticalScrollIndicator={false}
@@ -80,7 +79,7 @@ const WorkshopsScreen: React.FC = () => {
           <Text style={styles.successText}>Registered!</Text>
         </View>
       )}
-    </Animated.ScrollView>
+    </ScrollView>
   );
 };
 
@@ -167,4 +166,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default WorkshopsScreen; 
+export default WorkshopsScreen;

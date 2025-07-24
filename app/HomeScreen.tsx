@@ -113,6 +113,51 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
           <Feather name="chevron-right" size={24} color={COLORS.primary} />
         </TouchableOpacity>
 
+        {/* Quick Actions */}
+        <Text style={styles.sectionHeader}>Quick Actions</Text>
+        <View style={styles.sectionsContainer}>
+          <TouchableOpacity
+            style={styles.sectionCard}
+            onPress={() => navigation.navigate("MentorDirectory")}
+            activeOpacity={0.8}
+          >
+            <View style={styles.sectionIconWrapper}>
+              <Feather name="user-check" size={24} color={COLORS.primary} />
+            </View>
+            <Text style={styles.sectionTitle}>Find a Mentor</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.sectionCard}
+            onPress={() => navigation.navigate("WorkshopsScreen")}
+            activeOpacity={0.8}
+          >
+            <View style={styles.sectionIconWrapper}>
+              <Feather name="book-open" size={24} color={COLORS.primary} />
+            </View>
+            <Text style={styles.sectionTitle}>Workshops</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.sectionCard}
+            onPress={() => navigation.navigate("EventsScreen")}
+            activeOpacity={0.8}
+          >
+            <View style={styles.sectionIconWrapper}>
+              <Feather name="calendar" size={24} color={COLORS.primary} />
+            </View>
+            <Text style={styles.sectionTitle}>Events</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.sectionCard}
+            onPress={() => navigation.navigate("CommunityDetailScreen.tsx")}
+            activeOpacity={0.8}
+          >
+            <View style={styles.sectionIconWrapper}>
+              <Feather name="users" size={24} color={COLORS.primary} />
+            </View>
+            <Text style={styles.sectionTitle}>Communities</Text>
+          </TouchableOpacity>
+        </View>
+
         <View style={styles.buttonContainer}>
           <CustomButton 
             title="Logout" 
@@ -127,6 +172,45 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
 }
 
 const styles = StyleSheet.create({
+  sectionHeader: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: COLORS.textPrimary,
+    alignSelf: 'flex-start',
+    marginTop: 24,
+    marginBottom: 12,
+    paddingHorizontal: 24,
+  },
+  sectionsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    paddingHorizontal: 12,
+    marginBottom: 20,
+  },
+  sectionCard: {
+    width: '48%',
+    backgroundColor: COLORS.white,
+    borderRadius: 14,
+    paddingVertical: 16,
+    paddingHorizontal: 12,
+    alignItems: 'center',
+    marginBottom: 12,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  sectionIconWrapper: {
+    marginBottom: 8,
+  },
+  sectionTitle: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: COLORS.textSecondary,
+    textAlign: 'center',
+  },
   safeArea: {
     flex: 1,
     backgroundColor: COLORS.background,

@@ -20,9 +20,34 @@ type MentorDirectoryProps = NativeStackScreenProps<RootStackParamList, 'MentorDi
 
 // Mock Data for UI development
 const MOCK_MENTORS: Mentor[] = [
-  { $id: '1', name: 'Dr. Evelyn Reed', bio: 'AI researcher with 10+ years at Google. Passionate about guiding young women in tech.', skills: ['AI', 'Machine Learning', 'Python'], profilePic: 'https://randomuser.me/api/portraits/women/68.jpg' },
-  { $id: '2', name: 'Aisha Khan', bio: 'Biotech pioneer, specializing in gene editing. Loves to help students navigate the world of biotech.', skills: ['Biotech', 'CRISPR', 'Genetics'], profilePic: 'https://randomuser.me/api/portraits/women/69.jpg' },
-  { $id: '3', name: 'Maria Garcia', bio: 'Software Engineer at Microsoft. Focused on cloud computing and scalable systems.', skills: ['Azure', 'Databases', 'C#'], profilePic: 'https://randomuser.me/api/portraits/women/70.jpg' },
+  {
+    $id: 'am1',
+    name: 'Dr. Anne‑Marie Imafidon',
+    bio: 'CEO of Stemettes and Oxford MMath graduate. Advocates for women in tech.',
+    skills: ['AI', 'Education', 'Social Enterprise'],
+    profilePic: 'https://randomuser.me/api/portraits/women/71.jpg',
+  },
+  {
+    $id: 'aya1',
+    name: 'Aya Mouallem',
+    bio: 'Stanford engineer & co‑founder of All Girls Code, empowering girls in Lebanon.',
+    skills: ['Electrical Engineering', 'Coding', 'Mentorship'],
+    profilePic: 'https://randomuser.me/api/portraits/women/72.jpg',
+  },
+  {
+    $id: 'sara1',
+    name: 'Sara Berkai',
+    bio: 'Founder of Ambessa Play; innovator in STEM kits for refugee youth.',
+    skills: ['Product Design', 'STEM Education', 'Social Impact'],
+    profilePic: 'https://randomuser.me/api/portraits/women/73.jpg',
+  },
+  {
+    $id: 'jed1',
+    name: 'Dr. Jedidah Isler',
+    bio: 'Astrophysicist and TED Fellow advocating for diversity in STEM.',
+    skills: ['Astrophysics', 'Research', 'Public Speaking'],
+    profilePic: 'https://randomuser.me/api/portraits/women/74.jpg',
+  }
 ];
 
 
