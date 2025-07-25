@@ -20,12 +20,23 @@ type MentorCardProps = {
 
 const MentorCard: React.FC<MentorCardProps> = ({ mentor, onPress }) => {
   const scoreColor = mentor.matchScore && mentor.matchScore > 75 ? COLORS.success : mentor.matchScore && mentor.matchScore > 50 ? COLORS.warning : COLORS.error;
+  
+  const getInitials = (name: string) => {
+    return name.split(' ').map(n => n[0]).join('').toUpperCase();
+  };
+
   return (
     <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.8}>
-      <Image
-        source={mentor.profilePic ? { uri: mentor.profilePic } : require('../assets/images/icon.png')}
-        style={styles.avatar}
-      />
+      {mentor.profilePic ? (
+        <Image
+          source={{ uri: mentor.profilePic }}
+          style={styles.avatar}
+        />
+      ) : (
+        <View style={[styles.avatar, styles.fallbackAvatar]}>
+          <Text style={styles.fallbackText}>{getInitials(mentor.name)}</Text>
+        </View>
+      )}
       <View style={styles.infoContainer}>
         <Text style={styles.name}>{mentor.name}</Text>
         <Text style={styles.bio} numberOfLines={2}>{mentor.bio || 'No bio available.'}</Text>
@@ -62,12 +73,17 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   avatar: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
+    width: 72,
+    height: 72,
+    borderRadius: 36,
     marginRight: 16,
-    borderWidth: 2,
-    borderColor: COLORS.accent,
+    borderWidth: 3,
+    borderColor: COLORS.primary,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   infoContainer: {
     flex: 1,
@@ -115,6 +131,16 @@ const styles = StyleSheet.create({
   },
   chevron: {
     marginLeft: 8,
+  },
+  fallbackAvatar: {
+    backgroundColor: COLORS.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  fallbackText: {
+    color: COLORS.white,
+    fontSize: 20,
+    fontWeight: 'bold',
   }
 });
 

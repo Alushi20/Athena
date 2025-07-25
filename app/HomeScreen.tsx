@@ -12,6 +12,7 @@ type RootStackParamList = {
   Chat: undefined;
   Profile: undefined;
   Communities: undefined;
+  Main: undefined;
 };
 
 type HomeScreenProps = NativeStackScreenProps<RootStackParamList, "Home">;
@@ -74,7 +75,8 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
         style={{ transform: [{ scale: bgAnim }] }}
       >
         <Animated.Text style={[styles.title, { opacity: fadeAnim }]}>Athena</Animated.Text>
-        <Animated.Text style={[styles.subtitle, { opacity: fadeAnim }]}>Welcome to the Home Page!</Animated.Text>
+        <Animated.Text style={[styles.subtitle, { opacity: fadeAnim }]}>Empowering Women in STEM</Animated.Text>
+        <Animated.Text style={[styles.welcomeText, { opacity: fadeAnim }]}>Welcome back! Ready to grow your skills?</Animated.Text>
 
         <Animated.View style={[styles.quoteCard, { opacity: quoteFade }]}> 
           <Feather name="star" size={20} color={COLORS.primary} style={{ marginRight: 8 }} />
@@ -101,7 +103,7 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
         <TouchableOpacity
           style={styles.featuredCard}
           activeOpacity={0.9}
-          onPress={() => navigation.navigate("Communities")}
+          onPress={() => navigation.navigate("Main" as never, { screen: "CommunitiesTab" } as never)}
         >
           <View style={styles.featuredIconWrapper}>
             <Feather name="users" size={28} color={COLORS.white} />
@@ -113,32 +115,59 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
           <Feather name="chevron-right" size={24} color={COLORS.primary} />
         </TouchableOpacity>
 
+        {/* Mentorship Dashboard Card */}
+        <TouchableOpacity
+          style={styles.mentorshipDashboardCard}
+          activeOpacity={0.9}
+          onPress={() => navigation.navigate("MentorshipDashboard" as never)}
+        >
+          <View style={styles.dashboardIconWrapper}>
+            <Feather name="activity" size={32} color={COLORS.white} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.dashboardTitle}>Mentorship Dashboard</Text>
+            <Text style={styles.dashboardDesc}>View your mentorship journey, track progress, and manage connections</Text>
+          </View>
+          <Feather name="chevron-right" size={24} color={COLORS.primary} />
+        </TouchableOpacity>
+
         {/* Quick Actions */}
         <Text style={styles.sectionHeader}>Quick Actions</Text>
         <View style={styles.sectionsContainer}>
           <TouchableOpacity
             style={styles.sectionCard}
-            onPress={() => navigation.navigate("MentorDirectory")}
+            onPress={() => navigation.navigate("Main" as never, { screen: "MentorshipTab" } as never)}
             activeOpacity={0.8}
           >
             <View style={styles.sectionIconWrapper}>
-              <Feather name="user-check" size={24} color={COLORS.primary} />
+              <Feather name="users" size={24} color={COLORS.primary} />
             </View>
-            <Text style={styles.sectionTitle}>Find a Mentor</Text>
+            <Text style={styles.sectionTitle}>Mentorship Hub</Text>
           </TouchableOpacity>
+
           <TouchableOpacity
             style={styles.sectionCard}
-            onPress={() => navigation.navigate("WorkshopsScreen")}
+            onPress={() => navigation.navigate("Main" as never, { screen: "LearningCenterTab" } as never)}
             activeOpacity={0.8}
           >
             <View style={styles.sectionIconWrapper}>
               <Feather name="book-open" size={24} color={COLORS.primary} />
             </View>
+            <Text style={styles.sectionTitle}>Learning Center</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.sectionCard}
+            onPress={() => navigation.navigate("Main" as never, { screen: "WorkshopsTab" } as never)}
+            activeOpacity={0.8}
+          >
+            <View style={styles.sectionIconWrapper}>
+              <Feather name="award" size={24} color={COLORS.primary} />
+            </View>
             <Text style={styles.sectionTitle}>Workshops</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.sectionCard}
-            onPress={() => navigation.navigate("EventsScreen")}
+            onPress={() => navigation.navigate("Main" as never, { screen: "EventsTab" } as never)}
             activeOpacity={0.8}
           >
             <View style={styles.sectionIconWrapper}>
@@ -148,13 +177,58 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.sectionCard}
-            onPress={() => navigation.navigate("CommunityDetailScreen.tsx")}
+            onPress={() => navigation.navigate("Main" as never, { screen: "CommunitiesTab" } as never)}
             activeOpacity={0.8}
           >
             <View style={styles.sectionIconWrapper}>
-              <Feather name="users" size={24} color={COLORS.primary} />
+              <Feather name="message-square" size={24} color={COLORS.primary} />
             </View>
             <Text style={styles.sectionTitle}>Communities</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Additional Features */}
+        <Text style={styles.sectionHeader}>More Features</Text>
+        <View style={styles.sectionsContainer}>
+          <TouchableOpacity
+            style={styles.sectionCard}
+            onPress={() => navigation.navigate("Main" as never, { screen: "MentorshipRequestsTab" } as never)}
+            activeOpacity={0.8}
+          >
+            <View style={styles.sectionIconWrapper}>
+              <Feather name="bell" size={24} color={COLORS.primary} />
+            </View>
+            <Text style={styles.sectionTitle}>Requests</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.sectionCard}
+            onPress={() => navigation.navigate("Main" as never, { screen: "FeedbackProgressTab" } as never)}
+            activeOpacity={0.8}
+          >
+            <View style={styles.sectionIconWrapper}>
+              <Feather name="bar-chart-2" size={24} color={COLORS.primary} />
+            </View>
+            <Text style={styles.sectionTitle}>Progress</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.sectionCard}
+            onPress={() => navigation.navigate("Main" as never, { screen: "ChatTab" } as never)}
+            activeOpacity={0.8}
+          >
+            <View style={styles.sectionIconWrapper}>
+              <Feather name="send" size={24} color={COLORS.primary} />
+            </View>
+            <Text style={styles.sectionTitle}>Chat</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.sectionCard}
+            onPress={() => navigation.navigate("Main" as never, { screen: "ProfileTab" } as never)}
+            activeOpacity={0.8}
+          >
+            <View style={styles.sectionIconWrapper}>
+              <Feather name="user" size={24} color={COLORS.primary} />
+            </View>
+            <Text style={styles.sectionTitle}>Profile</Text>
           </TouchableOpacity>
         </View>
 
@@ -234,8 +308,15 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: '600',
     color: COLORS.primary,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  welcomeText: {
+    fontSize: 16,
+    color: COLORS.textSecondary,
     marginBottom: 16,
     textAlign: 'center',
+    fontStyle: 'italic',
   },
   message: {
     fontSize: 16,
@@ -318,6 +399,38 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   featuredDesc: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    opacity: 0.8,
+  },
+  mentorshipDashboardCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.white,
+    borderRadius: 18,
+    padding: 18,
+    marginBottom: 18,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.10,
+    shadowRadius: 8,
+    elevation: 4,
+    borderLeftWidth: 4,
+    borderLeftColor: COLORS.secondary,
+  },
+  dashboardIconWrapper: {
+    marginRight: 16,
+    backgroundColor: COLORS.secondary,
+    borderRadius: 12,
+    padding: 10,
+  },
+  dashboardTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: COLORS.textPrimary,
+    marginBottom: 4,
+  },
+  dashboardDesc: {
     fontSize: 14,
     color: COLORS.textSecondary,
     opacity: 0.8,

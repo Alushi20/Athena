@@ -2,12 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, ScrollView } from 'react-native';
 import { COLORS } from '../constants/Colors';
 import { Feather } from '@expo/vector-icons';
+import CalendarIntegration from '../components/CalendarIntegration';
+import { CalendarEvent } from '../lib/googleCalendar';
 
 const WORKSHOPS = [
   {
     id: 'ws1',
     title: 'Negotiation Role-Play',
     date: '2024-08-01',
+    time: '14:00',
+    duration: 90,
     skill: 'Negotiation',
     description: 'Practice salary negotiation with a coach.',
     registered: false,
@@ -16,8 +20,30 @@ const WORKSHOPS = [
     id: 'ws2',
     title: 'Bias Response Practice',
     date: '2024-08-10',
+    time: '10:00',
+    duration: 60,
     skill: 'Bias Response',
     description: 'Learn to respond to bias in real time.',
+    registered: false,
+  },
+  {
+    id: 'ws3',
+    title: 'AI Fundamentals Workshop',
+    date: '2024-08-15',
+    time: '16:00',
+    duration: 120,
+    skill: 'AI & Machine Learning',
+    description: 'Introduction to artificial intelligence and machine learning concepts.',
+    registered: false,
+  },
+  {
+    id: 'ws4',
+    title: 'Public Speaking Masterclass',
+    date: '2024-08-20',
+    time: '13:00',
+    duration: 90,
+    skill: 'Communication',
+    description: 'Build confidence and improve your public speaking skills.',
     registered: false,
   },
 ];
@@ -58,16 +84,33 @@ const WorkshopsScreen: React.FC = () => {
           <View style={styles.card}>
             <Text style={styles.workshopTitle}>{item.title}</Text>
             <Text style={styles.workshopInfo}><Feather name="calendar" size={14} color={COLORS.primary} /> {item.date}</Text>
+            <Text style={styles.workshopInfo}><Feather name="clock" size={14} color={COLORS.primary} /> {item.time} ({item.duration} min)</Text>
             <Text style={styles.workshopInfo}><Feather name="award" size={14} color={COLORS.primary} /> {item.skill}</Text>
             <Text style={styles.workshopDesc}>{item.description}</Text>
-            <TouchableOpacity
-              style={[styles.registerBtn, item.registered && styles.registerBtnDisabled]}
-              onPress={() => handleRegister(item.id)}
-              disabled={item.registered}
-              activeOpacity={0.85}
-            >
-              <Text style={styles.registerBtnText}>{item.registered ? 'Registered' : 'Register'}</Text>
-            </TouchableOpacity>
+            
+            <View style={styles.workshopActions}>
+              <TouchableOpacity
+                style={[styles.registerBtn, item.registered && styles.registerBtnDisabled]}
+                onPress={() => handleRegister(item.id)}
+                disabled={item.registered}
+                activeOpacity={0.85}
+              >
+                <Text style={styles.registerBtnText}>{item.registered ? 'Registered' : 'Register'}</Text>
+              </TouchableOpacity>
+              
+              <CalendarIntegration
+                event={{
+                  title: item.title,
+                  description: `${item.description}\n\nSkill: ${item.skill}`,
+                  startDate: new Date(`${item.date}T${item.time}`),
+                  endDate: new Date(`${item.date}T${item.time}`),
+                  type: 'workshop',
+                }}
+                buttonStyle="secondary"
+                buttonText="Add to Calendar"
+                showConfirmation={true}
+              />
+            </View>
           </View>
         )}
         contentContainerStyle={{ paddingBottom: 40 }}
@@ -138,7 +181,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingVertical: 8,
     paddingHorizontal: 24,
-    alignSelf: 'flex-end',
+    flex: 1,
   },
   registerBtnDisabled: {
     backgroundColor: COLORS.accent,
@@ -163,6 +206,11 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 14,
     marginLeft: 8,
+  },
+  workshopActions: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 16,
   },
 });
 

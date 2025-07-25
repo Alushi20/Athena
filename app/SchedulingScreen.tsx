@@ -4,6 +4,8 @@ import { COLORS } from '../constants/Colors';
 import { Feather } from '@expo/vector-icons';
 import { account, database, config } from '../lib/appwrite';
 import { Query } from 'react-native-appwrite';
+import CalendarIntegration from '../components/CalendarIntegration';
+import { CalendarEvent } from '../lib/googleCalendar';
 
 const SchedulingScreen = ({ route, navigation }: any) => {
   const { mentorId, matchId } = route.params;
@@ -100,20 +102,38 @@ const SchedulingScreen = ({ route, navigation }: any) => {
               <Text style={styles.slotText}><Feather name="calendar" size={16} color={COLORS.primary} /> {item.date}</Text>
               <Text style={styles.slotText}><Feather name="clock" size={16} color={COLORS.primary} /> {item.time}</Text>
             </View>
-            {isMentor ? (
-              <TouchableOpacity style={styles.removeBtn} onPress={() => handleRemoveSlot(item.$id)}>
-                <Feather name="trash-2" size={18} color={COLORS.error} />
-              </TouchableOpacity>
-            ) : (
-              <TouchableOpacity
-                style={[styles.bookBtn, item.reserved && styles.bookBtnDisabled]}
-                onPress={() => handleBook(item.$id)}
-                disabled={item.reserved || booking}
-                activeOpacity={0.85}
-              >
-                <Text style={styles.bookBtnText}>{item.reserved ? 'Reserved' : 'Book'}</Text>
-              </TouchableOpacity>
-            )}
+            <View style={styles.slotActions}>
+              {isMentor ? (
+                <TouchableOpacity style={styles.removeBtn} onPress={() => handleRemoveSlot(item.$id)}>
+                  <Feather name="trash-2" size={18} color={COLORS.error} />
+                </TouchableOpacity>
+              ) : (
+                <>
+                  <TouchableOpacity
+                    style={[styles.bookBtn, item.reserved && styles.bookBtnDisabled]}
+                    onPress={() => handleBook(item.$id)}
+                    disabled={item.reserved || booking}
+                    activeOpacity={0.85}
+                  >
+                    <Text style={styles.bookBtnText}>{item.reserved ? 'Reserved' : 'Book'}</Text>
+                  </TouchableOpacity>
+                  
+                  {!item.reserved && (
+                    <CalendarIntegration
+                      event={{
+                        title: 'Mentorship Session',
+                        description: 'Scheduled mentorship session',
+                        startDate: new Date(`${item.date}T${item.time}`),
+                        endDate: new Date(`${item.date}T${item.time}`),
+                        type: 'mentorship',
+                      }}
+                      buttonStyle="icon"
+                      showConfirmation={false}
+                    />
+                  )}
+                </>
+              )}
+            </View>
           </View>
         )}
         contentContainerStyle={{ paddingBottom: 40 }}
@@ -209,6 +229,11 @@ const styles = StyleSheet.create({
         color: COLORS.white,
         fontWeight: 'bold',
         fontSize: 15,
+    },
+    slotActions: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
     },
 });
 
