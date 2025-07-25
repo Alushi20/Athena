@@ -5,6 +5,8 @@ import { client } from "../lib/appwrite";
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons, Feather } from '@expo/vector-icons';
 import { COLORS } from '../constants/Colors';
+import {auth} from '../lib/firebase-config'
+import { createUserWithEmailAndPassword } from "firebase/auth";
 
 const account = new Account(client);
 
