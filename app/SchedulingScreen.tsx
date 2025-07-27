@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, TextInput, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, TextInput } from 'react-native';
 import { COLORS } from '../constants/Colors';
 import { Feather } from '@expo/vector-icons';
 import { account, database, config } from '../lib/appwrite';
@@ -89,7 +89,7 @@ const SchedulingScreen = ({ route, navigation }: any) => {
   );
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <View style={styles.container}>
       <Text style={styles.title}>Schedule a Session</Text>
       {isMentor && renderMentorControls()}
       <Text style={styles.sectionTitle}>{isMentor ? 'Your Slots' : 'Available Slots'}</Text>
@@ -103,20 +103,20 @@ const SchedulingScreen = ({ route, navigation }: any) => {
               <Text style={styles.slotText}><Feather name="clock" size={16} color={COLORS.primary} /> {item.time}</Text>
             </View>
             <View style={styles.slotActions}>
-            {isMentor ? (
-              <TouchableOpacity style={styles.removeBtn} onPress={() => handleRemoveSlot(item.$id)}>
-                <Feather name="trash-2" size={18} color={COLORS.error} />
-              </TouchableOpacity>
-            ) : (
+              {isMentor ? (
+                <TouchableOpacity style={styles.removeBtn} onPress={() => handleRemoveSlot(item.$id)}>
+                  <Feather name="trash-2" size={18} color={COLORS.error} />
+                </TouchableOpacity>
+              ) : (
                 <>
-              <TouchableOpacity
-                style={[styles.bookBtn, item.reserved && styles.bookBtnDisabled]}
-                onPress={() => handleBook(item.$id)}
-                disabled={item.reserved || booking}
-                activeOpacity={0.85}
-              >
-                <Text style={styles.bookBtnText}>{item.reserved ? 'Reserved' : 'Book'}</Text>
-              </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.bookBtn, item.reserved && styles.bookBtnDisabled]}
+                    onPress={() => handleBook(item.$id)}
+                    disabled={item.reserved || booking}
+                    activeOpacity={0.85}
+                  >
+                    <Text style={styles.bookBtnText}>{item.reserved ? 'Reserved' : 'Book'}</Text>
+                  </TouchableOpacity>
                   
                   {!item.reserved && (
                     <CalendarIntegration
@@ -132,14 +132,14 @@ const SchedulingScreen = ({ route, navigation }: any) => {
                     />
                   )}
                 </>
-            )}
+              )}
             </View>
           </View>
         )}
         contentContainerStyle={{ paddingBottom: 40 }}
         showsVerticalScrollIndicator={false}
       />
-    </ScrollView>
+    </View>
   );
 };
 

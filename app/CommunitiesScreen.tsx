@@ -136,6 +136,10 @@ export default function CommunitiesScreen({ navigation }: any) {
               <View style={styles.categoryBadge}>
                 <Text style={styles.categoryText}>{item.category}</Text>
               </View>
+              <View style={styles.memberCount}>
+                <Ionicons name="people" size={14} color={COLORS.textSecondary} />
+                <Text style={styles.memberCountText}>{item.memberCount.toLocaleString()}</Text>
+              </View>
             </View>
           </View>
           <TouchableOpacity 
@@ -150,10 +154,6 @@ export default function CommunitiesScreen({ navigation }: any) {
         </View>
         <Text style={styles.description}>{item.description}</Text>
         <View style={styles.cardFooter}>
-          <View style={styles.memberCount}>
-            <Ionicons name="people" size={14} color={COLORS.textSecondary} />
-            <Text style={styles.memberCountText}>{item.memberCount.toLocaleString()}</Text>
-          </View>
           <Feather name="chevron-right" size={20} color={COLORS.primary} />
         </View>
       </TouchableOpacity>
@@ -222,9 +222,9 @@ export default function CommunitiesScreen({ navigation }: any) {
         <View style={styles.createButtonContainer}>
           <TouchableOpacity style={styles.createBtn} activeOpacity={0.9}>
             <Feather name="plus" size={24} color={COLORS.white} />
-        <Text style={styles.createBtnText}>Create New Community</Text>
-      </TouchableOpacity>
-    </View>
+            <Text style={styles.createBtnText}>Create New Community</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -331,7 +331,7 @@ const styles = StyleSheet.create({
   categoryContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'flex-start',
+    justifyContent: 'space-between',
   },
   categoryBadge: {
     backgroundColor: `${COLORS.secondary}20`,
@@ -379,9 +379,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   cardFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-end',
   },
   emptyContainer: {
     alignItems: 'center',

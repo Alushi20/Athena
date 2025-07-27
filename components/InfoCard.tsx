@@ -1,6 +1,5 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
-import { COLORS, FONTS } from "../constants/Colors";
 
 type InfoCardProps = {
   title: string;
@@ -18,7 +17,7 @@ export default function InfoCard({ title, content }: InfoCardProps) {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: COLORS.aboutUs,
+    backgroundColor: "#f8f8f8",
     padding: 15,
     marginVertical: 10,
     borderRadius: 10,
@@ -31,13 +30,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: "bold",
-    color: COLORS.white,
+    color: "#333",
     marginBottom: 5,
-    fontFamily: FONTS.title,
   },
   content: {
     fontSize: 14,
-    color: COLORS.white,
-    fontFamily: FONTS.body,
+    color: "#666",
   },
 });

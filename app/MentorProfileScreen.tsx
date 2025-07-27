@@ -199,7 +199,7 @@ const styles = StyleSheet.create({
     },
     section: {
         marginBottom: 24,
-        backgroundColor: '#F8F9FA',
+        backgroundColor: COLORS.white,
         borderRadius: 16,
         padding: 18,
         shadowColor: COLORS.primary,
