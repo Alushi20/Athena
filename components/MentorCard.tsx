@@ -28,10 +28,10 @@ const MentorCard: React.FC<MentorCardProps> = ({ mentor, onPress }) => {
   return (
     <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.8}>
       {mentor.profilePic ? (
-        <Image
+      <Image
           source={{ uri: mentor.profilePic }}
-          style={styles.avatar}
-        />
+        style={styles.avatar}
+      />
       ) : (
         <View style={[styles.avatar, styles.fallbackAvatar]}>
           <Text style={styles.fallbackText}>{getInitials(mentor.name)}</Text>
