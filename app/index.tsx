@@ -27,6 +27,7 @@ import MentorOnboardingScreen from './MenteeOnboardingScreen';
 import MenteeOnboardingScreen from './MenteeOnboardingScreen';
 import MentorshipDashboardScreen from './MentorshipDashboardScreen';
 import UnifiedMentorshipScreen from './UnifiedMentorshipScreen';
+import ScreenWrapper from '../components/ScreenWrapper';
 
 // Type definitions for navigation
 export type RootStackParamList = {
@@ -78,82 +79,195 @@ const tabOptions: BottomTabNavigationOptions = {
 // Screen component type helper
 type ScreenComponent<T extends ParamListBase, K extends keyof T> = React.FC<StackScreenProps<T, K>>;
 
+// Wrapped screen components with sidebar
+const WrappedHomeScreen = () => (
+    <ScreenWrapper>
+        <HomeScreen />
+    </ScreenWrapper>
+);
+
+const WrappedLearningCenterScreen = () => (
+    <ScreenWrapper>
+        <LearningCenterScreen />
+    </ScreenWrapper>
+);
+
+const WrappedEventsScreen = () => (
+    <ScreenWrapper>
+        <EventsScreen />
+    </ScreenWrapper>
+);
+
+const WrappedWorkshopsScreen = () => (
+    <ScreenWrapper>
+        <WorkshopsScreen />
+    </ScreenWrapper>
+);
+
+const WrappedCommunitiesScreen = () => (
+    <ScreenWrapper>
+        <CommunitiesScreen />
+    </ScreenWrapper>
+);
+
+const WrappedProfileScreen = () => (
+    <ScreenWrapper>
+        <ProfilePage />
+    </ScreenWrapper>
+);
+
+// Wrapped components for additional stacks
+const WrappedUnifiedMentorshipScreen = () => (
+    <ScreenWrapper>
+        <UnifiedMentorshipScreen />
+    </ScreenWrapper>
+);
+
+const WrappedMentorDirectoryScreen = () => (
+    <ScreenWrapper>
+        <MentorDirectoryScreen />
+    </ScreenWrapper>
+);
+
+const WrappedMentorProfileScreen = () => (
+    <ScreenWrapper>
+        <MentorProfileScreen />
+    </ScreenWrapper>
+);
+
+const WrappedMyMentorshipsScreen = () => (
+    <ScreenWrapper>
+        <MyMentorshipsScreen />
+    </ScreenWrapper>
+);
+
+const WrappedSchedulingScreen = () => (
+    <ScreenWrapper>
+        <SchedulingScreen />
+    </ScreenWrapper>
+);
+
+const WrappedFeedbackProgressScreen = () => (
+    <ScreenWrapper>
+        <FeedbackProgressScreen />
+    </ScreenWrapper>
+);
+
+const WrappedMentorshipRequestsScreen = () => (
+    <ScreenWrapper>
+        <MentorshipRequestsScreen />
+    </ScreenWrapper>
+);
+
+const WrappedMentorshipChatScreen = () => (
+    <ScreenWrapper>
+        <MentorshipChatScreen />
+    </ScreenWrapper>
+);
+
+const WrappedChatScreen = () => (
+    <ScreenWrapper>
+        <ChatScreen />
+    </ScreenWrapper>
+);
+
 const HomeStack: React.FC = () => (
     <Stack.Navigator screenOptions={commonOptions}>
-        <Stack.Screen name="Home" component={HomeScreen as ScreenComponent<RootStackParamList, 'Home'>} />
+        <Stack.Screen name="Home" component={WrappedHomeScreen} />
     </Stack.Navigator>
 );
 
-const ChatStack: React.FC = () => (
+const LearningCenterStack: React.FC = () => (
     <Stack.Navigator screenOptions={commonOptions}>
-        <Stack.Screen name="Chat" component={ChatScreen} />
+        <Stack.Screen name="LearningCenter" component={WrappedLearningCenterScreen} />
+    </Stack.Navigator>
+);
+
+const EventsStack: React.FC = () => (
+    <Stack.Navigator screenOptions={commonOptions}>
+        <Stack.Screen name="Events" component={WrappedEventsScreen} />
+    </Stack.Navigator>
+);
+
+const WorkshopsStack: React.FC = () => (
+    <Stack.Navigator screenOptions={commonOptions}>
+        <Stack.Screen name="Workshops" component={WrappedWorkshopsScreen} />
     </Stack.Navigator>
 );
 
 const CommunitiesStack: React.FC = () => (
     <Stack.Navigator screenOptions={commonOptions}>
-        <Stack.Screen name="CommunitiesList" component={CommunitiesScreen} />
+        <Stack.Screen name="CommunitiesList" component={WrappedCommunitiesScreen} />
         <Stack.Screen name="CommunityDetail" component={CommunityDetailScreen as React.FC} />
     </Stack.Navigator>
 );
 
 const ProfileStack: React.FC = () => (
     <Stack.Navigator screenOptions={commonOptions}>
-        <Stack.Screen name="Profile" component={ProfilePage as ScreenComponent<RootStackParamList, 'Profile'>} />
+        <Stack.Screen name="Profile" component={WrappedProfileScreen} />
     </Stack.Navigator>
 );
 
 const MentorshipStack: React.FC = () => (
     <Stack.Navigator screenOptions={commonOptions}>
-        <Stack.Screen name="MentorshipDashboard" component={UnifiedMentorshipScreen} />
-        <Stack.Screen name="MentorDirectory" component={MentorDirectoryScreen as ScreenComponent<RootStackParamList, 'MentorDirectory'>} />
-        <Stack.Screen name="MentorProfile" component={MentorProfileScreen as ScreenComponent<RootStackParamList, 'MentorProfile'>} />
-        <Stack.Screen name="MyMentorships" component={MyMentorshipsScreen} />
-        <Stack.Screen name="Scheduling" component={SchedulingScreen} />
-        <Stack.Screen name="Feedback" component={FeedbackProgressScreen} />
+        <Stack.Screen name="MentorshipDashboard" component={WrappedUnifiedMentorshipScreen} />
+        <Stack.Screen name="MentorDirectory" component={WrappedMentorDirectoryScreen} />
+        <Stack.Screen name="MentorProfile" component={WrappedMentorProfileScreen} />
+        <Stack.Screen name="MyMentorships" component={WrappedMyMentorshipsScreen} />
+        <Stack.Screen name="Scheduling" component={WrappedSchedulingScreen} />
+        <Stack.Screen name="Feedback" component={WrappedFeedbackProgressScreen} />
     </Stack.Navigator>
 );
 
 const MentorshipRequestsStack: React.FC = () => (
     <Stack.Navigator screenOptions={commonOptions}>
-        <Stack.Screen name="MentorshipRequests" component={MentorshipRequestsScreen} />
-        <Stack.Screen name="MentorshipChat" component={MentorshipChatScreen} />
+        <Stack.Screen name="MentorshipRequests" component={WrappedMentorshipRequestsScreen} />
+        <Stack.Screen name="MentorshipChat" component={WrappedMentorshipChatScreen} />
+    </Stack.Navigator>
+);
+
+const ChatStack: React.FC = () => (
+    <Stack.Navigator screenOptions={commonOptions}>
+        <Stack.Screen name="Chat" component={WrappedChatScreen} />
+    </Stack.Navigator>
+);
+
+const FeedbackProgressStack: React.FC = () => (
+    <Stack.Navigator screenOptions={commonOptions}>
+        <Stack.Screen name="FeedbackProgress" component={WrappedFeedbackProgressScreen} />
     </Stack.Navigator>
 );
 
 const MainTabs: React.FC = () => (
     <Tab.Navigator screenOptions={tabOptions}>
         <Tab.Screen name="HomeTab" component={HomeStack} options={{ title: 'Home', tabBarIcon: ({ color, size }) => <Feather name="home" color={color} size={size} /> }} />
-        <Tab.Screen name="MentorshipTab" component={MentorshipStack} options={{ title: 'Mentorship', tabBarIcon: ({ color, size }) => <Feather name="users" color={color} size={size} /> }} />
-        <Tab.Screen name="MentorshipRequestsTab" component={MentorshipRequestsStack} options={{ title: 'Requests', tabBarIcon: ({ color, size }) => <Feather name="bell" color={color} size={size} /> }} />
-        <Tab.Screen name="LearningCenterTab" component={LearningCenterScreen} options={{ title: 'Learning', tabBarIcon: ({ color, size }) => <Feather name="book-open" color={color} size={size} /> }} />
-        <Tab.Screen name="EventsTab" component={EventsScreen} options={{ title: 'Events', tabBarIcon: ({ color, size }) => <Feather name="calendar" color={color} size={size} /> }} />
-        <Tab.Screen name="WorkshopsTab" component={WorkshopsScreen} options={{ title: 'Workshops', tabBarIcon: ({ color, size }) => <Feather name="award" color={color} size={size} /> }} />
-
-        <Tab.Screen name="FeedbackProgressTab" component={FeedbackProgressStack} options={{ title: 'Progress', tabBarIcon: ({ color, size }) => <Feather name="bar-chart-2" color={color} size={size} /> }} />
+        <Tab.Screen name="LearningCenterTab" component={LearningCenterStack} options={{ title: 'Learning', tabBarIcon: ({ color, size }) => <Feather name="book-open" color={color} size={size} /> }} />
+        <Tab.Screen name="EventsTab" component={EventsStack} options={{ title: 'Events', tabBarIcon: ({ color, size }) => <Feather name="calendar" color={color} size={size} /> }} />
+        <Tab.Screen name="WorkshopsTab" component={WorkshopsStack} options={{ title: 'Workshops', tabBarIcon: ({ color, size }) => <Feather name="award" color={color} size={size} /> }} />
         <Tab.Screen name="CommunitiesTab" component={CommunitiesStack} options={{ title: 'Communities', tabBarIcon: ({ color, size }) => <Feather name="message-square" color={color} size={size} /> }} />
-        <Tab.Screen name="ChatTab" component={ChatStack} options={{ title: 'Chat', tabBarIcon: ({ color, size }) => <Feather name="send" color={color} size={size} /> }} />
         <Tab.Screen name="ProfileTab" component={ProfileStack} options={{ title: 'Profile', tabBarIcon: ({ color, size }) => <Feather name="user" color={color} size={size} /> }} />
     </Tab.Navigator>
 );
 
-const FeedbackProgressStack: React.FC = () => (
-    <Stack.Navigator screenOptions={commonOptions}>
-        <Stack.Screen name="FeedbackProgress" component={FeedbackProgressScreen} />
-    </Stack.Navigator>
-);
+
 
 
 
 export default function App() {
     return (
-        <Stack.Navigator screenOptions={commonOptions} initialRouteName="Welcome">
-            <Stack.Screen name="Welcome" component={WelcomeScreen} />
-            <Stack.Screen name="LoginPage" component={LoginPage} />
-            <Stack.Screen name="SignUp" component={SignUpScreen} />
-            <Stack.Screen name="MentorOnboarding" component={MentorOnboardingScreen} />
-            <Stack.Screen name="MenteeOnboarding" component={MenteeOnboardingScreen} />
-            <Stack.Screen name="Main" component={MainTabs} />
-        </Stack.Navigator>
+        <NavigationContainer>
+            <Stack.Navigator screenOptions={commonOptions} initialRouteName="Welcome">
+                <Stack.Screen name="Welcome" component={WelcomeScreen} />
+                <Stack.Screen name="LoginPage" component={LoginPage} />
+                <Stack.Screen name="SignUp" component={SignUpScreen} />
+                <Stack.Screen name="MentorOnboarding" component={MentorOnboardingScreen} />
+                <Stack.Screen name="MenteeOnboarding" component={MenteeOnboardingScreen} />
+                <Stack.Screen name="Main" component={MainTabs} />
+                <Stack.Screen name="MentorshipStack" component={MentorshipStack} />
+                <Stack.Screen name="MentorshipRequestsStack" component={MentorshipRequestsStack} />
+                <Stack.Screen name="ChatStack" component={ChatStack} />
+                <Stack.Screen name="FeedbackProgressStack" component={FeedbackProgressStack} />
+            </Stack.Navigator>
+        </NavigationContainer>
     );
 }
