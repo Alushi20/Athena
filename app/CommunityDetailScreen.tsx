@@ -211,7 +211,7 @@ const CommunityDetailScreen: React.FC<CommunityDetailProps> = ({ route, navigati
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             >
                 {/* Header */}
-                <View style={styles.header}>
+            <View style={styles.header}>
                     <TouchableOpacity 
                         style={styles.backButton} 
                         onPress={() => navigation.goBack()}
@@ -224,27 +224,27 @@ const CommunityDetailScreen: React.FC<CommunityDetailProps> = ({ route, navigati
                             <MaterialCommunityIcons name={community.icon as any} size={24} color={COLORS.primary} />
                         </View>
                         <View style={styles.headerText}>
-                            <Text style={styles.headerTitle}>{community.title}</Text>
+                <Text style={styles.headerTitle}>{community.title}</Text>
                             {community.memberCount && (
                                 <Text style={styles.memberCount}>{community.memberCount.toLocaleString()} members</Text>
                             )}
                         </View>
                     </View>
-                </View>
+            </View>
 
-                <Text style={styles.headerDescription}>{community.description}</Text>
+            <Text style={styles.headerDescription}>{community.description}</Text>
 
                 {/* Post Input */}
-                <View style={styles.inputContainer}>
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Share your thoughts or ask a question..."
-                        placeholderTextColor={COLORS.textSecondary}
-                        value={newPost}
-                        onChangeText={setNewPost}
-                        multiline
+            <View style={styles.inputContainer}>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Share your thoughts or ask a question..."
+                    placeholderTextColor={COLORS.textSecondary}
+                    value={newPost}
+                    onChangeText={setNewPost}
+                    multiline
                         maxLength={500}
-                    />
+                />
                     <TouchableOpacity 
                         style={[styles.sendButton, !newPost.trim() && styles.sendButtonDisabled]} 
                         onPress={handleAddPost} 
@@ -256,7 +256,7 @@ const CommunityDetailScreen: React.FC<CommunityDetailProps> = ({ route, navigati
                         ) : (
                             <Feather name="send" size={20} color={COLORS.white} />
                         )}
-                    </TouchableOpacity>
+                </TouchableOpacity>
                 </View>
 
                 {success && (

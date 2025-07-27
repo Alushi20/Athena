@@ -89,14 +89,14 @@ const WorkshopsScreen: React.FC = () => {
             <Text style={styles.workshopDesc}>{item.description}</Text>
             
             <View style={styles.workshopActions}>
-              <TouchableOpacity
-                style={[styles.registerBtn, item.registered && styles.registerBtnDisabled]}
-                onPress={() => handleRegister(item.id)}
-                disabled={item.registered}
-                activeOpacity={0.85}
-              >
-                <Text style={styles.registerBtnText}>{item.registered ? 'Registered' : 'Register'}</Text>
-              </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.registerBtn, item.registered && styles.registerBtnDisabled]}
+              onPress={() => handleRegister(item.id)}
+              disabled={item.registered}
+              activeOpacity={0.85}
+            >
+              <Text style={styles.registerBtnText}>{item.registered ? 'Registered' : 'Register'}</Text>
+            </TouchableOpacity>
               
               <CalendarIntegration
                 event={{
@@ -211,6 +211,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 12,
     marginTop: 16,
+    justifyContent: 'center',
   },
 });
 

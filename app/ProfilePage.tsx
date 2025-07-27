@@ -374,25 +374,25 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
   const renderTabContent = () => {
     switch (activeTab) {
       case 'profile':
-        return (
+  return (
           <Animated.View style={{ opacity: fadeAnim }}>
             <View style={styles.infoCard}>
               <View style={styles.sectionHeader}>
                 <Text style={styles.sectionTitle}>Basic Information</Text>
                 <TouchableOpacity onPress={toggleEditMode} style={styles.editButton}>
                   <Feather name={editMode ? "x" : "edit-3"} size={20} color={selectedColor} />
-                </TouchableOpacity>
-              </View>
+        </TouchableOpacity>
+            </View>
               
-              <View style={styles.infoRow}>
+        <View style={styles.infoRow}>
                 <MaterialCommunityIcons name="email-outline" size={22} color={selectedColor} style={{ marginRight: 8 }} />
                 <Text style={styles.infoText}>{email || "N/A"}</Text>
-              </View>
+        </View>
               
-              <View style={styles.infoRow}>
+        <View style={styles.infoRow}>
                 <Ionicons name="person-circle-outline" size={22} color={selectedColor} style={{ marginRight: 8 }} />
-                <Text style={styles.infoText}>{displayName || "No Name"}</Text>
-              </View>
+          <Text style={styles.infoText}>{displayName || "No Name"}</Text>
+        </View>
 
               <Animated.View style={{ 
                 overflow: 'hidden', 
@@ -404,8 +404,8 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
                 <ScrollView showsVerticalScrollIndicator={false} style={{ maxHeight: 400 }}>
                   <View style={styles.inputGroup}>
                     <Text style={styles.inputLabel}>Username</Text>
-                    <TextInput
-                      style={styles.input}
+            <TextInput
+              style={styles.input}
                       placeholder="@yourusername"
                       value={username}
                       onChangeText={setUsername}
@@ -421,51 +421,51 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
                     <TextInput
                       style={styles.textArea}
                       placeholder="Tell us about yourself..."
-                      value={bio}
-                      onChangeText={setBio}
-                      editable={editMode}
-                      placeholderTextColor="#b983ff"
-                      multiline
+              value={bio}
+              onChangeText={setBio}
+              editable={editMode}
+              placeholderTextColor="#b983ff"
+              multiline
                       numberOfLines={4}
-                    />
-                  </View>
+            />
+          </View>
 
                 <View style={styles.inputGroup}>
                   <Text style={styles.inputLabel}>Phone Number</Text>
-                  <TextInput
-                    style={styles.input}
+            <TextInput
+              style={styles.input}
                     placeholder="+1 (555) 123-4567"
-                    value={phone}
-                    onChangeText={setPhone}
-                    editable={editMode}
-                    placeholderTextColor="#b983ff"
-                    keyboardType="phone-pad"
-                  />
-                </View>
+              value={phone}
+              onChangeText={setPhone}
+              editable={editMode}
+              placeholderTextColor="#b983ff"
+              keyboardType="phone-pad"
+            />
+          </View>
 
                 <View style={styles.inputGroup}>
                   <Text style={styles.inputLabel}>Location</Text>
-                  <TextInput
-                    style={styles.input}
+            <TextInput
+              style={styles.input}
                     placeholder="City, Country"
-                    value={location}
-                    onChangeText={setLocation}
-                    editable={editMode}
-                    placeholderTextColor="#b983ff"
-                  />
-                </View>
+              value={location}
+              onChangeText={setLocation}
+              editable={editMode}
+              placeholderTextColor="#b983ff"
+            />
+          </View>
 
                 <View style={styles.inputGroup}>
                   <Text style={styles.inputLabel}>Skills</Text>
-                  <TextInput
-                    style={styles.input}
+            <TextInput
+              style={styles.input}
                     placeholder="React Native, JavaScript, UI/UX Design"
-                    value={skills}
-                    onChangeText={setSkills}
-                    editable={editMode}
-                    placeholderTextColor="#b983ff"
-                  />
-                </View>
+              value={skills}
+              onChangeText={setSkills}
+              editable={editMode}
+              placeholderTextColor="#b983ff"
+            />
+          </View>
 
                 <View style={styles.inputGroup}>
                   <Text style={styles.inputLabel}>Languages</Text>
@@ -517,7 +517,7 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
               {!editMode && (
                 <>
                   {username && (
-                    <View style={styles.infoRow}>
+          <View style={styles.infoRow}>
                       <MaterialCommunityIcons name="at" size={20} color={selectedColor} style={{ marginRight: 8 }} />
                       <Text style={styles.infoText}>@{username}</Text>
                     </View>
@@ -592,8 +592,8 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
                 <ScrollView showsVerticalScrollIndicator={false} style={{ maxHeight: 400 }}>
                   <View style={styles.inputGroup}>
                   <Text style={styles.inputLabel}>Company</Text>
-                  <TextInput
-                    style={styles.input}
+            <TextInput
+              style={styles.input}
                     placeholder="Your company name"
                     value={company}
                     onChangeText={setCompany}
@@ -663,26 +663,26 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
                     placeholder="https://your-portfolio.com"
                     value={portfolioUrl || ''}
                     onChangeText={setPortfolioUrl}
-                    editable={editMode}
-                    placeholderTextColor="#b983ff"
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                  />
-                </View>
+              editable={editMode}
+              placeholderTextColor="#b983ff"
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+          </View>
 
                 {editMode && (
-                  <CustomButton
+          <CustomButton
                     title="Save Changes"
-                    onPress={saveProfile}
+            onPress={saveProfile}
                     style={[styles.saveBtn, { backgroundColor: selectedColor }]}
-                    textStyle={styles.saveBtnText}
-                  />
+            textStyle={styles.saveBtnText}
+          />
                 )}
                 </ScrollView>
-              </Animated.View>
+        </Animated.View>
 
-              {!editMode && (
-                <>
+        {!editMode && (
+          <>
                   {company && (
                     <View style={styles.infoRow}>
                       <MaterialIcons name="business" size={20} color={selectedColor} style={{ marginRight: 8 }} />
@@ -723,9 +723,9 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
                       </TouchableOpacity>
                     </View>
                   )}
-                </>
-              )}
-            </View>
+          </>
+        )}
+      </View>
           </Animated.View>
         );
 
@@ -739,11 +739,11 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
               <View style={styles.settingGroup}>
                 <Text style={styles.settingGroupTitle}>Theme & Appearance</Text>
                 
-                <View style={styles.optionRow}>
+        <View style={styles.optionRow}>
                   <View style={styles.optionInfo}>
                     <Feather name="moon" size={20} color={selectedColor} style={{ marginRight: 8 }} />
-                    <Text style={styles.optionText}>Dark Theme</Text>
-                  </View>
+          <Text style={styles.optionText}>Dark Theme</Text>
+        </View>
                   <Switch 
                     value={themeDark} 
                     onValueChange={toggleTheme} 
@@ -752,11 +752,11 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
                   />
                 </View>
 
-                <View style={styles.optionRow}>
+        <View style={styles.optionRow}>
                   <View style={styles.optionInfo}>
                     <Feather name="palette" size={20} color={selectedColor} style={{ marginRight: 8 }} />
                     <Text style={styles.optionText}>Theme Color</Text>
-                  </View>
+        </View>
                   <TouchableOpacity 
                     style={[styles.colorPicker, { backgroundColor: selectedColor }]}
                     onPress={() => setShowColorPicker(true)}
@@ -767,7 +767,7 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
               <View style={styles.settingGroup}>
                 <Text style={styles.settingGroupTitle}>Notifications</Text>
                 
-                <View style={styles.optionRow}>
+        <View style={styles.optionRow}>
                   <View style={styles.optionInfo}>
                     <Feather name="bell" size={20} color={selectedColor} style={{ marginRight: 8 }} />
                     <Text style={styles.optionText}>All Notifications</Text>
@@ -855,17 +855,17 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
                     <Text style={styles.optionText}>CV/Resume</Text>
                   </View>
                   <TouchableOpacity onPress={pickCV} disabled={uploading} style={[styles.cvBtn, { backgroundColor: selectedColor }]}>
-                    <Text style={styles.cvBtnText}>{cvUrl ? "Update" : "Upload"}</Text>
-                  </TouchableOpacity>
-                </View>
+            <Text style={styles.cvBtnText}>{cvUrl ? "Update" : "Upload"}</Text>
+          </TouchableOpacity>
+        </View>
                 
-                {cvUrl && (
-                  <TouchableOpacity style={styles.cvFileRow} onPress={() => Linking.openURL(cvUrl)}>
+        {cvUrl && (
+          <TouchableOpacity style={styles.cvFileRow} onPress={() => Linking.openURL(cvUrl)}>
                     <Feather name="download" size={18} color={selectedColor} style={{ marginRight: 6 }} />
-                    <Text style={styles.cvFileText}>{cvName || "View CV"}</Text>
-                  </TouchableOpacity>
-                )}
-              </View>
+            <Text style={styles.cvFileText}>{cvName || "View CV"}</Text>
+          </TouchableOpacity>
+        )}
+      </View>
               </ScrollView>
             </View>
           </Animated.View>
@@ -936,26 +936,26 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
 
               <View style={styles.settingGroup}>
                 <Text style={styles.settingGroupTitle}>Verification</Text>
-                <View style={styles.verificationRow}>
-                  <Feather
-                    name={verificationStatus === 'verified' ? 'check-circle' : 'alert-circle'}
-                    size={24}
-                    color={verificationStatus === 'verified' ? '#4CAF50' : '#FFC107'}
-                  />
-                  <Text style={styles.verificationText}>
-                    Status: {verificationStatus.charAt(0).toUpperCase() + verificationStatus.slice(1)}
-                  </Text>
-                </View>
-                {verificationStatus !== 'verified' && (
+        <View style={styles.verificationRow}>
+          <Feather
+            name={verificationStatus === 'verified' ? 'check-circle' : 'alert-circle'}
+            size={24}
+            color={verificationStatus === 'verified' ? '#4CAF50' : '#FFC107'}
+          />
+          <Text style={styles.verificationText}>
+            Status: {verificationStatus.charAt(0).toUpperCase() + verificationStatus.slice(1)}
+          </Text>
+        </View>
+        {verificationStatus !== 'verified' && (
                   <TouchableOpacity style={[styles.uploadButton, { backgroundColor: selectedColor }]} onPress={pickVerificationDoc}>
-                    <Feather name="upload" size={18} color="#fff" />
-                    <Text style={styles.uploadButtonText}>
-                      {verificationStatus === 'pending' ? 'Re-upload Document' : 'Upload for Verification'}
-                    </Text>
-                  </TouchableOpacity>
-                )}
-                {verificationDocName && <Text style={styles.docNameText}>Uploaded: {verificationDocName}</Text>}
-              </View>
+            <Feather name="upload" size={18} color="#fff" />
+            <Text style={styles.uploadButtonText}>
+              {verificationStatus === 'pending' ? 'Re-upload Document' : 'Upload for Verification'}
+            </Text>
+          </TouchableOpacity>
+        )}
+        {verificationDocName && <Text style={styles.docNameText}>Uploaded: {verificationDocName}</Text>}
+      </View>
               </ScrollView>
             </View>
           </Animated.View>
@@ -1010,7 +1010,7 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
                 </Text>
               </View>
             )}
-            <Text style={styles.profileEmail}>{email}</Text>
+
           </View>
         </View>
 
@@ -1073,21 +1073,21 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
 
         {/* Logout Button */}
         <View style={styles.logoutSection}>
-          <CustomButton
-            title="Logout"
-            onPress={async () => {
-              try {
-                await account.deleteSession("current");
-                navigation.replace("LoginPage");
-              } catch (error) {
-                console.error("Logout failed", error);
-              }
-            }}
+      <CustomButton
+        title="Logout"
+        onPress={async () => {
+          try {
+            await account.deleteSession("current");
+            navigation.replace("LoginPage");
+          } catch (error) {
+            console.error("Logout failed", error);
+          }
+        }}
             style={[styles.logoutBtn, { borderColor: selectedColor }]}
             textStyle={[styles.logoutBtnText, { color: selectedColor }]}
-          />
+      />
         </View>
-      </Animated.ScrollView>
+    </Animated.ScrollView>
 
       {/* Color Picker Modal */}
       <Modal
@@ -1210,6 +1210,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#2d3748',
     marginBottom: 4,
+    fontFamily: FONTS.title,
   },
   profileEmail: {
     fontSize: 14,
@@ -1244,6 +1245,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: '#2d3748',
+    fontFamily: FONTS.title,
   },
   progressPercentage: {
     fontSize: 18,
