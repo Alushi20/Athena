@@ -77,13 +77,15 @@ const SignUpScreen = ({ navigation }: any) => {
         throw new Error('User not found');
       }
       await setDoc(doc(db, "users", user.uid),{
-        role, // Save the selected role
-        username,
-        phone,
-        showPhone,
-        bio,
-        location,
-        skills,
+        role: role, // Save the selected role
+        username: username,
+        phone: phone,
+        showPhone: showPhone,
+        bio: bio,
+        locaiton: location,
+        skills: skills,
+        uid: user.uid,
+        date: new Date().toISOString(),
         //profilePicUrl,
         //cvUrl,
       });

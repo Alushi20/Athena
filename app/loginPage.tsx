@@ -32,42 +32,17 @@ export default function LoginPage({ navigation }: { navigation: any }) {
     }).start();
   }, [error]);
 
-  const signup = async () => {
-    try {
-      await account.deleteSession("current");
-    } catch (err) {
-      console.log("No active session found, continuing...");
-    }
-    try {
-      if (password.length < 8) {
-        setError("Password must be at least 8 characters long.");
-        return;
-      }
-      const userId = ID.unique();
-      await account.create(userId, email, password, "New User");
-      await account.createEmailPasswordSession(email, password);
-      Alert.alert("Account Created", "Welcome!");
-      navigation.replace("Main");
-    } catch (createErr: any) {
-      setError(createErr.message);
-    }
-  };
+const handleLogin = async () => {
+  if(auth.currentUser) {
+    await auth.signOut();
+  }
+  const userCredential =  await signInWithEmailAndPassword(auth, email, password)
+  const user = userCredential.user;
+  if(user) {
+    navigation.navigate('WelcomeScreen');
+  }
 
-  const handleLogin = async () => {
-    try {
-      await account.deleteSession("current");
-    } catch (err) {
-      console.log("No active session found, continuing...");
-    }
-    try {
-      await account.createEmailPasswordSession(email, password);
-      Alert.alert("Login Successful", "Welcome back!");
-      navigation.replace("Main");
-    } catch (err: any) {
-      setError("Incorrect password. Please try again.");
-    }
-  };
-
+}
   // Button press animation helpers
   const animateBtnIn = (btnScale: Animated.Value) => {
     Animated.spring(btnScale, { toValue: 0.96, useNativeDriver: true }).start();
