@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from "react";
-import { View, Text, SafeAreaView, ActivityIndicator, Animated, StyleSheet, ScrollView, TouchableOpacity, FlatList } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Text, SafeAreaView, ActivityIndicator, StyleSheet, ScrollView, TouchableOpacity, FlatList } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import CustomButton from "../components/CustomButton"; 
 import InfoCard from "../components/InfoCard"; 
@@ -34,71 +34,63 @@ const FEATURED_COMMUNITY = {
 export default function HomeScreen({ navigation }: HomeScreenProps) {
   const [message, setMessage] = useState("Loading latest updates...");
   const [loading, setLoading] = useState(true);
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  const bgAnim = useRef(new Animated.Value(0.97)).current;
   const [quoteIndex, setQuoteIndex] = useState(0);
-  const quoteFade = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
     setTimeout(() => {
       setMessage("Empowering women in STEM, one step at a time.");
       setLoading(false);
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 800,
-        useNativeDriver: true,
-      }).start();
     }, 1200);
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(bgAnim, { toValue: 1.03, duration: 6000, useNativeDriver: true }),
-        Animated.timing(bgAnim, { toValue: 0.97, duration: 6000, useNativeDriver: true }),
-      ])
-    ).start();
   }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      Animated.timing(quoteFade, { toValue: 0, duration: 500, useNativeDriver: true }).start(() => {
-        setQuoteIndex((prev) => (prev + 1) % QUOTES.length);
-        Animated.timing(quoteFade, { toValue: 1, duration: 500, useNativeDriver: true }).start();
-      });
+      setQuoteIndex((prev) => (prev + 1) % QUOTES.length);
     }, 5000);
     return () => clearInterval(interval);
   }, []);
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <Animated.ScrollView
+      <ScrollView
         contentContainerStyle={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
-        style={{ transform: [{ scale: bgAnim }] }}
       >
-        <Animated.Text style={[styles.title, { opacity: fadeAnim }]}>Athena</Animated.Text>
-        <Animated.Text style={[styles.subtitle, { opacity: fadeAnim }]}>Empowering Women in STEM</Animated.Text>
-        <Animated.Text style={[styles.welcomeText, { opacity: fadeAnim }]}>Welcome back! Ready to grow your skills?</Animated.Text>
+        <View style={styles.headerSection}>
+          <Text style={styles.title}>Athena</Text>
+          <Text style={styles.subtitle}>Empowering Women in STEM</Text>
+          <Text style={styles.welcomeText}>Welcome back! Ready to grow your skills?</Text>
+        </View>
 
-        <Animated.View style={[styles.quoteCard, { opacity: quoteFade }]}> 
+
+
+        <View style={styles.quoteCard}> 
           <Feather name="star" size={20} color={COLORS.primary} style={{ marginRight: 8 }} />
           <Text style={styles.quoteText}>{QUOTES[quoteIndex]}</Text>
-        </Animated.View>
+        </View>
 
         {loading ? (
           <ActivityIndicator size="large" color={COLORS.secondary} style={{ marginVertical: 20 }} />
         ) : (
-          <Animated.Text style={[styles.message, { opacity: fadeAnim }]}>{message}</Animated.Text>
+          <Text style={styles.message}>{message}</Text>
         )}
 
-        <Animated.View style={{ opacity: fadeAnim, width: '100%' }}>
-          <InfoCard 
-            title="About Us"
-            content="Despite progress in gender equality, women remain underrepresented in STEM fields. Deep-rooted stereotypes, lack of role models, and systemic biases often discourage young girls from pursuing STEM careers."
-          />
-          <InfoCard 
-            title="Our Mission"
-            content="Athena is here to break barriers! We foster inclusive environments, provide mentorship, and promote STEM education for young women, empowering the next generation of female tech leaders."
-          />
-        </Animated.View>
+        <View style={{ width: '100%' }}>
+          <TouchableOpacity
+            style={styles.aboutButton}
+            onPress={() => navigation.navigate("About" as never)}
+            activeOpacity={0.8}
+          >
+            <View style={styles.aboutIconWrapper}>
+              <Feather name="info" size={24} color={COLORS.white} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.aboutTitle}>About Athena</Text>
+              <Text style={styles.aboutDesc}>Learn about our mission, vision, and values</Text>
+            </View>
+            <Feather name="chevron-right" size={24} color={COLORS.primary} />
+          </TouchableOpacity>
+        </View>
 
         <TouchableOpacity
           style={styles.featuredCard}
@@ -157,23 +149,13 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.sectionCard}
-            onPress={() => navigation.navigate("Main" as never, { screen: "WorkshopsTab" } as never)}
-            activeOpacity={0.8}
-          >
-            <View style={styles.sectionIconWrapper}>
-              <Feather name="award" size={24} color={COLORS.primary} />
-            </View>
-            <Text style={styles.sectionTitle}>Workshops</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.sectionCard}
-            onPress={() => navigation.navigate("Main" as never, { screen: "EventsTab" } as never)}
+            onPress={() => navigation.navigate("Main" as never, { screen: "EventsWorkshopsTab" } as never)}
             activeOpacity={0.8}
           >
             <View style={styles.sectionIconWrapper}>
               <Feather name="calendar" size={24} color={COLORS.primary} />
             </View>
-            <Text style={styles.sectionTitle}>Events</Text>
+            <Text style={styles.sectionTitle}>Events & Workshops</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.sectionCard}
@@ -240,16 +222,23 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
             textStyle={styles.buttonText}
           />
         </View>
-      </Animated.ScrollView>
+      </ScrollView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  headerSection: {
+    backgroundColor: COLORS.primary,
+    borderRadius: 20,
+    padding: 24,
+    marginBottom: 20,
+    alignItems: 'center',
+  },
   sectionHeader: {
     fontSize: 20,
     fontWeight: '600',
-    color: COLORS.textPrimary,
+    color: COLORS.text,
     alignSelf: 'flex-start',
     marginTop: 24,
     marginBottom: 12,
@@ -299,7 +288,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 36,
     fontWeight: 'bold',
-    color: COLORS.secondary,
+    color: COLORS.white,
     marginBottom: 4,
     letterSpacing: 1.5,
     textAlign: 'center',
@@ -307,16 +296,18 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 22,
     fontWeight: '600',
-    color: COLORS.primary,
+    color: COLORS.white,
     marginBottom: 8,
     textAlign: 'center',
+    opacity: 0.9,
   },
   welcomeText: {
     fontSize: 16,
-    color: COLORS.textSecondary,
+    color: COLORS.white,
     marginBottom: 16,
     textAlign: 'center',
     fontStyle: 'italic',
+    opacity: 0.8,
   },
   message: {
     fontSize: 16,
@@ -431,6 +422,38 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   dashboardDesc: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    opacity: 0.8,
+  },
+  aboutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.white,
+    borderRadius: 18,
+    padding: 18,
+    marginBottom: 18,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.10,
+    shadowRadius: 8,
+    elevation: 4,
+    borderLeftWidth: 4,
+    borderLeftColor: COLORS.accent,
+  },
+  aboutIconWrapper: {
+    marginRight: 16,
+    backgroundColor: COLORS.accent,
+    borderRadius: 12,
+    padding: 10,
+  },
+  aboutTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: COLORS.textSecondary,
+    marginBottom: 4,
+  },
+  aboutDesc: {
     fontSize: 14,
     color: COLORS.textSecondary,
     opacity: 0.8,

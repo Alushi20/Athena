@@ -8,6 +8,7 @@ import { Query } from 'react-native-appwrite';
 import MentorshipFlowDiagram from '../components/MentorshipFlowDiagram';
 import MentorshipStatusOverview from '../components/MentorshipStatusOverview';
 import SchedulingVisualizer from '../components/SchedulingVisualizer';
+import BackButton from '../components/BackButton';
 
 interface MentorshipStatus {
   totalMentorships: number;
@@ -186,10 +187,37 @@ const MentorshipDashboardScreen: React.FC = () => {
       >
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.title}>Mentorship Dashboard</Text>
-          <Text style={styles.subtitle}>
-            {userRole === 'mentor' ? 'Guide and inspire the next generation' : 'Grow with expert guidance'}
-          </Text>
+          <View style={styles.headerTop}>
+            <BackButton color={COLORS.white} />
+          </View>
+          <View style={styles.headerContent}>
+            <View>
+              <Text style={styles.title}>Mentorship Dashboard</Text>
+              <Text style={styles.subtitle}>
+                {userRole === 'mentor' ? 'Guide and inspire the next generation' : 'Grow with expert guidance'}
+              </Text>
+            </View>
+            <View style={styles.headerButtons}>
+              <TouchableOpacity 
+                style={styles.requestsButton}
+                onPress={() => navigation.navigate('MentorshipRequests' as never)}
+              >
+                <Feather name="bell" size={20} color={COLORS.white} />
+                <Text style={styles.requestsButtonText}>Requests</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={styles.moreButton}
+                onPress={() => {
+                  // Add more options here - could open a menu or navigate to other screens
+                  console.log('More options pressed');
+                }}
+              >
+                <Feather name="more-horizontal" size={20} color={COLORS.white} />
+                <Text style={styles.moreButtonText}>More</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>
 
         {/* Status Cards */}
@@ -374,6 +402,48 @@ const styles = StyleSheet.create({
   },
   header: {
     marginBottom: 24,
+  },
+  headerTop: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    marginBottom: 16,
+  },
+  headerContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+  headerButtons: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  requestsButton: {
+    backgroundColor: COLORS.primary,
+    borderRadius: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  requestsButtonText: {
+    color: COLORS.white,
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  moreButton: {
+    backgroundColor: COLORS.secondary,
+    borderRadius: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  moreButtonText: {
+    color: COLORS.white,
+    fontSize: 14,
+    fontWeight: '600',
   },
   title: {
     fontSize: 28,

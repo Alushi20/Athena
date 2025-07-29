@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Switch, ActivityIndicator, Alert, Image } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Switch, ActivityIndicator, Alert, Image, SafeAreaView } from 'react-native';
 import { COLORS } from '../constants/Colors';
 import { Feather } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
 import { Account, Storage, ID } from 'react-native-appwrite';
 import { client, config } from '../lib/appwrite';
+import BackButton from '../components/BackButton';
 
 const account = new Account(client);
 const storage = new Storage(client);
@@ -100,198 +101,510 @@ const SignUpScreen = ({ navigation }: any) => {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 }}>
-      <Text style={styles.title}>Sign Up</Text>
-      <View style={styles.roleSelection}>
-        <TouchableOpacity
-          style={[styles.roleButton, role === 'mentor' && styles.roleButtonSelected]}
-          onPress={() => setRole('mentor')}
-        >
-          <Text style={[styles.roleButtonText, role === 'mentor' && styles.roleButtonTextSelected]}>I'm a Mentor</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.roleButton, role === 'mentee' && styles.roleButtonSelected]}
-          onPress={() => setRole('mentee')}
-        >
-          <Text style={[styles.roleButtonText, role === 'mentee' && styles.roleButtonTextSelected]}>I'm a Mentee</Text>
-        </TouchableOpacity>
-      </View>
-      <TextInput style={styles.input} placeholder="Email" value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" />
-      <TextInput style={styles.input} placeholder="Username" value={username} onChangeText={setUsername} autoCapitalize="none" />
-      <TextInput style={styles.input} placeholder="Name" value={name} onChangeText={setName} />
-      <TextInput style={styles.input} placeholder="Password" value={password} onChangeText={setPassword} secureTextEntry />
-      <View style={styles.row}>
-        <TextInput style={[styles.input, { flex: 1 }]} placeholder="Phone Number" value={phone} onChangeText={setPhone} keyboardType="phone-pad" />
-        <View style={styles.switchRow}>
-          <Text style={styles.switchLabel}>Show on profile</Text>
-          <Switch value={showPhone} onValueChange={setShowPhone} />
+    <SafeAreaView style={styles.safeArea}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContainer}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Header Section */}
+        <View style={styles.headerSection}>
+          <View style={styles.headerTop}>
+            <BackButton color={COLORS.white} />
+          </View>
+          <View style={styles.headerContent}>
+            <Feather name="user-plus" size={32} color={COLORS.white} />
+            <Text style={styles.title}>Join Athena</Text>
+            <Text style={styles.subtitle}>Connect with amazing women in STEM</Text>
+          </View>
         </View>
-      </View>
-      <TextInput style={styles.input} placeholder="Bio (optional)" value={bio} onChangeText={setBio} multiline />
-      <TextInput style={styles.input} placeholder="Location" value={location} onChangeText={setLocation} />
-      <Text style={styles.sectionTitle}>Skills/Sector</Text>
-      <View style={styles.skillsContainer}>
-        {SKILLS.map(skill => (
-          <TouchableOpacity
-            key={skill}
-            style={[styles.skillTag, skills.includes(skill) && styles.skillTagSelected]}
-            onPress={() => handleSkillToggle(skill)}
+
+        {/* Role Selection Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Choose Your Role</Text>
+          <View style={styles.roleSelection}>
+            <TouchableOpacity
+              style={[styles.roleButton, role === 'mentor' && styles.roleButtonSelected]}
+              onPress={() => setRole('mentor')}
+            >
+              <View style={styles.roleIconContainer}>
+                <Feather name="award" size={24} color={role === 'mentor' ? COLORS.white : COLORS.primary} />
+              </View>
+              <Text style={[styles.roleButtonText, role === 'mentor' && styles.roleButtonTextSelected]}>I'm a Mentor</Text>
+              <Text style={[styles.roleDescription, role === 'mentor' && styles.roleDescriptionSelected]}>Share your expertise</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity
+              style={[styles.roleButton, role === 'mentee' && styles.roleButtonSelected]}
+              onPress={() => setRole('mentee')}
+            >
+              <View style={styles.roleIconContainer}>
+                <Feather name="book-open" size={24} color={role === 'mentee' ? COLORS.white : COLORS.primary} />
+              </View>
+              <Text style={[styles.roleButtonText, role === 'mentee' && styles.roleButtonTextSelected]}>I'm a Mentee</Text>
+              <Text style={[styles.roleDescription, role === 'mentee' && styles.roleDescriptionSelected]}>Learn and grow</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Basic Information Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Basic Information</Text>
+          <View style={styles.inputGroup}>
+            <View style={styles.inputContainer}>
+              <Feather name="mail" size={18} color={COLORS.textSecondary} style={styles.inputIcon} />
+              <TextInput 
+                style={styles.input} 
+                placeholder="Email address" 
+                value={email} 
+                onChangeText={setEmail} 
+                autoCapitalize="none" 
+                keyboardType="email-address" 
+              />
+            </View>
+            
+            <View style={styles.inputContainer}>
+              <Feather name="user" size={18} color={COLORS.textSecondary} style={styles.inputIcon} />
+              <TextInput 
+                style={styles.input} 
+                placeholder="Full name" 
+                value={name} 
+                onChangeText={setName} 
+              />
+            </View>
+            
+            <View style={styles.inputContainer}>
+              <Feather name="at-sign" size={18} color={COLORS.textSecondary} style={styles.inputIcon} />
+              <TextInput 
+                style={styles.input} 
+                placeholder="Username" 
+                value={username} 
+                onChangeText={setUsername} 
+                autoCapitalize="none" 
+              />
+            </View>
+            
+            <View style={styles.inputContainer}>
+              <Feather name="lock" size={18} color={COLORS.textSecondary} style={styles.inputIcon} />
+              <TextInput 
+                style={styles.input} 
+                placeholder="Password" 
+                value={password} 
+                onChangeText={setPassword} 
+                secureTextEntry 
+              />
+            </View>
+          </View>
+        </View>
+
+        {/* Contact Information Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Contact Information</Text>
+          <View style={styles.inputGroup}>
+            <View style={styles.inputContainer}>
+              <Feather name="phone" size={18} color={COLORS.textSecondary} style={styles.inputIcon} />
+              <TextInput 
+                style={styles.input} 
+                placeholder="Phone number" 
+                value={phone} 
+                onChangeText={setPhone} 
+                keyboardType="phone-pad" 
+              />
+            </View>
+            
+            <View style={styles.inputContainer}>
+              <Feather name="map-pin" size={18} color={COLORS.textSecondary} style={styles.inputIcon} />
+              <TextInput 
+                style={styles.input} 
+                placeholder="Location" 
+                value={location} 
+                onChangeText={setLocation} 
+              />
+            </View>
+            
+            <View style={styles.switchContainer}>
+              <View style={styles.switchLabelContainer}>
+                <Feather name="eye" size={16} color={COLORS.textSecondary} />
+                <Text style={styles.switchLabel}>Show phone on profile</Text>
+              </View>
+              <Switch 
+                value={showPhone} 
+                onValueChange={setShowPhone}
+                trackColor={{ false: COLORS.accent, true: COLORS.primary }}
+                thumbColor={COLORS.white}
+              />
+            </View>
+          </View>
+        </View>
+
+        {/* Bio Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>About You</Text>
+          <View style={styles.bioContainer}>
+            <TextInput 
+              style={styles.bioInput} 
+              placeholder="Tell us about yourself, your interests, and what you're passionate about..." 
+              value={bio} 
+              onChangeText={setBio} 
+              multiline 
+              numberOfLines={4}
+            />
+          </View>
+        </View>
+
+        {/* Skills Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Skills & Expertise</Text>
+          <Text style={styles.sectionSubtitle}>Select your areas of expertise or interest</Text>
+          <View style={styles.skillsContainer}>
+            {SKILLS.map(skill => (
+              <TouchableOpacity
+                key={skill}
+                style={[styles.skillTag, skills.includes(skill) && styles.skillTagSelected]}
+                onPress={() => handleSkillToggle(skill)}
+              >
+                <Text style={[styles.skillText, skills.includes(skill) && styles.skillTextSelected]}>{skill}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
+        {/* Upload Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Profile & Documents</Text>
+          
+          <View style={styles.uploadSection}>
+            <TouchableOpacity style={styles.uploadCard} onPress={handlePickProfilePic}>
+              <View style={styles.uploadIconContainer}>
+                <Feather name="image" size={24} color={COLORS.primary} />
+              </View>
+              <View style={styles.uploadContent}>
+                <Text style={styles.uploadTitle}>Profile Picture</Text>
+                <Text style={styles.uploadSubtitle}>
+                  {profilePic ? 'Change photo' : 'Add a profile picture'}
+                </Text>
+              </View>
+              {profilePic && <Image source={{ uri: profilePic.uri }} style={styles.previewImg} />}
+            </TouchableOpacity>
+            
+            <TouchableOpacity style={styles.uploadCard} onPress={handlePickCV}>
+              <View style={styles.uploadIconContainer}>
+                <Feather name="file-text" size={24} color={COLORS.primary} />
+              </View>
+              <View style={styles.uploadContent}>
+                <Text style={styles.uploadTitle}>CV/Resume</Text>
+                <Text style={styles.uploadSubtitle}>
+                  {cv ? cv.name : 'Upload your CV or resume'}
+                </Text>
+              </View>
+              {cv && <Feather name="check-circle" size={20} color={COLORS.success} />}
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Submit Button */}
+        <View style={styles.submitSection}>
+          <TouchableOpacity 
+            style={[styles.submitBtn, loading && styles.submitBtnDisabled]} 
+            onPress={handleSignUp} 
+            disabled={loading}
           >
-            <Text style={[styles.skillText, skills.includes(skill) && styles.skillTextSelected]}>{skill}</Text>
+            {loading ? (
+              <ActivityIndicator color={COLORS.white} size="small" />
+            ) : (
+              <>
+                <Feather name="user-plus" size={20} color={COLORS.white} />
+                <Text style={styles.submitBtnText}>Create Account</Text>
+              </>
+            )}
           </TouchableOpacity>
-        ))}
-      </View>
-      <View style={styles.uploadRow}>
-        <TouchableOpacity style={styles.uploadBtn} onPress={handlePickProfilePic}>
-          <Feather name="image" size={18} color={COLORS.white} />
-          <Text style={styles.uploadBtnText}>{profilePic ? 'Change Profile Picture' : 'Upload Profile Picture'}</Text>
-        </TouchableOpacity>
-        {profilePic && <Image source={{ uri: profilePic.uri }} style={styles.previewImg} />}
-      </View>
-      <View style={styles.uploadRow}>
-        <TouchableOpacity style={styles.uploadBtn} onPress={handlePickCV}>
-          <Feather name="file" size={18} color={COLORS.white} />
-          <Text style={styles.uploadBtnText}>{cv ? 'Change CV' : 'Upload CV'}</Text>
-        </TouchableOpacity>
-        {cv && <Text style={styles.cvName}>{cv.name}</Text>}
-      </View>
-      <TouchableOpacity style={styles.submitBtn} onPress={handleSignUp} disabled={loading}>
-        {loading ? <ActivityIndicator color={COLORS.white} /> : <Text style={styles.submitBtnText}>Sign Up</Text>}
-      </TouchableOpacity>
-    </ScrollView>
+          
+          <TouchableOpacity 
+            style={styles.loginLink}
+            onPress={() => navigation.navigate('LoginPage')}
+          >
+            <Text style={styles.loginLinkText}>Already have an account? </Text>
+            <Text style={styles.loginLinkBold}>Sign In</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  safeArea: {
     flex: 1,
     backgroundColor: COLORS.background,
-    padding: 18,
+  },
+  scrollContainer: {
+    flexGrow: 1,
+    paddingBottom: 100, // Add padding to the bottom to prevent content from being hidden behind the keyboard
+  },
+  headerSection: {
+    backgroundColor: COLORS.primary,
+    paddingTop: 40,
+    paddingBottom: 30,
+    paddingHorizontal: 24,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
+  },
+  headerTop: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    marginBottom: 20,
+  },
+  headerContent: {
+    alignItems: 'center',
   },
   title: {
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: 'bold',
-    color: COLORS.primary,
-    marginBottom: 18,
+    color: COLORS.white,
+    marginTop: 12,
+    marginBottom: 8,
   },
-  input: {
-    backgroundColor: COLORS.white,
-    borderRadius: 10,
-    padding: 12,
+  subtitle: {
     fontSize: 16,
-    color: COLORS.text,
-    marginBottom: 12,
+    color: COLORS.white,
+    opacity: 0.9,
+    textAlign: 'center',
   },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  switchRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginLeft: 10,
-  },
-  switchLabel: {
-    color: COLORS.textSecondary,
-    marginRight: 6,
+  section: {
+    paddingHorizontal: 24,
+    marginTop: 24,
   },
   sectionTitle: {
-    fontSize: 17,
+    fontSize: 20,
     fontWeight: 'bold',
-    color: COLORS.secondary,
-    marginBottom: 8,
+    color: COLORS.text,
+    marginBottom: 16,
+  },
+  sectionSubtitle: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    marginBottom: 16,
+  },
+  roleSelection: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  roleButton: {
+    flex: 1,
+    backgroundColor: COLORS.white,
+    borderRadius: 16,
+    padding: 20,
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: COLORS.accent,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  roleButtonSelected: {
+    borderColor: COLORS.primary,
+    backgroundColor: COLORS.primary,
+  },
+  roleIconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: COLORS.accent,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  roleButtonText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: COLORS.text,
+    marginBottom: 4,
+  },
+  roleButtonTextSelected: {
+    color: COLORS.white,
+  },
+  roleDescription: {
+    fontSize: 12,
+    color: COLORS.textSecondary,
+  },
+  roleDescriptionSelected: {
+    color: COLORS.white,
+    opacity: 0.9,
+  },
+  inputGroup: {
+    gap: 16,
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.white,
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 4,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  inputIcon: {
+    marginRight: 12,
+  },
+  input: {
+    flex: 1,
+    fontSize: 16,
+    color: COLORS.text,
+    paddingVertical: 16,
+  },
+  switchContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: COLORS.white,
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  switchLabelContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  switchLabel: {
+    fontSize: 16,
+    color: COLORS.text,
+  },
+  bioContainer: {
+    backgroundColor: COLORS.white,
+    borderRadius: 12,
+    padding: 16,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  bioInput: {
+    fontSize: 16,
+    color: COLORS.text,
+    textAlignVertical: 'top',
+    minHeight: 100,
   },
   skillsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    marginBottom: 16,
+    gap: 8,
   },
   skillTag: {
     backgroundColor: COLORS.accent,
-    borderRadius: 12,
-    paddingVertical: 6,
-    paddingHorizontal: 14,
-    marginRight: 8,
-    marginBottom: 8,
+    borderRadius: 20,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderWidth: 1,
+    borderColor: COLORS.accent,
   },
   skillTagSelected: {
     backgroundColor: COLORS.primary,
+    borderColor: COLORS.primary,
   },
   skillText: {
+    fontSize: 14,
     color: COLORS.primary,
-    fontWeight: 'bold',
+    fontWeight: '500',
   },
   skillTextSelected: {
     color: COLORS.white,
   },
-  uploadRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
+  uploadSection: {
+    gap: 12,
   },
-  uploadBtn: {
+  uploadCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.white,
     borderRadius: 12,
-    paddingVertical: 10,
-    paddingHorizontal: 18,
-    marginRight: 10,
+    padding: 16,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
   },
-  uploadBtnText: {
-    color: COLORS.white,
-    fontWeight: 'bold',
-    fontSize: 15,
-    marginLeft: 8,
+  uploadIconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: COLORS.accent,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  uploadContent: {
+    flex: 1,
+  },
+  uploadTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: COLORS.text,
+    marginBottom: 2,
+  },
+  uploadSubtitle: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
   },
   previewImg: {
     width: 48,
     height: 48,
     borderRadius: 24,
     borderWidth: 2,
-    borderColor: COLORS.accent,
+    borderColor: COLORS.primary,
   },
-  cvName: {
-    color: COLORS.textSecondary,
-    fontStyle: 'italic',
+  submitSection: {
+    paddingHorizontal: 24,
+    marginTop: 32,
+    gap: 16,
   },
   submitBtn: {
-    backgroundColor: COLORS.secondary,
+    backgroundColor: COLORS.primary,
     borderRadius: 16,
-    paddingVertical: 14,
+    paddingVertical: 18,
+    flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 18,
+    justifyContent: 'center',
+    gap: 8,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  submitBtnDisabled: {
+    opacity: 0.7,
   },
   submitBtnText: {
     color: COLORS.white,
     fontWeight: 'bold',
-    fontSize: 17,
+    fontSize: 18,
   },
-  roleSelection: {
+  loginLink: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginBottom: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  roleButton: {
-    backgroundColor: COLORS.accent,
-    borderRadius: 16,
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderWidth: 2,
-    borderColor: 'transparent',
+  loginLinkText: {
+    fontSize: 16,
+    color: COLORS.textSecondary,
   },
-  roleButtonSelected: {
-    borderColor: COLORS.primary,
-    backgroundColor: COLORS.white,
-  },
-  roleButtonText: {
+  loginLinkBold: {
+    fontSize: 16,
     color: COLORS.primary,
     fontWeight: 'bold',
-    fontSize: 16,
-  },
-  roleButtonTextSelected: {
-    color: COLORS.secondary,
   },
 });
 

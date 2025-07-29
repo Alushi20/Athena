@@ -1,7 +1,8 @@
 import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator, StackScreenProps } from '@react-navigation/stack';
 import { createBottomTabNavigator, BottomTabNavigationOptions } from '@react-navigation/bottom-tabs';
-import { NavigationContainer, ParamListBase } from '@react-navigation/native';
+import { ParamListBase } from '@react-navigation/native';
 import { Feather } from '@expo/vector-icons';
 import { COLORS } from '../constants/Colors';
 import { TextStyle } from 'react-native';
@@ -17,8 +18,7 @@ import MentorProfileScreen from './MentorProfileScreen';
 import MentorshipRequestsScreen from './MentorshipRequestsScreen';
 import MentorshipChatScreen from './MentorshipChatScreen';
 import LearningCenterScreen from './LearningCenterScreen';
-import EventsScreen from './EventsScreen';
-import WorkshopsScreen from './WorkshopsScreen';
+import EventsWorkshopsScreen from './EventsWorkshopsScreen';
 import MyMentorshipsScreen from './MyMentorshipsScreen';
 import FeedbackProgressScreen from './FeedbackProgressScreen';
 import SchedulingScreen from './SchedulingScreen';
@@ -27,6 +27,7 @@ import MentorOnboardingScreen from './MenteeOnboardingScreen';
 import MenteeOnboardingScreen from './MenteeOnboardingScreen';
 import MentorshipDashboardScreen from './MentorshipDashboardScreen';
 import UnifiedMentorshipScreen from './UnifiedMentorshipScreen';
+import AboutScreen from './AboutScreen';
 
 // Type definitions for navigation
 export type RootStackParamList = {
@@ -50,6 +51,7 @@ export type RootStackParamList = {
     MentorOnboarding: undefined;
     MenteeOnboarding: undefined;
     MentorshipDashboard: undefined;
+    About: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -100,6 +102,7 @@ const CommunitiesStack: React.FC = () => (
 const ProfileStack: React.FC = () => (
     <Stack.Navigator screenOptions={commonOptions}>
         <Stack.Screen name="Profile" component={ProfilePage as ScreenComponent<RootStackParamList, 'Profile'>} />
+        <Stack.Screen name="FeedbackProgress" component={FeedbackProgressScreen} />
     </Stack.Navigator>
 );
 
@@ -126,19 +129,11 @@ const MainTabs: React.FC = () => (
         <Tab.Screen name="HomeTab" component={HomeStack} options={{ title: 'Home', tabBarIcon: ({ color, size }) => <Feather name="home" color={color} size={size} /> }} />
         <Tab.Screen name="MentorshipTab" component={MentorshipStack} options={{ 
           title: 'Mentorship', 
-          tabBarIcon: ({ color, size, focused }) => (
-            <Feather name="users" color={color} size={size} />
-          ),
-          tabBarLabel: ({ focused }) => focused ? 'Mentorship' : ''
+          tabBarIcon: ({ color, size }) => <Feather name="users" color={color} size={size} />
         }} />
-        <Tab.Screen name="MentorshipRequestsTab" component={MentorshipRequestsStack} options={{ title: 'Requests', tabBarIcon: ({ color, size }) => <Feather name="bell" color={color} size={size} /> }} />
         <Tab.Screen name="LearningCenterTab" component={LearningCenterScreen} options={{ title: 'Learning', tabBarIcon: ({ color, size }) => <Feather name="book-open" color={color} size={size} /> }} />
-        <Tab.Screen name="EventsTab" component={EventsScreen} options={{ title: 'Events', tabBarIcon: ({ color, size }) => <Feather name="calendar" color={color} size={size} /> }} />
-        <Tab.Screen name="WorkshopsTab" component={WorkshopsScreen} options={{ title: 'Workshops', tabBarIcon: ({ color, size }) => <Feather name="award" color={color} size={size} /> }} />
-
-        <Tab.Screen name="FeedbackProgressTab" component={FeedbackProgressStack} options={{ title: 'Progress', tabBarIcon: ({ color, size }) => <Feather name="bar-chart-2" color={color} size={size} /> }} />
+        <Tab.Screen name="EventsWorkshopsTab" component={EventsWorkshopsScreen} options={{ title: 'Events & Workshops', tabBarIcon: ({ color, size }) => <Feather name="calendar" color={color} size={size} /> }} />
         <Tab.Screen name="CommunitiesTab" component={CommunitiesStack} options={{ title: 'Communities', tabBarIcon: ({ color, size }) => <Feather name="message-square" color={color} size={size} /> }} />
-        <Tab.Screen name="ChatTab" component={ChatStack} options={{ title: 'Chat', tabBarIcon: ({ color, size }) => <Feather name="send" color={color} size={size} /> }} />
         <Tab.Screen name="ProfileTab" component={ProfileStack} options={{ title: 'Profile', tabBarIcon: ({ color, size }) => <Feather name="user" color={color} size={size} /> }} />
     </Tab.Navigator>
 );
@@ -153,13 +148,16 @@ const FeedbackProgressStack: React.FC = () => (
 
 export default function App() {
     return (
-        <Stack.Navigator screenOptions={commonOptions} initialRouteName="Welcome">
-            <Stack.Screen name="Welcome" component={WelcomeScreen} />
-            <Stack.Screen name="LoginPage" component={LoginPage} />
-            <Stack.Screen name="SignUp" component={SignUpScreen} />
+        <NavigationContainer>
+            <Stack.Navigator screenOptions={commonOptions} initialRouteName="Welcome">
+                <Stack.Screen name="Welcome" component={WelcomeScreen} />
+                <Stack.Screen name="LoginPage" component={LoginPage} />
+                            <Stack.Screen name="SignUp" component={SignUpScreen} />
             <Stack.Screen name="MentorOnboarding" component={MentorOnboardingScreen} />
             <Stack.Screen name="MenteeOnboarding" component={MenteeOnboardingScreen} />
+            <Stack.Screen name="About" component={AboutScreen} />
             <Stack.Screen name="Main" component={MainTabs} />
-        </Stack.Navigator>
+            </Stack.Navigator>
+        </NavigationContainer>
     );
 }

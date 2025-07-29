@@ -98,867 +98,581 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
   const [role, setRole] = useState<'mentor' | 'mentee' | null>(null);
   const [uploading, setUploading] = useState(false);
   const [editMode, setEditMode] = useState(false);
-  const [activeTab, setActiveTab] = useState<'profile' | 'professional' | 'settings' | 'privacy'>('profile');
-  const [showColorPicker, setShowColorPicker] = useState(false);
-  const [selectedColor, setSelectedColor] = useState('#a66cff');
-  const [showThemeModal, setShowThemeModal] = useState(false);
-  
-  // Animations
-  const [editAnim] = useState(new Animated.Value(0));
-  const [progressAnim] = useState(new Animated.Value(0));
-  const [tabAnim] = useState(new Animated.Value(0));
+  const [selectedColor, setSelectedColor] = useState(COLORS.primary);
+  const [completeness, setCompleteness] = useState(0.75);
+  const [activeTab, setActiveTab] = useState('personal');
   const fadeAnim = useRef(new Animated.Value(0)).current;
-  const slideAnim = useRef(new Animated.Value(0)).current;
 
-  const account = new Account(client);
-  const storage = new Storage(client);
+  const tabs = [
+    { id: 'personal', title: 'Personal', icon: 'user' },
+    { id: 'professional', title: 'Professional', icon: 'briefcase' },
+    { id: 'documents', title: 'Documents', icon: 'file-text' },
+    { id: 'settings', title: 'Settings', icon: 'settings' },
+  ];
 
   useEffect(() => {
-    setLoading(true);
-    async function fetchUserData() {
-      try {
-        const user = await account.get();
-        setEmail(user.email);
-        setDisplayName(user.name);
-        if (user.prefs && user.prefs.profilePic) setProfilePic(user.prefs.profilePic);
-        if (user.prefs && user.prefs.themeDark !== undefined) setThemeDark(user.prefs.themeDark);
-        if (user.prefs && user.prefs.notifications !== undefined) setNotifications(user.prefs.notifications);
-        if (user.prefs && user.prefs.bio) setBio(user.prefs.bio);
-        if (user.prefs && user.prefs.username) setUsername(user.prefs.username);
-        if (user.prefs && user.prefs.phone) setPhone(user.prefs.phone);
-        if (user.prefs && user.prefs.location) setLocation(user.prefs.location);
-        if (user.prefs && user.prefs.skills) setSkills(user.prefs.skills);
-        if (user.prefs && user.prefs.linkedIn) setLinkedIn(user.prefs.linkedIn);
-        if (user.prefs && user.prefs.cvUrl) {
-          setCvUrl(user.prefs.cvUrl);
-          setCvName(user.prefs.cvName || null);
-        }
-        setVerificationStatus(user.prefs.verificationStatus || 'unverified');
-        setVerificationDocName(user.prefs.verificationDocName || null);
-        setRole(user.prefs.role || null);
-      } catch (error) {
-        setError("Failed to fetch user data.");
-        console.error("Error fetching user:", error);
-      } finally {
-        setLoading(false);
-        Animated.timing(fadeAnim, { toValue: 1, duration: 600, useNativeDriver: true }).start();
-      }
-    }
     fetchUserData();
+    Animated.timing(fadeAnim, { toValue: 1, duration: 600, useNativeDriver: true }).start();
   }, []);
 
-  // Enhanced Profile completeness calculation
-  const completeness = (() => {
-    const profileFields = [
-      profilePic, bio, username, phone, location, skills, linkedIn, cvUrl,
-      company, position, experience, education, github, website,
-      timezone, languages, interests, certifications
-    ];
-    const filled = profileFields.filter(field => field && field.trim() !== '').length;
-    return filled / profileFields.length;
-  })();
+  async function fetchUserData() {
+    try {
+      const user = await Account.get();
+      setEmail(user.email);
+      setDisplayName(user.name);
+      setUsername(user.prefs?.username || "");
+      setBio(user.prefs?.bio || "");
+      setPhone(user.prefs?.phone || "");
+      setLocation(user.prefs?.location || "");
+      setSkills(user.prefs?.skills || "");
+      setLinkedIn(user.prefs?.linkedIn || "");
+      setGithub(user.prefs?.github || "");
+      setWebsite(user.prefs?.website || "");
+      setTimezone(user.prefs?.timezone || "");
+      setLanguages(user.prefs?.languages || "");
+      setInterests(user.prefs?.interests || "");
+      setCompany(user.prefs?.company || "");
+      setPosition(user.prefs?.position || "");
+      setExperience(user.prefs?.experience || "");
+      setEducation(user.prefs?.education || "");
+      setCertifications(user.prefs?.certifications || "");
+      setCvUrl(user.prefs?.cvUrl || null);
+      setCvName(user.prefs?.cvName || null);
+      setPortfolioUrl(user.prefs?.portfolioUrl || null);
+      setVerificationStatus(user.prefs?.verificationStatus || 'unverified');
+      setVerificationDocName(user.prefs?.verificationDocName || null);
+      setThemeDark(user.prefs?.themeDark || false);
+      setNotifications(user.prefs?.notifications !== false);
+      setEmailNotifications(user.prefs?.emailNotifications !== false);
+      setPushNotifications(user.prefs?.pushNotifications !== false);
+      setMentorshipNotifications(user.prefs?.mentorshipNotifications !== false);
+      setWorkshopNotifications(user.prefs?.workshopNotifications !== false);
+      setEventNotifications(user.prefs?.eventNotifications !== false);
+      setPrivacyPublic(user.prefs?.privacyPublic !== false);
+      setShowEmail(user.prefs?.showEmail !== false);
+      setShowPhone(user.prefs?.showPhone || false);
+      setShowLocation(user.prefs?.showLocation !== false);
+      setRole(user.prefs?.role || 'mentee');
+      setProfilePic(user.prefs?.profilePicUrl ? `${config.endpoint}/storage/buckets/${config.storageId}/files/${user.prefs.profilePicUrl}/view?project=${config.projectId}` : null);
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+      setError('Failed to load profile data');
+    } finally {
+      setLoading(false);
+    }
+  }
 
-  // Theme colors for customization
-  const themeColors = [
-    '#a66cff', '#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', 
-    '#feca57', '#ff9ff3', '#54a0ff', '#5f27cd', '#00d2d3'
-  ];
-
-  // Tab configuration
-  const tabs = [
-    { id: 'profile', title: 'Profile', icon: 'user' },
-    { id: 'professional', title: 'Professional', icon: 'briefcase' },
-    { id: 'settings', title: 'Settings', icon: 'settings' },
-    { id: 'privacy', title: 'Privacy', icon: 'shield' }
-  ];
-
-  // Helper function to render skill tags
   const renderSkillTags = (skillsString: string) => {
     if (!skillsString) return null;
-    const skillArray = skillsString.split(',').map(skill => skill.trim()).filter(skill => skill);
+    const skillsArray = skillsString.split(',').map(skill => skill.trim());
     return (
-      <View style={styles.skillTagsContainer}>
-        {skillArray.map((skill, index) => (
+      <View style={styles.skillsContainer}>
+        {skillsArray.map((skill, index) => (
           <View key={index} style={styles.skillTag}>
-            <Text style={styles.skillTagText}>{skill}</Text>
+            <Text style={styles.skillText}>{skill}</Text>
           </View>
         ))}
       </View>
     );
   };
 
-  // Helper function to render social links
   const renderSocialLinks = () => {
-    const socialLinks = [
-      { platform: 'LinkedIn', url: linkedIn, icon: 'linkedin', color: '#0077b5' },
-      { platform: 'GitHub', url: github, icon: 'github', color: '#333' },
-      { platform: 'Website', url: website, icon: 'globe', color: '#4ecdc4' }
-    ].filter(link => link.url);
-
-    if (socialLinks.length === 0) return null;
-
     return (
       <View style={styles.socialLinksContainer}>
-        <Text style={styles.sectionSubtitle}>Social Links</Text>
-        {socialLinks.map((link, index) => (
-          <TouchableOpacity
-            key={index}
-            style={[styles.socialLink, { backgroundColor: link.color }]}
-            onPress={() => Linking.openURL(link.url)}
-          >
-            <Feather name={link.icon as any} size={16} color="#fff" />
-            <Text style={styles.socialLinkText}>{link.platform}</Text>
+        {linkedIn && (
+          <TouchableOpacity style={styles.socialLink} onPress={() => Linking.openURL(linkedIn)}>
+            <Feather name="linkedin" size={20} color={COLORS.primary} />
+            <Text style={styles.socialLinkText}>LinkedIn</Text>
           </TouchableOpacity>
-        ))}
+        )}
+        {github && (
+          <TouchableOpacity style={styles.socialLink} onPress={() => Linking.openURL(github)}>
+            <Feather name="github" size={20} color={COLORS.primary} />
+            <Text style={styles.socialLinkText}>GitHub</Text>
+          </TouchableOpacity>
+        )}
+        {website && (
+          <TouchableOpacity style={styles.socialLink} onPress={() => Linking.openURL(website)}>
+            <Feather name="globe" size={20} color={COLORS.primary} />
+            <Text style={styles.socialLinkText}>Website</Text>
+          </TouchableOpacity>
+        )}
       </View>
     );
   };
 
-  useEffect(() => {
-    Animated.timing(progressAnim, {
-      toValue: completeness,
-      duration: 700,
-      useNativeDriver: false,
-    }).start();
-  }, [completeness]);
-
-  // Pick and upload profile picture
   const pickImage = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
+    const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [1, 1],
-      quality: 0.7,
+      quality: 0.8,
     });
+
     if (!result.canceled && result.assets && result.assets.length > 0) {
       setUploading(true);
       try {
-        const asset = result.assets[0];
-        const fileUri = asset.uri;
-        const fileName = fileUri.split('/').pop() || `profile_${Date.now()}.jpg`;
-        const fileType = asset.type || 'image/jpeg';
-        const fileSize = asset.fileSize || 1;
-        // Upload to Appwrite Storage
-        const fileRes = await storage.createFile(
-          config.dbId,
-          ID.unique(),
-          {
-            uri: fileUri,
-            name: fileName,
-            type: fileType,
-            size: fileSize,
-          }
-        );
-        // Get file preview URL
-        const fileUrl = storage.getFilePreview(config.dbId, fileRes.$id).href;
-        setProfilePic(fileUrl);
-        await account.updatePrefs({ profilePic: fileUrl });
-      } catch (err) {
-        Alert.alert("Upload failed", "Could not upload profile picture.");
+        const file = {
+          uri: result.assets[0].uri,
+          name: result.assets[0].fileName || 'profile.jpg',
+          type: result.assets[0].mimeType || 'image/jpeg',
+          size: result.assets[0].fileSize || 1,
+        };
+        const uploaded = await Storage.createFile(config.storageId, ID.unique(), file);
+        await Account.updatePrefs({ profilePicUrl: uploaded.$id });
+        setProfilePic(`${config.endpoint}/storage/buckets/${config.storageId}/files/${uploaded.$id}/view?project=${config.projectId}`);
+        Alert.alert('Success', 'Profile picture updated successfully!');
+      } catch (error) {
+        Alert.alert('Error', 'Failed to upload profile picture');
       } finally {
         setUploading(false);
       }
     }
   };
 
-  // Pick and upload CV
   const pickCV = async () => {
-    let result = await DocumentPicker.getDocumentAsync({
-      type: ["application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"],
-      copyToCacheDirectory: true,
-      multiple: false,
+    const result = await DocumentPicker.getDocumentAsync({
+      type: 'application/pdf',
     });
+
     if (result.assets && result.assets.length > 0) {
       setUploading(true);
       try {
-        const asset = result.assets[0];
-        const fileUri = asset.uri;
-        const fileName = asset.name || `cv_${Date.now()}`;
-        const fileType = asset.mimeType || 'application/pdf';
-        const fileSize = asset.size || 1;
-        const fileRes = await storage.createFile(
-          config.dbId,
-          ID.unique(),
-          {
-            uri: fileUri,
-            name: fileName,
-            type: fileType,
-            size: fileSize,
-          }
-        );
-        const fileUrl = storage.getFileView(config.dbId, fileRes.$id).href;
-        setCvUrl(fileUrl);
-        setCvName(fileName);
-        await account.updatePrefs({ cvUrl: fileUrl, cvName: fileName });
-      } catch (err) {
-        Alert.alert("Upload failed", "Could not upload CV.");
+        const file = {
+          uri: result.assets[0].uri,
+          name: result.assets[0].name,
+          type: result.assets[0].mimeType || 'application/pdf',
+          size: result.assets[0].size || 1,
+        };
+        const uploaded = await Storage.createFile(config.storageId, ID.unique(), file);
+        await Account.updatePrefs({ 
+          cvUrl: uploaded.$id,
+          cvName: result.assets[0].name 
+        });
+        setCvUrl(uploaded.$id);
+        setCvName(result.assets[0].name);
+        Alert.alert('Success', 'CV uploaded successfully!');
+      } catch (error) {
+        Alert.alert('Error', 'Failed to upload CV');
       } finally {
         setUploading(false);
       }
     }
   };
 
-  // Pick and upload verification document
   const pickVerificationDoc = async () => {
-    try {
-      const result = await DocumentPicker.getDocumentAsync({ type: 'application/pdf' });
-      if (result.assets && result.assets.length > 0) {
-        const { name, uri, mimeType, size } = result.assets[0];
-        const file = { uri, name, type: mimeType || 'application/pdf', size: size || 0 };
-        const uploadedFile = await storage.createFile(config.storageId, ID.unique(), file);
-        const user = await account.get();
-        await account.updatePrefs({
-          ...user.prefs,
-          verificationStatus: 'pending',
-          verificationDocId: uploadedFile.$id,
-          verificationDocName: name,
+    const result = await DocumentPicker.getDocumentAsync({
+      type: 'application/pdf',
+    });
+
+    if (result.assets && result.assets.length > 0) {
+      setUploading(true);
+      try {
+        const file = {
+          uri: result.assets[0].uri,
+          name: result.assets[0].name,
+          type: result.assets[0].mimeType || 'application/pdf',
+          size: result.assets[0].size || 1,
+        };
+        const uploaded = await Storage.createFile(config.storageId, ID.unique(), file);
+        await Account.updatePrefs({ 
+          verificationDocUrl: uploaded.$id,
+          verificationDocName: result.assets[0].name 
         });
         setVerificationStatus('pending');
-        setVerificationDocName(name);
-        Alert.alert("Document Uploaded", "Your verification document is pending review.");
+        setVerificationDocName(result.assets[0].name);
+        Alert.alert('Success', 'Verification document uploaded successfully!');
+      } catch (error) {
+        Alert.alert('Error', 'Failed to upload verification document');
+      } finally {
+        setUploading(false);
       }
-    } catch (error) {
-      Alert.alert("Upload Failed", "Could not upload the verification document.");
     }
   };
 
-  // Toggle theme and notifications
   const toggleTheme = async () => {
-    setThemeDark((prev) => !prev);
-    await account.updatePrefs({ themeDark: !themeDark });
+    setThemeDark(!themeDark);
+    await Account.updatePrefs({ themeDark: !themeDark });
   };
+
   const toggleNotifications = async () => {
-    setNotifications((prev) => !prev);
-    await account.updatePrefs({ notifications: !notifications });
+    setNotifications(!notifications);
+    await Account.updatePrefs({ notifications: !notifications });
   };
 
-  // Edit mode animation
   const toggleEditMode = () => {
-    setEditMode((prev) => !prev);
-    Animated.timing(editAnim, {
-      toValue: editMode ? 0 : 1,
-      duration: 400,
-      useNativeDriver: false,
-    }).start();
+    setEditMode(!editMode);
   };
 
-  // Enhanced save profile fields
   const saveProfile = async () => {
     setLoading(true);
     try {
-      const profileData = {
-        bio, username, phone, location, skills, linkedIn, github, website,
-        timezone, languages, interests, company, position, experience,
-        education, certifications, portfolioUrl,
-        // Privacy settings
-        showEmail, showPhone, showLocation, privacyPublic,
-        // Notification settings
-        emailNotifications, pushNotifications, mentorshipNotifications,
-        workshopNotifications, eventNotifications,
-        // Theme settings
-        selectedColor
-      };
-      
-      await account.updatePrefs(profileData);
+      await Account.updatePrefs({
+        username,
+        bio,
+        phone,
+        location,
+        skills,
+        linkedIn,
+        github,
+        website,
+        timezone,
+        languages,
+        interests,
+        company,
+        position,
+        experience,
+        education,
+        certifications,
+      });
       setEditMode(false);
-      Animated.timing(editAnim, { toValue: 0, duration: 400, useNativeDriver: false }).start();
-      Alert.alert("Success", "Profile updated successfully!");
-    } catch (err) {
-      Alert.alert("Save failed", "Could not save profile info.");
+      Alert.alert('Success', 'Profile updated successfully!');
+    } catch (error) {
+      Alert.alert('Error', 'Failed to update profile');
     } finally {
       setLoading(false);
     }
   };
 
-  // Render tab content
   const renderTabContent = () => {
     switch (activeTab) {
-      case 'profile':
-  return (
-          <Animated.View style={{ opacity: fadeAnim }}>
-            <View style={styles.infoCard}>
-              <View style={styles.sectionHeader}>
-                <Text style={styles.sectionTitle}>Basic Information</Text>
-                <TouchableOpacity onPress={toggleEditMode} style={styles.editButton}>
-                  <Feather name={editMode ? "x" : "edit-3"} size={20} color={selectedColor} />
-        </TouchableOpacity>
-            </View>
-              
-        <View style={styles.infoRow}>
-                <MaterialCommunityIcons name="email-outline" size={22} color={selectedColor} style={{ marginRight: 8 }} />
-                <Text style={styles.infoText}>{email || "N/A"}</Text>
-        </View>
-              
-        <View style={styles.infoRow}>
-                <Ionicons name="person-circle-outline" size={22} color={selectedColor} style={{ marginRight: 8 }} />
-          <Text style={styles.infoText}>{displayName || "No Name"}</Text>
-        </View>
-
-              <Animated.View style={{ 
-                overflow: 'hidden', 
-                height: editAnim.interpolate({ 
-                  inputRange: [0, 1], 
-                  outputRange: [0, 500] 
-                }) 
-              }}>
-                <ScrollView showsVerticalScrollIndicator={false} style={{ maxHeight: 400 }}>
-                  <View style={styles.inputGroup}>
-                    <Text style={styles.inputLabel}>Username</Text>
-            <TextInput
-              style={styles.input}
-                      placeholder="@yourusername"
-                      value={username}
-                      onChangeText={setUsername}
-                      editable={editMode}
-                      placeholderTextColor="#b983ff"
-                      autoCapitalize="none"
-                      autoCorrect={false}
-                    />
-                  </View>
-
-                  <View style={styles.inputGroup}>
-                    <Text style={styles.inputLabel}>Bio</Text>
-                    <TextInput
-                      style={styles.textArea}
-                      placeholder="Tell us about yourself..."
-              value={bio}
-              onChangeText={setBio}
-              editable={editMode}
-              placeholderTextColor="#b983ff"
-              multiline
-                      numberOfLines={4}
-            />
-          </View>
-
-                <View style={styles.inputGroup}>
-                  <Text style={styles.inputLabel}>Phone Number</Text>
-            <TextInput
-              style={styles.input}
-                    placeholder="+1 (555) 123-4567"
-              value={phone}
-              onChangeText={setPhone}
-              editable={editMode}
-              placeholderTextColor="#b983ff"
-              keyboardType="phone-pad"
-            />
-          </View>
-
-                <View style={styles.inputGroup}>
-                  <Text style={styles.inputLabel}>Location</Text>
-            <TextInput
-              style={styles.input}
-                    placeholder="City, Country"
-              value={location}
-              onChangeText={setLocation}
-              editable={editMode}
-              placeholderTextColor="#b983ff"
-            />
-          </View>
-
-                <View style={styles.inputGroup}>
-                  <Text style={styles.inputLabel}>Skills</Text>
-            <TextInput
-              style={styles.input}
-                    placeholder="React Native, JavaScript, UI/UX Design"
-              value={skills}
-              onChangeText={setSkills}
-              editable={editMode}
-              placeholderTextColor="#b983ff"
-            />
-          </View>
-
-                <View style={styles.inputGroup}>
-                  <Text style={styles.inputLabel}>Languages</Text>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="English, Spanish, French"
-                    value={languages}
-                    onChangeText={setLanguages}
+      case 'personal':
+        return (
+          <View style={styles.tabContent}>
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Basic Information</Text>
+              <View style={styles.inputGroup}>
+                <View style={styles.inputContainer}>
+                  <Feather name="user" size={18} color={COLORS.textSecondary} style={styles.inputIcon} />
+                  <TextInput 
+                    style={styles.input} 
+                    placeholder="Full name" 
+                    value={displayName || ""} 
+                    onChangeText={setDisplayName}
                     editable={editMode}
-                    placeholderTextColor="#b983ff"
                   />
                 </View>
+                
+                <View style={styles.inputContainer}>
+                  <Feather name="at-sign" size={18} color={COLORS.textSecondary} style={styles.inputIcon} />
+                  <TextInput 
+                    style={styles.input} 
+                    placeholder="Username" 
+                    value={username} 
+                    onChangeText={setUsername}
+                    editable={editMode}
+                  />
+                </View>
+                
+                <View style={styles.inputContainer}>
+                  <Feather name="phone" size={18} color={COLORS.textSecondary} style={styles.inputIcon} />
+                  <TextInput 
+                    style={styles.input} 
+                    placeholder="Phone number" 
+                    value={phone} 
+                    onChangeText={setPhone}
+                    editable={editMode}
+                  />
+                </View>
+                
+                <View style={styles.inputContainer}>
+                  <Feather name="map-pin" size={18} color={COLORS.textSecondary} style={styles.inputIcon} />
+                  <TextInput 
+                    style={styles.input} 
+                    placeholder="Location" 
+                    value={location} 
+                    onChangeText={setLocation}
+                    editable={editMode}
+                  />
+                </View>
+              </View>
+            </View>
 
-                <View style={styles.inputGroup}>
-                  <Text style={styles.inputLabel}>Interests</Text>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="AI, Machine Learning, Photography"
-                    value={interests}
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>About You</Text>
+              <View style={styles.bioContainer}>
+                <TextInput 
+                  style={styles.bioInput} 
+                  placeholder="Tell us about yourself..." 
+                  value={bio} 
+                  onChangeText={setBio}
+                  multiline 
+                  numberOfLines={4}
+                  editable={editMode}
+                />
+              </View>
+            </View>
+
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Skills & Interests</Text>
+              <View style={styles.inputGroup}>
+                <View style={styles.inputContainer}>
+                  <Feather name="award" size={18} color={COLORS.textSecondary} style={styles.inputIcon} />
+                  <TextInput 
+                    style={styles.input} 
+                    placeholder="Skills (comma separated)" 
+                    value={skills} 
+                    onChangeText={setSkills}
+                    editable={editMode}
+                  />
+                </View>
+                
+                <View style={styles.inputContainer}>
+                  <Feather name="heart" size={18} color={COLORS.textSecondary} style={styles.inputIcon} />
+                  <TextInput 
+                    style={styles.input} 
+                    placeholder="Interests" 
+                    value={interests} 
                     onChangeText={setInterests}
                     editable={editMode}
-                    placeholderTextColor="#b983ff"
                   />
                 </View>
-
-                <View style={styles.inputGroup}>
-                  <Text style={styles.inputLabel}>Timezone</Text>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="UTC-5 (EST)"
-                    value={timezone}
-                    onChangeText={setTimezone}
-                    editable={editMode}
-                    placeholderTextColor="#b983ff"
-                  />
-                </View>
-
-                {editMode && (
-                  <CustomButton
-                    title="Save Changes"
-                    onPress={saveProfile}
-                    style={[styles.saveBtn, { backgroundColor: selectedColor }]}
-                    textStyle={styles.saveBtnText}
-                  />
-                )}
-                </ScrollView>
-              </Animated.View>
-
-              {!editMode && (
-                <>
-                  {username && (
-          <View style={styles.infoRow}>
-                      <MaterialCommunityIcons name="at" size={20} color={selectedColor} style={{ marginRight: 8 }} />
-                      <Text style={styles.infoText}>@{username}</Text>
-                    </View>
-                  )}
-                  {bio && (
-                    <View style={styles.infoRow}>
-                      <FontAwesome name="info-circle" size={20} color={selectedColor} style={{ marginRight: 8 }} />
-                      <Text style={styles.infoText}>{bio}</Text>
-                    </View>
-                  )}
-                  {phone && (
-                    <View style={styles.infoRow}>
-                      <Feather name="phone" size={20} color={selectedColor} style={{ marginRight: 8 }} />
-                      <Text style={styles.infoText}>{phone}</Text>
-                    </View>
-                  )}
-                  {location && (
-                    <View style={styles.infoRow}>
-                      <Entypo name="location-pin" size={22} color={selectedColor} style={{ marginRight: 8 }} />
-                      <Text style={styles.infoText}>{location}</Text>
-                    </View>
-                  )}
-                  {skills && (
-                    <View style={styles.infoRow}>
-                      <Feather name="star" size={20} color={selectedColor} style={{ marginRight: 8 }} />
-                      {renderSkillTags(skills)}
-                    </View>
-                  )}
-                  {languages && (
-                    <View style={styles.infoRow}>
-                      <MaterialIcons name="language" size={20} color={selectedColor} style={{ marginRight: 8 }} />
-                      <Text style={styles.infoText}>{languages}</Text>
-                    </View>
-                  )}
-                  {interests && (
-                    <View style={styles.infoRow}>
-                      <MaterialIcons name="favorite" size={20} color={selectedColor} style={{ marginRight: 8 }} />
-                      <Text style={styles.infoText}>{interests}</Text>
-                    </View>
-                  )}
-                  {timezone && (
-                    <View style={styles.infoRow}>
-                      <MaterialIcons name="access-time" size={20} color={selectedColor} style={{ marginRight: 8 }} />
-                      <Text style={styles.infoText}>{timezone}</Text>
-                    </View>
-                  )}
-                  {renderSocialLinks()}
-                </>
-              )}
+              </View>
+              {renderSkillTags(skills)}
             </View>
-          </Animated.View>
+
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Social Links</Text>
+              <View style={styles.inputGroup}>
+                <View style={styles.inputContainer}>
+                  <Feather name="linkedin" size={18} color={COLORS.textSecondary} style={styles.inputIcon} />
+                  <TextInput 
+                    style={styles.input} 
+                    placeholder="LinkedIn URL" 
+                    value={linkedIn} 
+                    onChangeText={setLinkedIn}
+                    editable={editMode}
+                  />
+                </View>
+                
+                <View style={styles.inputContainer}>
+                  <Feather name="github" size={18} color={COLORS.textSecondary} style={styles.inputIcon} />
+                  <TextInput 
+                    style={styles.input} 
+                    placeholder="GitHub URL" 
+                    value={github} 
+                    onChangeText={setGithub}
+                    editable={editMode}
+                  />
+                </View>
+                
+                <View style={styles.inputContainer}>
+                  <Feather name="globe" size={18} color={COLORS.textSecondary} style={styles.inputIcon} />
+                  <TextInput 
+                    style={styles.input} 
+                    placeholder="Website URL" 
+                    value={website} 
+                    onChangeText={setWebsite}
+                    editable={editMode}
+                  />
+                </View>
+              </View>
+              {renderSocialLinks()}
+            </View>
+          </View>
         );
 
       case 'professional':
         return (
-          <Animated.View style={{ opacity: fadeAnim }}>
-            <View style={styles.infoCard}>
-              <View style={styles.sectionHeader}>
-                <Text style={styles.sectionTitle}>Professional Information</Text>
-                <TouchableOpacity onPress={toggleEditMode} style={styles.editButton}>
-                  <Feather name={editMode ? "x" : "edit-3"} size={20} color={selectedColor} />
-                </TouchableOpacity>
-              </View>
-
-              <Animated.View style={{ 
-                overflow: 'hidden', 
-                height: editAnim.interpolate({ 
-                  inputRange: [0, 1], 
-                  outputRange: [0, 450] 
-                }) 
-              }}>
-                <ScrollView showsVerticalScrollIndicator={false} style={{ maxHeight: 400 }}>
-                  <View style={styles.inputGroup}>
-                  <Text style={styles.inputLabel}>Company</Text>
-            <TextInput
-              style={styles.input}
-                    placeholder="Your company name"
-                    value={company}
+          <View style={styles.tabContent}>
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Professional Information</Text>
+              <View style={styles.inputGroup}>
+                <View style={styles.inputContainer}>
+                  <Feather name="briefcase" size={18} color={COLORS.textSecondary} style={styles.inputIcon} />
+                  <TextInput 
+                    style={styles.input} 
+                    placeholder="Company" 
+                    value={company} 
                     onChangeText={setCompany}
                     editable={editMode}
-                    placeholderTextColor="#b983ff"
                   />
                 </View>
-
-                <View style={styles.inputGroup}>
-                  <Text style={styles.inputLabel}>Position</Text>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Your job title"
-                    value={position}
+                
+                <View style={styles.inputContainer}>
+                  <Feather name="user-check" size={18} color={COLORS.textSecondary} style={styles.inputIcon} />
+                  <TextInput 
+                    style={styles.input} 
+                    placeholder="Position" 
+                    value={position} 
                     onChangeText={setPosition}
                     editable={editMode}
-                    placeholderTextColor="#b983ff"
                   />
                 </View>
-
-                <View style={styles.inputGroup}>
-                  <Text style={styles.inputLabel}>Experience</Text>
-                  <TextInput
-                    style={styles.textArea}
-                    placeholder="Describe your experience..."
-                    value={experience}
+                
+                <View style={styles.inputContainer}>
+                  <Feather name="clock" size={18} color={COLORS.textSecondary} style={styles.inputIcon} />
+                  <TextInput 
+                    style={styles.input} 
+                    placeholder="Years of experience" 
+                    value={experience} 
                     onChangeText={setExperience}
                     editable={editMode}
-                    placeholderTextColor="#b983ff"
-                    multiline
-                    numberOfLines={3}
                   />
                 </View>
+              </View>
+            </View>
 
-                <View style={styles.inputGroup}>
-                  <Text style={styles.inputLabel}>Education</Text>
-                  <TextInput
-                    style={styles.textArea}
-                    placeholder="Your educational background..."
-                    value={education}
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Education & Certifications</Text>
+              <View style={styles.inputGroup}>
+                <View style={styles.inputContainer}>
+                  <Feather name="graduation-cap" size={18} color={COLORS.textSecondary} style={styles.inputIcon} />
+                  <TextInput 
+                    style={styles.input} 
+                    placeholder="Education" 
+                    value={education} 
                     onChangeText={setEducation}
                     editable={editMode}
-                    placeholderTextColor="#b983ff"
-                    multiline
-                    numberOfLines={3}
                   />
                 </View>
-
-                <View style={styles.inputGroup}>
-                  <Text style={styles.inputLabel}>Certifications</Text>
-                  <TextInput
-                    style={styles.textArea}
-                    placeholder="Your certifications and achievements..."
-                    value={certifications}
+                
+                <View style={styles.inputContainer}>
+                  <Feather name="award" size={18} color={COLORS.textSecondary} style={styles.inputIcon} />
+                  <TextInput 
+                    style={styles.input} 
+                    placeholder="Certifications" 
+                    value={certifications} 
                     onChangeText={setCertifications}
                     editable={editMode}
-                    placeholderTextColor="#b983ff"
-                    multiline
-                    numberOfLines={3}
                   />
                 </View>
-
-                <View style={styles.inputGroup}>
-                  <Text style={styles.inputLabel}>Portfolio URL</Text>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="https://your-portfolio.com"
-                    value={portfolioUrl || ''}
-                    onChangeText={setPortfolioUrl}
-              editable={editMode}
-              placeholderTextColor="#b983ff"
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
+              </View>
+            </View>
           </View>
+        );
 
-                {editMode && (
-          <CustomButton
-                    title="Save Changes"
-            onPress={saveProfile}
-                    style={[styles.saveBtn, { backgroundColor: selectedColor }]}
-            textStyle={styles.saveBtnText}
-          />
-                )}
-                </ScrollView>
-        </Animated.View>
-
-        {!editMode && (
-          <>
-                  {company && (
-                    <View style={styles.infoRow}>
-                      <MaterialIcons name="business" size={20} color={selectedColor} style={{ marginRight: 8 }} />
-                      <Text style={styles.infoText}>{company}</Text>
-                    </View>
-                  )}
-                  {position && (
-                    <View style={styles.infoRow}>
-                      <MaterialIcons name="work" size={20} color={selectedColor} style={{ marginRight: 8 }} />
-                      <Text style={styles.infoText}>{position}</Text>
-                    </View>
-                  )}
-                  {experience && (
-                    <View style={styles.infoRow}>
-                      <MaterialIcons name="timeline" size={20} color={selectedColor} style={{ marginRight: 8 }} />
-                      <Text style={styles.infoText}>{experience}</Text>
-                    </View>
-                  )}
-                  {education && (
-                    <View style={styles.infoRow}>
-                      <MaterialIcons name="school" size={20} color={selectedColor} style={{ marginRight: 8 }} />
-                      <Text style={styles.infoText}>{education}</Text>
-                    </View>
-                  )}
-                  {certifications && (
-                    <View style={styles.infoRow}>
-                      <MaterialIcons name="verified" size={20} color={selectedColor} style={{ marginRight: 8 }} />
-                      <Text style={styles.infoText}>{certifications}</Text>
-                    </View>
-                  )}
-                  {portfolioUrl && (
-                    <View style={styles.infoRow}>
-                      <MaterialIcons name="link" size={20} color={selectedColor} style={{ marginRight: 8 }} />
-                      <TouchableOpacity onPress={() => Linking.openURL(portfolioUrl)}>
-                        <Text style={[styles.infoText, { color: selectedColor, textDecorationLine: 'underline' }]}>
-                          View Portfolio
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
-                  )}
-          </>
-        )}
-      </View>
-          </Animated.View>
+      case 'documents':
+        return (
+          <View style={styles.tabContent}>
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Documents</Text>
+              
+              <View style={styles.uploadSection}>
+                <TouchableOpacity style={styles.uploadCard} onPress={pickCV}>
+                  <View style={styles.uploadIconContainer}>
+                    <Feather name="file-text" size={24} color={COLORS.primary} />
+                  </View>
+                  <View style={styles.uploadContent}>
+                    <Text style={styles.uploadTitle}>CV/Resume</Text>
+                    <Text style={styles.uploadSubtitle}>
+                      {cvName ? cvName : 'Upload your CV or resume'}
+                    </Text>
+                  </View>
+                  {cvName && <Feather name="check-circle" size={20} color={COLORS.success} />}
+                </TouchableOpacity>
+                
+                <TouchableOpacity style={styles.uploadCard} onPress={pickVerificationDoc}>
+                  <View style={styles.uploadIconContainer}>
+                    <Feather name="shield" size={24} color={COLORS.primary} />
+                  </View>
+                  <View style={styles.uploadContent}>
+                    <Text style={styles.uploadTitle}>Verification Document</Text>
+                    <Text style={styles.uploadSubtitle}>
+                      {verificationDocName ? verificationDocName : 'Upload verification document'}
+                    </Text>
+                  </View>
+                  {verificationStatus === 'verified' && <Feather name="check-circle" size={20} color={COLORS.success} />}
+                  {verificationStatus === 'pending' && <Feather name="clock" size={20} color={COLORS.warning} />}
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
         );
 
       case 'settings':
         return (
-          <Animated.View style={{ opacity: fadeAnim }}>
-            <View style={styles.infoCard}>
-              <Text style={styles.sectionTitle}>App Settings</Text>
-              <ScrollView showsVerticalScrollIndicator={false} style={{ maxHeight: 500 }}>
+          <View style={styles.tabContent}>
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Notifications</Text>
               
-              <View style={styles.settingGroup}>
-                <Text style={styles.settingGroupTitle}>Theme & Appearance</Text>
-                
-        <View style={styles.optionRow}>
-                  <View style={styles.optionInfo}>
-                    <Feather name="moon" size={20} color={selectedColor} style={{ marginRight: 8 }} />
-          <Text style={styles.optionText}>Dark Theme</Text>
-        </View>
-                  <Switch 
-                    value={themeDark} 
-                    onValueChange={toggleTheme} 
-                    thumbColor={themeDark ? selectedColor : "#fff"} 
-                    trackColor={{ true: `${selectedColor}40`, false: "#ccc" }} 
-                  />
-                </View>
-
-        <View style={styles.optionRow}>
-                  <View style={styles.optionInfo}>
-                    <Feather name="palette" size={20} color={selectedColor} style={{ marginRight: 8 }} />
-                    <Text style={styles.optionText}>Theme Color</Text>
-        </View>
-                  <TouchableOpacity 
-                    style={[styles.colorPicker, { backgroundColor: selectedColor }]}
-                    onPress={() => setShowColorPicker(true)}
-                  />
-                </View>
-              </View>
-
-              <View style={styles.settingGroup}>
-                <Text style={styles.settingGroupTitle}>Notifications</Text>
-                
-        <View style={styles.optionRow}>
-                  <View style={styles.optionInfo}>
-                    <Feather name="bell" size={20} color={selectedColor} style={{ marginRight: 8 }} />
-                    <Text style={styles.optionText}>All Notifications</Text>
-                  </View>
-                  <Switch 
-                    value={notifications} 
-                    onValueChange={setNotifications} 
-                    thumbColor={notifications ? selectedColor : "#fff"} 
-                    trackColor={{ true: `${selectedColor}40`, false: "#ccc" }} 
-                  />
-                </View>
-
-                <View style={styles.optionRow}>
-                  <View style={styles.optionInfo}>
-                    <Feather name="mail" size={20} color={selectedColor} style={{ marginRight: 8 }} />
-                    <Text style={styles.optionText}>Email Notifications</Text>
-                  </View>
-                  <Switch 
-                    value={emailNotifications} 
-                    onValueChange={setEmailNotifications} 
-                    thumbColor={emailNotifications ? selectedColor : "#fff"} 
-                    trackColor={{ true: `${selectedColor}40`, false: "#ccc" }} 
-                  />
-                </View>
-
-                <View style={styles.optionRow}>
-                  <View style={styles.optionInfo}>
-                    <Feather name="smartphone" size={20} color={selectedColor} style={{ marginRight: 8 }} />
-                    <Text style={styles.optionText}>Push Notifications</Text>
+              <View style={styles.settingsGroup}>
+                <View style={styles.settingItem}>
+                  <View style={styles.settingInfo}>
+                    <Feather name="bell" size={20} color={COLORS.textSecondary} />
+                    <Text style={styles.settingLabel}>Push Notifications</Text>
                   </View>
                   <Switch 
                     value={pushNotifications} 
-                    onValueChange={setPushNotifications} 
-                    thumbColor={pushNotifications ? selectedColor : "#fff"} 
-                    trackColor={{ true: `${selectedColor}40`, false: "#ccc" }} 
+                    onValueChange={setPushNotifications}
+                    trackColor={{ false: COLORS.accent, true: COLORS.primary }}
+                    thumbColor={COLORS.white}
                   />
                 </View>
-
-                <View style={styles.optionRow}>
-                  <View style={styles.optionInfo}>
-                    <Feather name="users" size={20} color={selectedColor} style={{ marginRight: 8 }} />
-                    <Text style={styles.optionText}>Mentorship Updates</Text>
+                
+                <View style={styles.settingItem}>
+                  <View style={styles.settingInfo}>
+                    <Feather name="mail" size={20} color={COLORS.textSecondary} />
+                    <Text style={styles.settingLabel}>Email Notifications</Text>
+                  </View>
+                  <Switch 
+                    value={emailNotifications} 
+                    onValueChange={setEmailNotifications}
+                    trackColor={{ false: COLORS.accent, true: COLORS.primary }}
+                    thumbColor={COLORS.white}
+                  />
+                </View>
+                
+                <View style={styles.settingItem}>
+                  <View style={styles.settingInfo}>
+                    <Feather name="users" size={20} color={COLORS.textSecondary} />
+                    <Text style={styles.settingLabel}>Mentorship Notifications</Text>
                   </View>
                   <Switch 
                     value={mentorshipNotifications} 
-                    onValueChange={setMentorshipNotifications} 
-                    thumbColor={mentorshipNotifications ? selectedColor : "#fff"} 
-                    trackColor={{ true: `${selectedColor}40`, false: "#ccc" }} 
-                  />
-                </View>
-
-                <View style={styles.optionRow}>
-                  <View style={styles.optionInfo}>
-                    <Feather name="book-open" size={20} color={selectedColor} style={{ marginRight: 8 }} />
-                    <Text style={styles.optionText}>Workshop Reminders</Text>
-                  </View>
-                  <Switch 
-                    value={workshopNotifications} 
-                    onValueChange={setWorkshopNotifications} 
-                    thumbColor={workshopNotifications ? selectedColor : "#fff"} 
-                    trackColor={{ true: `${selectedColor}40`, false: "#ccc" }} 
-                  />
-                </View>
-
-                <View style={styles.optionRow}>
-                  <View style={styles.optionInfo}>
-                    <Feather name="calendar" size={20} color={selectedColor} style={{ marginRight: 8 }} />
-                    <Text style={styles.optionText}>Event Updates</Text>
-                  </View>
-                  <Switch 
-                    value={eventNotifications} 
-                    onValueChange={setEventNotifications} 
-                    thumbColor={eventNotifications ? selectedColor : "#fff"} 
-                    trackColor={{ true: `${selectedColor}40`, false: "#ccc" }} 
+                    onValueChange={setMentorshipNotifications}
+                    trackColor={{ false: COLORS.accent, true: COLORS.primary }}
+                    thumbColor={COLORS.white}
                   />
                 </View>
               </View>
-
-              <View style={styles.settingGroup}>
-                <Text style={styles.settingGroupTitle}>Documents</Text>
-                
-                <View style={styles.optionRow}>
-                  <View style={styles.optionInfo}>
-                    <Feather name="file-text" size={20} color={selectedColor} style={{ marginRight: 8 }} />
-                    <Text style={styles.optionText}>CV/Resume</Text>
-                  </View>
-                  <TouchableOpacity onPress={pickCV} disabled={uploading} style={[styles.cvBtn, { backgroundColor: selectedColor }]}>
-            <Text style={styles.cvBtnText}>{cvUrl ? "Update" : "Upload"}</Text>
-          </TouchableOpacity>
-        </View>
-                
-        {cvUrl && (
-          <TouchableOpacity style={styles.cvFileRow} onPress={() => Linking.openURL(cvUrl)}>
-                    <Feather name="download" size={18} color={selectedColor} style={{ marginRight: 6 }} />
-            <Text style={styles.cvFileText}>{cvName || "View CV"}</Text>
-          </TouchableOpacity>
-        )}
-      </View>
-              </ScrollView>
             </View>
-          </Animated.View>
-        );
 
-      case 'privacy':
-        return (
-          <Animated.View style={{ opacity: fadeAnim }}>
-            <View style={styles.infoCard}>
-              <Text style={styles.sectionTitle}>Privacy Settings</Text>
-              <ScrollView showsVerticalScrollIndicator={false} style={{ maxHeight: 500 }}>
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Privacy</Text>
               
-              <View style={styles.settingGroup}>
-                <Text style={styles.settingGroupTitle}>Profile Visibility</Text>
-                
-                <View style={styles.optionRow}>
-                  <View style={styles.optionInfo}>
-                    <Feather name="globe" size={20} color={selectedColor} style={{ marginRight: 8 }} />
-                    <Text style={styles.optionText}>Public Profile</Text>
+              <View style={styles.settingsGroup}>
+                <View style={styles.settingItem}>
+                  <View style={styles.settingInfo}>
+                    <Feather name="eye" size={20} color={COLORS.textSecondary} />
+                    <Text style={styles.settingLabel}>Public Profile</Text>
                   </View>
                   <Switch 
                     value={privacyPublic} 
-                    onValueChange={setPrivacyPublic} 
-                    thumbColor={privacyPublic ? selectedColor : "#fff"} 
-                    trackColor={{ true: `${selectedColor}40`, false: "#ccc" }} 
+                    onValueChange={setPrivacyPublic}
+                    trackColor={{ false: COLORS.accent, true: COLORS.primary }}
+                    thumbColor={COLORS.white}
                   />
                 </View>
-
-                <View style={styles.optionRow}>
-                  <View style={styles.optionInfo}>
-                    <Feather name="mail" size={20} color={selectedColor} style={{ marginRight: 8 }} />
-                    <Text style={styles.optionText}>Show Email</Text>
+                
+                <View style={styles.settingItem}>
+                  <View style={styles.settingInfo}>
+                    <Feather name="mail" size={20} color={COLORS.textSecondary} />
+                    <Text style={styles.settingLabel}>Show Email</Text>
                   </View>
                   <Switch 
                     value={showEmail} 
-                    onValueChange={setShowEmail} 
-                    thumbColor={showEmail ? selectedColor : "#fff"} 
-                    trackColor={{ true: `${selectedColor}40`, false: "#ccc" }} 
+                    onValueChange={setShowEmail}
+                    trackColor={{ false: COLORS.accent, true: COLORS.primary }}
+                    thumbColor={COLORS.white}
                   />
                 </View>
-
-                <View style={styles.optionRow}>
-                  <View style={styles.optionInfo}>
-                    <Feather name="phone" size={20} color={selectedColor} style={{ marginRight: 8 }} />
-                    <Text style={styles.optionText}>Show Phone</Text>
+                
+                <View style={styles.settingItem}>
+                  <View style={styles.settingInfo}>
+                    <Feather name="phone" size={20} color={COLORS.textSecondary} />
+                    <Text style={styles.settingLabel}>Show Phone</Text>
                   </View>
                   <Switch 
                     value={showPhone} 
-                    onValueChange={setShowPhone} 
-                    thumbColor={showPhone ? selectedColor : "#fff"} 
-                    trackColor={{ true: `${selectedColor}40`, false: "#ccc" }} 
-                  />
-                </View>
-
-                <View style={styles.optionRow}>
-                  <View style={styles.optionInfo}>
-                    <Feather name="map-pin" size={20} color={selectedColor} style={{ marginRight: 8 }} />
-                    <Text style={styles.optionText}>Show Location</Text>
-                  </View>
-                  <Switch 
-                    value={showLocation} 
-                    onValueChange={setShowLocation} 
-                    thumbColor={showLocation ? selectedColor : "#fff"} 
-                    trackColor={{ true: `${selectedColor}40`, false: "#ccc" }} 
+                    onValueChange={setShowPhone}
+                    trackColor={{ false: COLORS.accent, true: COLORS.primary }}
+                    thumbColor={COLORS.white}
                   />
                 </View>
               </View>
-
-              <View style={styles.settingGroup}>
-                <Text style={styles.settingGroupTitle}>Verification</Text>
-        <View style={styles.verificationRow}>
-          <Feather
-            name={verificationStatus === 'verified' ? 'check-circle' : 'alert-circle'}
-            size={24}
-            color={verificationStatus === 'verified' ? '#4CAF50' : '#FFC107'}
-          />
-          <Text style={styles.verificationText}>
-            Status: {verificationStatus.charAt(0).toUpperCase() + verificationStatus.slice(1)}
-          </Text>
-        </View>
-        {verificationStatus !== 'verified' && (
-                  <TouchableOpacity style={[styles.uploadButton, { backgroundColor: selectedColor }]} onPress={pickVerificationDoc}>
-            <Feather name="upload" size={18} color="#fff" />
-            <Text style={styles.uploadButtonText}>
-              {verificationStatus === 'pending' ? 'Re-upload Document' : 'Upload for Verification'}
-            </Text>
-          </TouchableOpacity>
-        )}
-        {verificationDocName && <Text style={styles.docNameText}>Uploaded: {verificationDocName}</Text>}
-      </View>
-              </ScrollView>
             </View>
-          </Animated.View>
+          </View>
         );
 
       default:
@@ -966,51 +680,60 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
     }
   };
 
-  // Animated progress bar width
-  const progressBarWidth = progressAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0%', '100%']
-  });
-
   if (loading) {
-    return <View style={styles.center}><ActivityIndicator size="large" color="#a66cff" /></View>;
-  }
-  if (error) {
-    return <View style={styles.center}><Text style={styles.errorText}>{error}</Text></View>;
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color={COLORS.primary} />
+        <Text style={styles.loadingText}>Loading profile...</Text>
+      </View>
+    );
   }
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <Animated.ScrollView style={[styles.container, { opacity: fadeAnim }]}>
-        {/* Enhanced Profile Header */}
-        <View style={styles.profileHeader}>
-          <View style={styles.profileImageContainer}>
-            <TouchableOpacity onPress={pickImage} style={styles.profileImageWrapper}>
-              <Image 
-                source={profilePic ? { uri: profilePic } : require('../assets/images/icon.png')} 
-                style={styles.profileImage} 
-              />
-              <View style={styles.cameraIconWrapper}>
-                <Feather name="camera" size={16} color="#fff" />
-              </View>
+      <Animated.ScrollView 
+        style={[styles.container, { opacity: fadeAnim }]}
+        contentContainerStyle={styles.scrollContainer}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Header Section */}
+        <View style={styles.headerSection}>
+          <View style={styles.headerContent}>
+            <View style={styles.profileImageContainer}>
+              <TouchableOpacity onPress={pickImage} style={styles.profileImageWrapper}>
+                <Image 
+                  source={profilePic ? { uri: profilePic } : require('../assets/images/icon.png')} 
+                  style={styles.profileImage} 
+                />
+                <View style={styles.cameraIconWrapper}>
+                  <Feather name="camera" size={16} color={COLORS.white} />
+                </View>
+              </TouchableOpacity>
+              {uploading && (
+                <View style={styles.uploadingOverlay}>
+                  <ActivityIndicator size="small" color={COLORS.white} />
+                </View>
+              )}
+            </View>
+            
+            <View style={styles.profileInfo}>
+              <Text style={styles.profileName}>{displayName || "No Name"}</Text>
+              {role && (
+                <View style={[styles.roleBadge, { backgroundColor: selectedColor }]}>
+                  <Text style={styles.roleBadgeText}>
+                    {role.charAt(0).toUpperCase() + role.slice(1)}
+                  </Text>
+                </View>
+              )}
+            </View>
+            
+            <TouchableOpacity 
+              style={styles.progressButton}
+              onPress={() => navigation.navigate('FeedbackProgress' as never)}
+            >
+              <Feather name="bar-chart-2" size={20} color={COLORS.white} />
+              <Text style={styles.progressButtonText}>Progress</Text>
             </TouchableOpacity>
-            {uploading && (
-              <View style={styles.uploadingOverlay}>
-                <ActivityIndicator size="small" color="#fff" />
-              </View>
-            )}
-          </View>
-          
-          <View style={styles.profileInfo}>
-            <Text style={styles.profileName}>{displayName || "No Name"}</Text>
-            {role && (
-              <View style={[styles.roleBadge, { backgroundColor: selectedColor }]}>
-                <Text style={styles.roleBadgeText}>
-                  {role.charAt(0).toUpperCase() + role.slice(1)}
-                </Text>
-              </View>
-            )}
-
           </View>
         </View>
 
@@ -1025,7 +748,7 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
               style={[
                 styles.progressBar, 
                 { 
-                  width: progressBarWidth,
+                  width: `${completeness * 100}%`,
                   backgroundColor: selectedColor 
                 }
               ]} 
@@ -1055,11 +778,11 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
                 <Feather 
                   name={tab.icon as any} 
                   size={18} 
-                  color={activeTab === tab.id ? "#fff" : selectedColor} 
+                  color={activeTab === tab.id ? COLORS.white : selectedColor} 
                 />
                 <Text style={[
                   styles.tabButtonText,
-                  activeTab === tab.id && { color: "#fff" }
+                  activeTab === tab.id && { color: COLORS.white }
                 ]}>
                   {tab.title}
                 </Text>
@@ -1071,101 +794,99 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
         {/* Tab Content */}
         {renderTabContent()}
 
-        {/* Logout Button */}
-        <View style={styles.logoutSection}>
-      <CustomButton
-        title="Logout"
-        onPress={async () => {
-          try {
-            await account.deleteSession("current");
-            navigation.replace("LoginPage");
-          } catch (error) {
-            console.error("Logout failed", error);
-          }
-        }}
-            style={[styles.logoutBtn, { borderColor: selectedColor }]}
-            textStyle={[styles.logoutBtnText, { color: selectedColor }]}
-      />
-        </View>
-    </Animated.ScrollView>
-
-      {/* Color Picker Modal */}
-      <Modal
-        visible={showColorPicker}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => setShowColorPicker(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.colorPickerModal}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Choose Theme Color</Text>
-              <TouchableOpacity onPress={() => setShowColorPicker(false)}>
-                <Feather name="x" size={24} color="#333" />
+        {/* Edit/Save Button */}
+        <View style={styles.buttonSection}>
+          {editMode ? (
+            <View style={styles.buttonGroup}>
+              <TouchableOpacity 
+                style={[styles.button, styles.cancelButton]} 
+                onPress={() => setEditMode(false)}
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={[styles.button, styles.saveButton]} 
+                onPress={saveProfile}
+                disabled={loading}
+              >
+                {loading ? (
+                  <ActivityIndicator color={COLORS.white} size="small" />
+                ) : (
+                  <Text style={styles.saveButtonText}>Save Changes</Text>
+                )}
               </TouchableOpacity>
             </View>
-            <View style={styles.colorGrid}>
-              {themeColors.map((color) => (
-                <TouchableOpacity
-                  key={color}
-                  style={[
-                    styles.colorOption,
-                    { backgroundColor: color },
-                    selectedColor === color && styles.selectedColorOption
-                  ]}
-                  onPress={() => {
-                    setSelectedColor(color);
-                    setShowColorPicker(false);
-                  }}
-                >
-                  {selectedColor === color && (
-                    <Feather name="check" size={20} color="#fff" />
-                  )}
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
+          ) : (
+            <TouchableOpacity 
+              style={[styles.button, styles.editButton]} 
+              onPress={toggleEditMode}
+            >
+              <Feather name="edit-3" size={20} color={COLORS.white} />
+              <Text style={styles.editButtonText}>Edit Profile</Text>
+            </TouchableOpacity>
+          )}
         </View>
-      </Modal>
+
+        {/* Logout Button */}
+        <View style={styles.logoutSection}>
+          <CustomButton
+            title="Logout"
+            onPress={async () => {
+              try {
+                await Account.deleteSession('current');
+                navigation.replace("LoginPage");
+              } catch (error) {
+                Alert.alert('Error', 'Failed to logout');
+              }
+            }}
+            style={[styles.button, styles.logoutButton]}
+            textStyle={styles.logoutButtonText}
+          />
+        </View>
+      </Animated.ScrollView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  // Container & Layout
-  container: {
-    flex: 1,
-    backgroundColor: '#f8f9ff',
-  },
   safeArea: {
     flex: 1,
-    backgroundColor: '#f8f9ff',
+    backgroundColor: COLORS.background,
+  },
+  container: {
+    flex: 1,
+  },
+  scrollContainer: {
+    paddingBottom: 40,
   },
   center: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f8f9ff',
+    backgroundColor: COLORS.background,
   },
-  errorText: {
-    color: '#a66cff',
-    fontSize: 17,
-    fontWeight: 'bold',
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: COLORS.textSecondary,
   },
-
-  // Profile Header
-  profileHeader: {
+  headerSection: {
+    backgroundColor: COLORS.primary,
+    paddingTop: 40,
+    paddingBottom: 30,
+    paddingHorizontal: 24,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
+  },
+  headerTop: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    marginBottom: 20,
+  },
+  headerContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 24,
-    backgroundColor: '#fff',
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
+    justifyContent: 'space-between',
   },
   profileImageContainer: {
     position: 'relative',
@@ -1178,17 +899,17 @@ const styles = StyleSheet.create({
     height: 80,
     borderRadius: 40,
     borderWidth: 3,
-    borderColor: '#a66cff',
+    borderColor: COLORS.white,
   },
   cameraIconWrapper: {
     position: 'absolute',
     bottom: 0,
     right: 0,
-    backgroundColor: '#a66cff',
+    backgroundColor: COLORS.primary,
     borderRadius: 16,
     padding: 6,
     borderWidth: 2,
-    borderColor: '#fff',
+    borderColor: COLORS.white,
   },
   uploadingOverlay: {
     position: 'absolute',
@@ -1202,38 +923,43 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   profileInfo: {
-    marginLeft: 16,
     flex: 1,
+    marginLeft: 16,
   },
   profileName: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#2d3748',
+    color: COLORS.white,
     marginBottom: 4,
-    fontFamily: FONTS.title,
-  },
-  profileEmail: {
-    fontSize: 14,
-    color: '#718096',
-    marginTop: 4,
   },
   roleBadge: {
     borderRadius: 12,
     paddingVertical: 4,
     paddingHorizontal: 12,
     alignSelf: 'flex-start',
-    marginBottom: 8,
   },
   roleBadgeText: {
-    color: '#fff',
+    color: COLORS.white,
     fontWeight: 'bold',
     fontSize: 12,
   },
-
-  // Progress Section
+  progressButton: {
+    backgroundColor: COLORS.secondary,
+    borderRadius: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  progressButtonText: {
+    color: COLORS.white,
+    fontSize: 14,
+    fontWeight: '600',
+  },
   progressSection: {
-    paddingHorizontal: 20,
-    marginBottom: 20,
+    paddingHorizontal: 24,
+    marginTop: 24,
   },
   progressHeader: {
     flexDirection: 'row',
@@ -1244,350 +970,274 @@ const styles = StyleSheet.create({
   progressTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#2d3748',
-    fontFamily: FONTS.title,
+    color: COLORS.text,
   },
   progressPercentage: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#a66cff',
+    color: COLORS.primary,
   },
   progressBarContainer: {
     height: 8,
-    backgroundColor: '#e2e8f0',
+    backgroundColor: COLORS.accent,
     borderRadius: 4,
     overflow: 'hidden',
     marginBottom: 8,
   },
   progressBar: {
-    height: 8,
+    height: '100%',
     borderRadius: 4,
   },
   progressSubtext: {
-    fontSize: 12,
-    color: '#718096',
-    textAlign: 'center',
+    fontSize: 14,
+    color: COLORS.textSecondary,
   },
-
-  // Tab Navigation
   tabContainer: {
-    marginBottom: 16,
+    marginTop: 24,
+    paddingHorizontal: 24,
   },
   tabScrollContent: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 0,
   },
   tabButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    marginRight: 12,
+    backgroundColor: COLORS.white,
     borderRadius: 20,
-    backgroundColor: '#fff',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    marginRight: 12,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 2,
+    shadowRadius: 4,
     elevation: 2,
   },
   tabButtonText: {
-    marginLeft: 6,
     fontSize: 14,
     fontWeight: '600',
-    color: '#a66cff',
+    color: COLORS.text,
+    marginLeft: 6,
   },
-
-  // Content Cards
-  infoCard: {
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 20,
-    marginHorizontal: 20,
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
+  tabContent: {
+    paddingHorizontal: 24,
+    marginTop: 24,
   },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
+  section: {
+    marginBottom: 24,
   },
   sectionTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#2d3748',
-  },
-  sectionSubtitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#4a5568',
-    marginBottom: 12,
-  },
-  editButton: {
-    padding: 8,
-    borderRadius: 8,
-    backgroundColor: '#f7fafc',
-  },
-
-  // Form Elements
-  inputGroup: {
+    color: COLORS.text,
     marginBottom: 16,
   },
-  inputLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#4a5568',
-    marginBottom: 6,
+  inputGroup: {
+    gap: 16,
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.white,
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 4,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  inputIcon: {
+    marginRight: 12,
   },
   input: {
-    fontSize: 16,
-    color: '#2d3748',
-    backgroundColor: '#f7fafc',
-    borderWidth: 1,
-    borderColor: '#e2e8f0',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-  },
-  textArea: {
-    fontSize: 16,
-    color: '#2d3748',
-    backgroundColor: '#f7fafc',
-    borderWidth: 1,
-    borderColor: '#e2e8f0',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    minHeight: 80,
-    textAlignVertical: 'top',
-  },
-
-  // Info Rows
-  infoRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: 12,
-    paddingVertical: 4,
-  },
-  infoText: {
-    fontSize: 16,
-    color: '#2d3748',
-    fontWeight: '500',
     flex: 1,
-    lineHeight: 22,
+    fontSize: 16,
+    color: COLORS.text,
+    paddingVertical: 16,
   },
-
-  // Skill Tags
-  skillTagsContainer: {
+  bioContainer: {
+    backgroundColor: COLORS.white,
+    borderRadius: 12,
+    padding: 16,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  bioInput: {
+    fontSize: 16,
+    color: COLORS.text,
+    textAlignVertical: 'top',
+    minHeight: 100,
+  },
+  skillsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    marginTop: 4,
+    gap: 8,
+    marginTop: 12,
   },
   skillTag: {
-    backgroundColor: '#a66cff',
-    borderRadius: 12,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    marginRight: 8,
-    marginBottom: 4,
+    backgroundColor: COLORS.accent,
+    borderRadius: 20,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderWidth: 1,
+    borderColor: COLORS.accent,
   },
-  skillTagText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: '600',
+  skillText: {
+    fontSize: 14,
+    color: COLORS.primary,
+    fontWeight: '500',
   },
-
-  // Social Links
   socialLinksContainer: {
-    marginTop: 16,
+    flexDirection: 'row',
+    gap: 16,
+    marginTop: 12,
   },
   socialLink: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 8,
-    marginBottom: 8,
+    backgroundColor: COLORS.white,
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
   },
   socialLinkText: {
-    color: '#fff',
     fontSize: 14,
-    fontWeight: '600',
+    color: COLORS.text,
     marginLeft: 8,
-  },
-
-  // Settings Groups
-  settingGroup: {
-    marginBottom: 24,
-  },
-  settingGroupTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#2d3748',
-    marginBottom: 12,
-  },
-  optionRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 16,
-  },
-  optionInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  optionText: {
-    fontSize: 16,
-    color: '#2d3748',
     fontWeight: '500',
   },
-
-  // Color Picker
-  colorPicker: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    borderWidth: 2,
-    borderColor: '#e2e8f0',
+  uploadSection: {
+    gap: 12,
   },
-
-  // Buttons
-  saveBtn: {
+  uploadCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.white,
     borderRadius: 12,
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    alignSelf: 'flex-end',
-    marginTop: 16,
+    padding: 16,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
   },
-  saveBtnText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-  cvBtn: {
-    borderRadius: 8,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-  },
-  cvBtnText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 14,
-  },
-  cvFileRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 8,
-    marginLeft: 8,
-  },
-  cvFileText: {
-    color: '#a66cff',
-    fontWeight: 'bold',
-    fontSize: 14,
-    textDecorationLine: 'underline',
-  },
-
-  // Verification
-  verificationRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  verificationText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#2d3748',
-    marginLeft: 8,
-  },
-  uploadButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 12,
-    paddingVertical: 12,
-    marginTop: 8,
-  },
-  uploadButtonText: {
-    color: '#fff',
-    fontSize: 15,
-    fontWeight: 'bold',
-    marginLeft: 8,
-  },
-  docNameText: {
-    fontSize: 13,
-    color: '#718096',
-    marginTop: 8,
-    fontStyle: 'italic',
-  },
-
-  // Logout Section
-  logoutSection: {
-    paddingHorizontal: 20,
-    paddingVertical: 20,
-  },
-  logoutBtn: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    paddingVertical: 14,
-    borderWidth: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  logoutBtnText: {
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-
-  // Modal Styles
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  colorPickerModal: {
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 24,
-    width: width * 0.8,
-    maxWidth: 400,
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#2d3748',
-  },
-  colorGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  colorOption: {
+  uploadIconContainer: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    marginBottom: 12,
+    backgroundColor: COLORS.accent,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 2,
-    borderColor: '#e2e8f0',
+    marginRight: 16,
   },
-  selectedColorOption: {
-    borderColor: '#2d3748',
-    borderWidth: 3,
+  uploadContent: {
+    flex: 1,
+  },
+  uploadTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: COLORS.text,
+    marginBottom: 2,
+  },
+  uploadSubtitle: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+  },
+  settingsGroup: {
+    gap: 12,
+  },
+  settingItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: COLORS.white,
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  settingInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  settingLabel: {
+    fontSize: 16,
+    color: COLORS.text,
+    fontWeight: '500',
+  },
+  buttonSection: {
+    paddingHorizontal: 24,
+    marginTop: 32,
+  },
+  buttonGroup: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  button: {
+    borderRadius: 16,
+    paddingVertical: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+    gap: 8,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  editButton: {
+    backgroundColor: COLORS.primary,
+    flex: 1,
+  },
+  editButtonText: {
+    color: COLORS.white,
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  cancelButton: {
+    backgroundColor: COLORS.accent,
+    flex: 1,
+  },
+  cancelButtonText: {
+    color: COLORS.primary,
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  saveButton: {
+    backgroundColor: COLORS.success,
+    flex: 1,
+  },
+  saveButtonText: {
+    color: COLORS.white,
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  logoutSection: {
+    paddingHorizontal: 24,
+    marginTop: 16,
+  },
+  logoutButton: {
+    backgroundColor: COLORS.error,
+  },
+  logoutButtonText: {
+    color: COLORS.white,
+    fontWeight: 'bold',
+    fontSize: 16,
   },
 });
