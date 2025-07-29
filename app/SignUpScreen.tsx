@@ -10,6 +10,9 @@ import BackButton from '../components/BackButton';
 
 const account = new Account(client);
 const storage = new Storage(client);
+import {auth, db} from '../lib/firebase-config'
+import { createUserWithEmailAndPassword} from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
 
 const SKILLS = [
   'Biotechnology', 'Astrophysics', 'Environmental Science', 'Microbiology', 'Geology', 'Neuroscience', 'Chemistry', 'Marine Biology', 'Genetics', 'Physics',
@@ -59,33 +62,38 @@ const SignUpScreen = ({ navigation }: any) => {
     setLoading(true);
     try {
       // 1. Create user
-      const userId = ID.unique();
-      await account.create(userId, email, password, name);
+      await createUserWithEmailAndPassword(auth, email, password);
+      const user  = auth.currentUser;      
       // 2. Upload profile pic
-      let profilePicUrl = '';
-      if (profilePic) {
-        const file = { uri: profilePic.uri, name: profilePic.fileName || 'profile.jpg', type: profilePic.mimeType || 'image/jpeg', size: profilePic.fileSize || 1 };
-        const uploaded = await storage.createFile(config.storageId, ID.unique(), file);
-        profilePicUrl = uploaded.$id;
-      }
+      // let profilePicUrl = '';
+      // if (profilePic) {
+      //   const file = { uri: profilePic.uri, name: profilePic.fileName || 'profile.jpg', type: profilePic.mimeType || 'image/jpeg', size: profilePic.fileSize || 1 };
+      //   const uploaded = await storage.createFile(config.storageId, ID.unique(), file);
+      //   profilePicUrl = uploaded.$id;
+      // }
       // 3. Upload CV
-      let cvUrl = '';
-      if (cv) {
-        const file = { uri: cv.uri, name: cv.name, type: cv.mimeType || 'application/pdf', size: cv.size || 1 };
-        const uploaded = await storage.createFile(config.storageId, ID.unique(), file);
-        cvUrl = uploaded.$id;
-      }
+      // let cvUrl = '';
+      // if (cv) {
+      //   const file = { uri: cv.uri, name: cv.name, type: cv.mimeType || 'application/pdf', size: cv.size || 1 };
+      //   const uploaded = await storage.createFile(config.storageId, ID.unique(), file);
+      //   cvUrl = uploaded.$id;
+      // }
       // 4. Save preferences
-      await account.updatePrefs({
-        role, // Save the selected role
-        username,
-        phone,
-        showPhone,
-        bio,
-        location,
-        skills,
-        profilePicUrl,
-        cvUrl,
+      if (!user) {
+        throw new Error('User not found');
+      }
+      await setDoc(doc(db, "users", user.uid),{
+        role: role, // Save the selected role
+        username: username,
+        phone: phone,
+        showPhone: showPhone,
+        bio: bio,
+        locaiton: location,
+        skills: skills,
+        uid: user.uid,
+        date: new Date().toISOString(),
+        //profilePicUrl,
+        //cvUrl,
       });
       Alert.alert('Success', 'Account created! Please complete your onboarding.');
       if (role === 'mentor') {
