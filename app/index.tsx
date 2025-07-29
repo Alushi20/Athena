@@ -124,7 +124,13 @@ const MentorshipRequestsStack: React.FC = () => (
 const MainTabs: React.FC = () => (
     <Tab.Navigator screenOptions={tabOptions}>
         <Tab.Screen name="HomeTab" component={HomeStack} options={{ title: 'Home', tabBarIcon: ({ color, size }) => <Feather name="home" color={color} size={size} /> }} />
-        <Tab.Screen name="MentorshipTab" component={MentorshipStack} options={{ title: 'Mentorship', tabBarIcon: ({ color, size }) => <Feather name="users" color={color} size={size} /> }} />
+        <Tab.Screen name="MentorshipTab" component={MentorshipStack} options={{ 
+          title: 'Mentorship', 
+          tabBarIcon: ({ color, size, focused }) => (
+            <Feather name="users" color={color} size={size} />
+          ),
+          tabBarLabel: ({ focused }) => focused ? 'Mentorship' : ''
+        }} />
         <Tab.Screen name="MentorshipRequestsTab" component={MentorshipRequestsStack} options={{ title: 'Requests', tabBarIcon: ({ color, size }) => <Feather name="bell" color={color} size={size} /> }} />
         <Tab.Screen name="LearningCenterTab" component={LearningCenterScreen} options={{ title: 'Learning', tabBarIcon: ({ color, size }) => <Feather name="book-open" color={color} size={size} /> }} />
         <Tab.Screen name="EventsTab" component={EventsScreen} options={{ title: 'Events', tabBarIcon: ({ color, size }) => <Feather name="calendar" color={color} size={size} /> }} />

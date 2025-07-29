@@ -451,6 +451,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: COLORS.textSecondary,
     marginTop: 4,
+    textAlign: 'center',
   },
   section: {
     marginBottom: 24,

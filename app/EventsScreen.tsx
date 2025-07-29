@@ -73,13 +73,13 @@ const EventsScreen: React.FC = () => {
             <View style={styles.rsvpRow}>
               <Text style={styles.rsvpCount}><Feather name="users" size={14} color={COLORS.secondary} /> {item.rsvpCount} RSVP</Text>
               <View style={styles.eventActions}>
-                <TouchableOpacity
-                  style={[styles.rsvpBtn, rsvped[item.id] && styles.rsvpBtnDisabled]}
-                  onPress={() => handleRSVP(item.id)}
-                  disabled={!!rsvped[item.id]}
-                >
-                  <Text style={styles.rsvpBtnText}>{rsvped[item.id] ? 'RSVPed' : 'RSVP'}</Text>
-                </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.rsvpBtn, rsvped[item.id] && styles.rsvpBtnDisabled]}
+                onPress={() => handleRSVP(item.id)}
+                disabled={!!rsvped[item.id]}
+              >
+                <Text style={styles.rsvpBtnText}>{rsvped[item.id] ? 'RSVPed' : 'RSVP'}</Text>
+              </TouchableOpacity>
                 
                 <CalendarIntegration
                   event={{
