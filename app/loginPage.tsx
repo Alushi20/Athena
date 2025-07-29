@@ -6,8 +6,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons, Feather } from '@expo/vector-icons';
 import { COLORS } from '../constants/Colors';
 import {auth} from '../lib/firebase-config'
-import { createUserWithEmailAndPassword } from "firebase/auth";
-
+import { signInWithEmailAndPassword } from "firebase/auth";
 const account = new Account(client);
 
 export default function LoginPage({ navigation }: { navigation: any }) {
@@ -82,7 +81,7 @@ export default function LoginPage({ navigation }: { navigation: any }) {
 
   return (
     <LinearGradient
-      colors={COLORS.gradient}
+      colors={[COLORS.gradient[0], COLORS.gradient[1]]}
       style={styles.gradient}
     >
       <KeyboardAvoidingView
