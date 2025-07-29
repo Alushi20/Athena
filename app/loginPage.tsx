@@ -1,10 +1,13 @@
 import React, { useState, useRef } from "react";
 import { View, Text, SafeAreaView, TextInput, Alert, Animated, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform } from "react-native";
+import { Account, ID } from "react-native-appwrite";
+import { client } from "../lib/appwrite";
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons, Feather } from '@expo/vector-icons';
 import { COLORS } from '../constants/Colors';
 import {auth} from '../lib/firebase-config'
 import { signInWithEmailAndPassword } from "firebase/auth";
+const account = new Account(client);
 
 export default function LoginPage({ navigation }: { navigation: any }) {
   const [email, setEmail] = useState("");
@@ -32,17 +35,42 @@ export default function LoginPage({ navigation }: { navigation: any }) {
     }).start();
   }, [error]);
 
-const handleLogin = async () => {
-  if(auth.currentUser) {
-    await auth.signOut();
-  }
-  const userCredential =  await signInWithEmailAndPassword(auth, email, password)
-  const user = userCredential.user;
-  if(user) {
-    navigation.navigate('WelcomeScreen');
-  }
+  const signup = async () => {
+    try {
+      await account.deleteSession("current");
+    } catch (err) {
+      console.log("No active session found, continuing...");
+    }
+    try {
+      if (password.length < 8) {
+        setError("Password must be at least 8 characters long.");
+        return;
+      }
+      const userId = ID.unique();
+      await account.create(userId, email, password, "New User");
+      await account.createEmailPasswordSession(email, password);
+      Alert.alert("Account Created", "Welcome!");
+      navigation.replace("Main");
+    } catch (createErr: any) {
+      setError(createErr.message);
+    }
+  };
 
-}
+  const handleLogin = async () => {
+    try {
+      await account.deleteSession("current");
+    } catch (err) {
+      console.log("No active session found, continuing...");
+    }
+    try {
+      await account.createEmailPasswordSession(email, password);
+      Alert.alert("Login Successful", "Welcome back!");
+      navigation.replace("Main");
+    } catch (err: any) {
+      setError("Incorrect password. Please try again.");
+    }
+  };
+
   // Button press animation helpers
   const animateBtnIn = (btnScale: Animated.Value) => {
     Animated.spring(btnScale, { toValue: 0.96, useNativeDriver: true }).start();
