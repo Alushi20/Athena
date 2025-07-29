@@ -1,13 +1,10 @@
 import React, { useState, useRef } from "react";
 import { View, Text, SafeAreaView, TextInput, Alert, Animated, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform } from "react-native";
-import { Account, ID } from "react-native-appwrite";
-import { client } from "../lib/appwrite";
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons, Feather } from '@expo/vector-icons';
 import { COLORS } from '../constants/Colors';
 import {auth} from '../lib/firebase-config'
 import { signInWithEmailAndPassword } from "firebase/auth";
-const account = new Account(client);
 
 export default function LoginPage({ navigation }: { navigation: any }) {
   const [email, setEmail] = useState("");
