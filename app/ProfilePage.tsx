@@ -35,7 +35,7 @@ import {
 } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
-import { COLORS } from "../constants/Colors";
+import { COLORS,FONTS } from "../constants/Colors";
 
 const { width, height } = Dimensions.get('window');
 
