@@ -107,6 +107,7 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
     { id: 'personal', title: 'Personal', icon: 'user' },
     { id: 'professional', title: 'Professional', icon: 'briefcase' },
     { id: 'documents', title: 'Documents', icon: 'file-text' },
+    { id: 'connections', title: 'Current Connections', icon: 'users' },
     { id: 'settings', title: 'Settings', icon: 'settings' },
   ];
 
@@ -575,6 +576,77 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
                   {verificationStatus === 'verified' && <Feather name="check-circle" size={20} color={COLORS.success} />}
                   {verificationStatus === 'pending' && <Feather name="clock" size={20} color={COLORS.warning} />}
                 </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        );
+
+      case 'connections':
+        return (
+          <View style={styles.tabContent}>
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Current Connections</Text>
+              
+              <View style={styles.connectionsContainer}>
+                <View style={styles.connectionCard}>
+                  <View style={styles.connectionAvatar}>
+                    <Feather name="user" size={24} color={COLORS.primary} />
+                  </View>
+                  <View style={styles.connectionInfo}>
+                    <Text style={styles.connectionName}>Dr. Sarah Johnson</Text>
+                    <Text style={styles.connectionRole}>Mentor - Computer Science</Text>
+                    <Text style={styles.connectionStatus}>Active - 3 months</Text>
+                  </View>
+                  <TouchableOpacity style={styles.connectionAction}>
+                    <Feather name="message-circle" size={20} color={COLORS.primary} />
+                  </TouchableOpacity>
+                </View>
+
+                <View style={styles.connectionCard}>
+                  <View style={styles.connectionAvatar}>
+                    <Feather name="user" size={24} color={COLORS.secondary} />
+                  </View>
+                  <View style={styles.connectionInfo}>
+                    <Text style={styles.connectionName}>Maria Rodriguez</Text>
+                    <Text style={styles.connectionRole}>Mentee - Data Science</Text>
+                    <Text style={styles.connectionStatus}>Active - 1 month</Text>
+                  </View>
+                  <TouchableOpacity style={styles.connectionAction}>
+                    <Feather name="message-circle" size={20} color={COLORS.secondary} />
+                  </TouchableOpacity>
+                </View>
+
+                <View style={styles.connectionCard}>
+                  <View style={styles.connectionAvatar}>
+                    <Feather name="user" size={24} color={COLORS.primary} />
+                  </View>
+                  <View style={styles.connectionInfo}>
+                    <Text style={styles.connectionName}>Prof. Emily Chen</Text>
+                    <Text style={styles.connectionRole}>Mentor - Engineering</Text>
+                    <Text style={styles.connectionStatus}>Active - 6 months</Text>
+                  </View>
+                  <TouchableOpacity style={styles.connectionAction}>
+                    <Feather name="message-circle" size={20} color={COLORS.primary} />
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Connection Statistics</Text>
+                <View style={styles.statsContainer}>
+                  <View style={styles.statCard}>
+                    <Text style={styles.statNumber}>3</Text>
+                    <Text style={styles.statLabel}>Active Connections</Text>
+                  </View>
+                  <View style={styles.statCard}>
+                    <Text style={styles.statNumber}>12</Text>
+                    <Text style={styles.statLabel}>Total Sessions</Text>
+                  </View>
+                  <View style={styles.statCard}>
+                    <Text style={styles.statNumber}>4.8</Text>
+                    <Text style={styles.statLabel}>Avg. Rating</Text>
+                  </View>
+                </View>
               </View>
             </View>
           </View>
@@ -1239,5 +1311,81 @@ const styles = StyleSheet.create({
     color: COLORS.white,
     fontWeight: 'bold',
     fontSize: 16,
+  },
+  // Connection styles
+  connectionsContainer: {
+    gap: 12,
+  },
+  connectionCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.white,
+    borderRadius: 12,
+    padding: 16,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  connectionAvatar: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: COLORS.accent,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  connectionInfo: {
+    flex: 1,
+  },
+  connectionName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: COLORS.text,
+    marginBottom: 2,
+  },
+  connectionRole: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    marginBottom: 2,
+  },
+  connectionStatus: {
+    fontSize: 12,
+    color: COLORS.success,
+    fontWeight: '500',
+  },
+  connectionAction: {
+    padding: 8,
+  },
+  statsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginTop: 16,
+  },
+  statCard: {
+    alignItems: 'center',
+    backgroundColor: COLORS.white,
+    borderRadius: 12,
+    padding: 16,
+    flex: 1,
+    marginHorizontal: 4,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  statNumber: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: COLORS.primary,
+    marginBottom: 4,
+  },
+  statLabel: {
+    fontSize: 12,
+    color: COLORS.textSecondary,
+    textAlign: 'center',
   },
 });

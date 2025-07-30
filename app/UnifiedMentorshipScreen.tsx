@@ -50,7 +50,7 @@ const UnifiedMentorshipScreen: React.FC = () => {
   const [mentorships, setMentorships] = useState<Mentorship[]>([]);
   const [loading, setLoading] = useState(true);
   const [userRole, setUserRole] = useState<'mentor' | 'mentee' | null>(null);
-  const [activeTab, setActiveTab] = useState<'overview' | 'schedule' | 'connections' | 'progress'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'schedule' | 'connections'>('overview');
   const navigation = useNavigation();
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
@@ -242,31 +242,7 @@ const UnifiedMentorshipScreen: React.FC = () => {
           </ScrollView>
         );
 
-      case 'progress':
-        return (
-          <ScrollView showsVerticalScrollIndicator={false}>
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Progress Tracking</Text>
-              <View style={styles.progressCard}>
-                <Text style={styles.progressTitle}>Learning Progress</Text>
-                <View style={styles.progressBar}>
-                  <View style={[styles.progressFill, { width: '75%' }]} />
-                </View>
-                <Text style={styles.progressText}>75% Complete</Text>
-              </View>
-              
-              <View style={styles.progressCard}>
-                <Text style={styles.progressTitle}>Goals Achieved</Text>
-                <Text style={styles.progressText}>3 out of 5 goals completed</Text>
-              </View>
-              
-              <View style={styles.progressCard}>
-                <Text style={styles.progressTitle}>Sessions Attended</Text>
-                <Text style={styles.progressText}>12 sessions completed</Text>
-              </View>
-            </View>
-          </ScrollView>
-        );
+
 
       default:
         return null;
@@ -317,14 +293,6 @@ const UnifiedMentorshipScreen: React.FC = () => {
           >
             <Feather name="users" size={20} color={activeTab === 'connections' ? COLORS.primary : COLORS.textSecondary} />
             <Text style={[styles.tabText, activeTab === 'connections' && styles.activeTabText]}>Connections</Text>
-          </TouchableOpacity>
-          
-          <TouchableOpacity
-            style={[styles.tab, activeTab === 'progress' && styles.activeTab]}
-            onPress={() => setActiveTab('progress')}
-          >
-            <Feather name="bar-chart-2" size={20} color={activeTab === 'progress' ? COLORS.primary : COLORS.textSecondary} />
-            <Text style={[styles.tabText, activeTab === 'progress' && styles.activeTabText]}>Progress</Text>
           </TouchableOpacity>
         </View>
 

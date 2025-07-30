@@ -10,7 +10,6 @@ import CommunitiesScreen from './CommunitiesScreen';
 import WelcomeScreen from './WelcomeScreen';
 import LoginPage from './loginPage';
 import HomeScreen from './HomeScreen';
-import ChatScreen from './ChatScreen';
 import ProfilePage from './ProfilePage';
 import CommunityDetailScreen from './CommunityDetailScreen';
 import MentorDirectoryScreen from './MentorDirectoryScreen';

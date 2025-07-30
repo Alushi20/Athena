@@ -15,7 +15,7 @@ const EVENTS = [
     endTime: '21:00',
     location: 'WeWork, Tel Aviv',
     description: 'Panel and networking for women in AI.',
-    rsvpCount: 42,
+    registerCount: 42,
   },
   {
     id: 'event2',
@@ -25,7 +25,7 @@ const EVENTS = [
     endTime: '22:00',
     location: 'Technion, Haifa',
     description: 'Casual networking and lightning talks.',
-    rsvpCount: 18,
+    registerCount: 18,
   },
   {
     id: 'event3',
@@ -35,7 +35,7 @@ const EVENTS = [
     endTime: '16:00',
     location: 'Tel Aviv Convention Center',
     description: 'Connect with top tech companies and find your next opportunity.',
-    rsvpCount: 156,
+    registerCount: 156,
   },
   {
     id: 'event4',
@@ -45,7 +45,7 @@ const EVENTS = [
     endTime: '17:00',
     location: 'Hilton Tel Aviv',
     description: 'Annual conference celebrating women in engineering with keynote speakers and workshops.',
-    rsvpCount: 89,
+    registerCount: 89,
   },
 ];
 
@@ -98,7 +98,7 @@ const EventsWorkshopsScreen: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('events');
   const [events, setEvents] = useState(EVENTS);
   const [workshops, setWorkshops] = useState(WORKSHOPS);
-  const [rsvped, setRsvped] = useState<Record<string, boolean>>({});
+  const [registered, setRegistered] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState(true);
   const [success, setSuccess] = useState(false);
 
@@ -110,13 +110,20 @@ const EventsWorkshopsScreen: React.FC = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  const handleRSVP = (id: string) => {
-    setEvents(evts => evts.map(e => e.id === id ? { ...e, rsvpCount: e.rsvpCount + 1 } : e));
-    setRsvped(r => ({ ...r, [id]: true }));
+  const handleRegister = (id: string) => {
+    if (registered[id]) {
+      // Unregister
+      setEvents(evts => evts.map(e => e.id === id ? { ...e, registerCount: e.registerCount - 1 } : e));
+      setRegistered(r => ({ ...r, [id]: false }));
+    } else {
+      // Register
+      setEvents(evts => evts.map(e => e.id === id ? { ...e, registerCount: e.registerCount + 1 } : e));
+      setRegistered(r => ({ ...r, [id]: true }));
+    }
   };
 
-  const handleRegister = (id: string) => {
-    setWorkshops(ws => ws.map(w => w.id === id ? { ...w, registered: true } : w));
+  const handleWorkshopRegister = (id: string) => {
+    setWorkshops(ws => ws.map(w => w.id === id ? { ...w, registered: !w.registered } : w));
     setSuccess(true);
     setTimeout(() => setSuccess(false), 1200);
   };
@@ -133,14 +140,14 @@ const EventsWorkshopsScreen: React.FC = () => {
       <Text style={styles.cardInfo}><Feather name="map-pin" size={14} color={COLORS.primary} /> {item.location}</Text>
       <Text style={styles.cardDesc}>{item.description}</Text>
       <View style={styles.cardActions}>
-        <Text style={styles.rsvpCount}><Feather name="users" size={14} color={COLORS.secondary} /> {item.rsvpCount} RSVP</Text>
+        <Text style={styles.registerCount}><Feather name="users" size={14} color={COLORS.secondary} /> {item.registerCount} Registered</Text>
         <View style={styles.actionButtons}>
           <TouchableOpacity
-            style={[styles.actionBtn, rsvped[item.id] && styles.actionBtnDisabled]}
-            onPress={() => handleRSVP(item.id)}
-            disabled={!!rsvped[item.id]}
+            style={[styles.actionBtn, registered[item.id] ? styles.actionBtnRegistered : styles.actionBtnUnregistered]}
+            onPress={() => handleRegister(item.id)}
+            activeOpacity={0.85}
           >
-            <Text style={styles.actionBtnText}>{rsvped[item.id] ? 'RSVPed' : 'RSVP'}</Text>
+            <Text style={styles.actionBtnText}>{registered[item.id] ? 'Unregister' : 'Register'}</Text>
           </TouchableOpacity>
           
           <CalendarIntegration
@@ -176,12 +183,11 @@ const EventsWorkshopsScreen: React.FC = () => {
       <View style={styles.cardActions}>
         <View style={styles.actionButtons}>
           <TouchableOpacity
-            style={[styles.actionBtn, item.registered && styles.actionBtnDisabled]}
-            onPress={() => handleRegister(item.id)}
-            disabled={item.registered}
+            style={[styles.actionBtn, item.registered ? styles.actionBtnRegistered : styles.actionBtnUnregistered]}
+            onPress={() => handleWorkshopRegister(item.id)}
             activeOpacity={0.85}
           >
-            <Text style={styles.actionBtnText}>{item.registered ? 'Registered' : 'Register'}</Text>
+            <Text style={styles.actionBtnText}>{item.registered ? 'Unregister' : 'Register'}</Text>
           </TouchableOpacity>
           
           <CalendarIntegration
@@ -235,13 +241,23 @@ const EventsWorkshopsScreen: React.FC = () => {
         </TouchableOpacity>
       </View>
 
-      <FlatList
-        data={activeTab === 'events' ? events : workshops}
-        keyExtractor={item => item.id}
-        renderItem={activeTab === 'events' ? renderEventCard : renderWorkshopCard}
-        contentContainerStyle={{ paddingBottom: 40 }}
-        showsVerticalScrollIndicator={false}
-      />
+      {activeTab === 'events' ? (
+        <FlatList
+          data={events}
+          keyExtractor={item => item.id}
+          renderItem={renderEventCard}
+          contentContainerStyle={{ paddingBottom: 40 }}
+          showsVerticalScrollIndicator={false}
+        />
+      ) : (
+        <FlatList
+          data={workshops}
+          keyExtractor={item => item.id}
+          renderItem={renderWorkshopCard}
+          contentContainerStyle={{ paddingBottom: 40 }}
+          showsVerticalScrollIndicator={false}
+        />
+      )}
 
       {success && (
         <View style={styles.successBox}>
@@ -351,7 +367,7 @@ const styles = StyleSheet.create({
   cardActions: {
     marginTop: 12,
   },
-  rsvpCount: {
+  registerCount: {
     color: COLORS.secondary,
     fontWeight: 'bold',
     fontSize: 14,
@@ -368,8 +384,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     flex: 1,
   },
-  actionBtnDisabled: {
+  actionBtnRegistered: {
     backgroundColor: COLORS.accent,
+  },
+  actionBtnUnregistered: {
+    backgroundColor: COLORS.primary,
   },
   actionBtnText: {
     color: COLORS.white,

@@ -11,6 +11,9 @@ const TRACKS = [
     contents: [
       { id: 'vid1', type: 'video', title: 'How to Speak Up in Meetings', duration: '3:12' },
       { id: 'art1', type: 'article', title: 'Overcoming Self-Doubt', duration: '2 min read' },
+      { id: 'vid2', type: 'video', title: 'Presenting Your Ideas with Confidence', duration: '4:30' },
+      { id: 'art2', type: 'article', title: 'Building Self-Esteem in Tech', duration: '3 min read' },
+      { id: 'vid3', type: 'video', title: 'Networking with Confidence', duration: '5:15' },
     ]
   },
   {
@@ -18,8 +21,138 @@ const TRACKS = [
     title: 'Bias Survival Guide',
     description: 'Learn to recognize and respond to bias in the workplace.',
     contents: [
-      { id: 'vid2', type: 'video', title: 'Handling Biased Comments', duration: '4:01' },
-      { id: 'art2', type: 'article', title: 'Your Rights at Work', duration: '3 min read' },
+      { id: 'vid4', type: 'video', title: 'Handling Biased Comments', duration: '4:01' },
+      { id: 'art3', type: 'article', title: 'Your Rights at Work', duration: '3 min read' },
+      { id: 'vid5', type: 'video', title: 'Responding to Microaggressions', duration: '6:20' },
+      { id: 'art4', type: 'article', title: 'Documenting Workplace Incidents', duration: '4 min read' },
+      { id: 'vid6', type: 'video', title: 'Building Allies in the Workplace', duration: '7:45' },
+    ]
+  },
+  {
+    id: 'leadership',
+    title: 'Leadership Development',
+    description: 'Develop essential leadership skills for tech professionals.',
+    contents: [
+      { id: 'vid7', type: 'video', title: 'Leading Technical Teams', duration: '8:30' },
+      { id: 'art5', type: 'article', title: 'The Art of Delegation', duration: '5 min read' },
+      { id: 'vid8', type: 'video', title: 'Giving Constructive Feedback', duration: '6:15' },
+      { id: 'art6', type: 'article', title: 'Mentoring Others Effectively', duration: '4 min read' },
+      { id: 'vid9', type: 'video', title: 'Managing Conflict in Teams', duration: '9:20' },
+      { id: 'art7', type: 'article', title: 'Building Trust as a Leader', duration: '3 min read' },
+    ]
+  },
+  {
+    id: 'negotiation',
+    title: 'Salary Negotiation Mastery',
+    description: 'Master the art of negotiating your worth in tech.',
+    contents: [
+      { id: 'vid10', type: 'video', title: 'Researching Market Salaries', duration: '4:45' },
+      { id: 'art8', type: 'article', title: 'Preparing Your Negotiation Script', duration: '6 min read' },
+      { id: 'vid11', type: 'video', title: 'Role-Playing Negotiation Scenarios', duration: '12:30' },
+      { id: 'art9', type: 'article', title: 'Handling Counter-Offers', duration: '4 min read' },
+      { id: 'vid12', type: 'video', title: 'Negotiating Benefits and Perks', duration: '7:15' },
+    ]
+  },
+  {
+    id: 'technical',
+    title: 'Technical Skills Enhancement',
+    description: 'Stay current with the latest technical skills and trends.',
+    contents: [
+      { id: 'vid13', type: 'video', title: 'Introduction to Machine Learning', duration: '15:20' },
+      { id: 'art10', type: 'article', title: 'Getting Started with AI/ML', duration: '8 min read' },
+      { id: 'vid14', type: 'video', title: 'Cloud Computing Fundamentals', duration: '12:45' },
+      { id: 'art11', type: 'article', title: 'DevOps Best Practices', duration: '6 min read' },
+      { id: 'vid15', type: 'video', title: 'Cybersecurity Essentials', duration: '18:30' },
+      { id: 'art12', type: 'article', title: 'Data Science for Beginners', duration: '7 min read' },
+    ]
+  },
+  {
+    id: 'communication',
+    title: 'Communication Excellence',
+    description: 'Master communication skills essential for tech professionals.',
+    contents: [
+      { id: 'vid16', type: 'video', title: 'Writing Clear Technical Documentation', duration: '8:15' },
+      { id: 'art13', type: 'article', title: 'Effective Email Communication', duration: '4 min read' },
+      { id: 'vid17', type: 'video', title: 'Presenting Technical Concepts', duration: '10:30' },
+      { id: 'art14', type: 'article', title: 'Storytelling in Tech', duration: '5 min read' },
+      { id: 'vid18', type: 'video', title: 'Cross-Cultural Communication', duration: '11:45' },
+    ]
+  },
+  {
+    id: 'career',
+    title: 'Career Advancement',
+    description: 'Strategies for advancing your career in STEM.',
+    contents: [
+      { id: 'vid19', type: 'video', title: 'Building Your Personal Brand', duration: '9:20' },
+      { id: 'art15', type: 'article', title: 'Creating a Career Development Plan', duration: '6 min read' },
+      { id: 'vid20', type: 'video', title: 'Networking for Introverts', duration: '7:45' },
+      { id: 'art16', type: 'article', title: 'Switching Careers in Tech', duration: '8 min read' },
+      { id: 'vid21', type: 'video', title: 'Building a Portfolio Project', duration: '14:30' },
+      { id: 'art17', type: 'article', title: 'Contributing to Open Source', duration: '5 min read' },
+    ]
+  },
+  {
+    id: 'wellness',
+    title: 'Work-Life Balance',
+    description: 'Maintain your well-being while excelling in tech.',
+    contents: [
+      { id: 'vid22', type: 'video', title: 'Managing Stress in Tech', duration: '6:30' },
+      { id: 'art18', type: 'article', title: 'Setting Healthy Boundaries', duration: '4 min read' },
+      { id: 'vid23', type: 'video', title: 'Mindfulness for Developers', duration: '8:15' },
+      { id: 'art19', type: 'article', title: 'Preventing Burnout', duration: '5 min read' },
+      { id: 'vid24', type: 'video', title: 'Physical Health for Tech Workers', duration: '12:45' },
+      { id: 'art20', type: 'article', title: 'Mental Health Resources', duration: '3 min read' },
+    ]
+  },
+  {
+    id: 'innovation',
+    title: 'Innovation & Creativity',
+    description: 'Foster creativity and innovation in your technical work.',
+    contents: [
+      { id: 'vid25', type: 'video', title: 'Design Thinking in Tech', duration: '13:20' },
+      { id: 'art21', type: 'article', title: 'Creative Problem Solving', duration: '6 min read' },
+      { id: 'vid26', type: 'video', title: 'User-Centered Design', duration: '11:15' },
+      { id: 'art22', type: 'article', title: 'Innovation Frameworks', duration: '7 min read' },
+      { id: 'vid27', type: 'video', title: 'Prototyping and Testing', duration: '16:30' },
+    ]
+  },
+  {
+    id: 'diversity',
+    title: 'Diversity & Inclusion',
+    description: 'Learn about creating inclusive tech environments.',
+    contents: [
+      { id: 'vid28', type: 'video', title: 'Understanding Unconscious Bias', duration: '9:45' },
+      { id: 'art23', type: 'article', title: 'Inclusive Hiring Practices', duration: '5 min read' },
+      { id: 'vid29', type: 'video', title: 'Building Inclusive Teams', duration: '12:20' },
+      { id: 'art24', type: 'article', title: 'Allyship in Tech', duration: '6 min read' },
+      { id: 'vid30', type: 'video', title: 'Creating Safe Spaces', duration: '8:15' },
+      { id: 'art25', type: 'article', title: 'Diversity Metrics and Goals', duration: '4 min read' },
+    ]
+  },
+  {
+    id: 'entrepreneurship',
+    title: 'Tech Entrepreneurship',
+    description: 'Start your journey as a tech entrepreneur.',
+    contents: [
+      { id: 'vid31', type: 'video', title: 'Ideation and Validation', duration: '14:30' },
+      { id: 'art26', type: 'article', title: 'Building an MVP', duration: '7 min read' },
+      { id: 'vid32', type: 'video', title: 'Pitching Your Tech Idea', duration: '10:45' },
+      { id: 'art27', type: 'article', title: 'Funding Strategies for Women', duration: '8 min read' },
+      { id: 'vid33', type: 'video', title: 'Scaling Your Tech Startup', duration: '18:20' },
+      { id: 'art28', type: 'article', title: 'Legal Basics for Founders', duration: '6 min read' },
+    ]
+  },
+  {
+    id: 'public-speaking',
+    title: 'Public Speaking for Tech',
+    description: 'Master the art of public speaking in technical contexts.',
+    contents: [
+      { id: 'vid34', type: 'video', title: 'Overcoming Stage Fright', duration: '7:30' },
+      { id: 'art29', type: 'article', title: 'Structuring Technical Talks', duration: '5 min read' },
+      { id: 'vid35', type: 'video', title: 'Using Visual Aids Effectively', duration: '9:15' },
+      { id: 'art30', type: 'article', title: 'Handling Q&A Sessions', duration: '4 min read' },
+      { id: 'vid36', type: 'video', title: 'Conference Speaking Tips', duration: '11:45' },
+      { id: 'art31', type: 'article', title: 'Building Speaking Confidence', duration: '6 min read' },
     ]
   },
 ];
