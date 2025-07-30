@@ -84,18 +84,24 @@ const SignUpScreen = ({ navigation }: any) => {
       // }
 
       // 4. Save preferences
-      await setDoc(doc(db, "users", user.uid), {
-        uid: user.uid,
-        role: role, 
-        username: username,
-        phone: phone,
-        showPhone: showPhone,
-        bio: bio,
-        location: location,
-        skills: skills,
-        // profilePicUrl,
-        // cvUrl,
-      });
+      try{
+        setDoc(doc(db, "users", user.uid), {
+          uid: user.uid,
+          role: role, 
+          username: username,
+          phone: phone,
+          showPhone: showPhone,
+          bio: bio,
+          location: location,
+          skills: skills,
+          // profilePicUrl,
+          // cvUrl,
+        });
+      }
+      catch(error){
+        console.log(error);
+      }
+
       console.log('User preferences saved successfully.');
       Alert.alert('Success', 'Account created! Please complete your onboarding.');
       if (role === 'mentor') {
