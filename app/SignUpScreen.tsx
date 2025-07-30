@@ -5,11 +5,14 @@ import { Feather } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
 import { Account, Storage, ID } from 'react-native-appwrite';
-import { client, config } from '../lib/appwrite';
+//import { client, config } from '../lib/appwrite';
 import BackButton from '../components/BackButton';
-
-const account = new Account(client);
-const storage = new Storage(client);
+import { onAuthStateChanged } from "firebase/auth";
+import { setDoc, doc } from "firebase/firestore";
+import { auth, db } from "../lib/firebase-config.js";
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+//const account = new Account(client);
+//const storage = new Storage(client);
 
 const SKILLS = [
   'Biotechnology', 'Astrophysics', 'Environmental Science', 'Microbiology', 'Geology', 'Neuroscience', 'Chemistry', 'Marine Biology', 'Genetics', 'Physics',
@@ -58,35 +61,42 @@ const SignUpScreen = ({ navigation }: any) => {
     }
     setLoading(true);
     try {
+
       // 1. Create user
-      const userId = ID.unique();
-      await account.create(userId, email, password, name);
+      // const userId = ID.unique();
+      // await account.create(userId, email, password, name);
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
       // 2. Upload profile pic
-      let profilePicUrl = '';
-      if (profilePic) {
-        const file = { uri: profilePic.uri, name: profilePic.fileName || 'profile.jpg', type: profilePic.mimeType || 'image/jpeg', size: profilePic.fileSize || 1 };
-        const uploaded = await storage.createFile(config.storageId, ID.unique(), file);
-        profilePicUrl = uploaded.$id;
-      }
+      // let profilePicUrl = '';
+      // if (profilePic) {
+      //   const file = { uri: profilePic.uri, name: profilePic.fileName || 'profile.jpg', type: profilePic.mimeType || 'image/jpeg', size: profilePic.fileSize || 1 };
+      //   const uploaded = await storage.createFile(config.storageId, ID.unique(), file);
+      //   profilePicUrl = uploaded.$id;
+      // }
       // 3. Upload CV
-      let cvUrl = '';
-      if (cv) {
-        const file = { uri: cv.uri, name: cv.name, type: cv.mimeType || 'application/pdf', size: cv.size || 1 };
-        const uploaded = await storage.createFile(config.storageId, ID.unique(), file);
-        cvUrl = uploaded.$id;
-      }
+      // let cvUrl = '';
+      // if (cv) {
+      //   const file = { uri: cv.uri, name: cv.name, type: cv.mimeType || 'application/pdf', size: cv.size || 1 };
+      //   const uploaded = await storage.createFile(config.storageId, ID.unique(), file);
+      //   cvUrl = uploaded.$id;
+      // }
+
       // 4. Save preferences
-      await account.updatePrefs({
-        role, // Save the selected role
-        username,
-        phone,
-        showPhone,
-        bio,
-        location,
-        skills,
-        profilePicUrl,
-        cvUrl,
+      await setDoc(doc(db, "users", user.uid), {
+        uid: user.uid,
+        role: role, 
+        username: username,
+        phone: phone,
+        showPhone: showPhone,
+        bio: bio,
+        location: location,
+        skills: skills,
+        // profilePicUrl,
+        // cvUrl,
       });
+      console.log('User preferences saved successfully.');
       Alert.alert('Success', 'Account created! Please complete your onboarding.');
       if (role === 'mentor') {
         navigation.replace('MentorOnboarding');
