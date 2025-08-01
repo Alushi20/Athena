@@ -165,6 +165,7 @@ const LearningCenterScreen: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -182,6 +183,16 @@ const LearningCenterScreen: React.FC = () => {
     setSelectedContent(null);
   };
 
+  // Filter tracks and content based on search query
+  const filteredTracks = TRACKS.map(track => ({
+    ...track,
+    contents: track.contents.filter(content =>
+      content.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      track.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      track.description.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+  })).filter(track => track.contents.length > 0);
+
   if (loading) {
     return <View style={styles.center}><ActivityIndicator size="large" color={COLORS.primary} /></View>;
   }
@@ -191,7 +202,27 @@ const LearningCenterScreen: React.FC = () => {
   return (
     <Animated.ScrollView style={[styles.container, { opacity: fadeAnim }] }>
       <Text style={styles.title}>Learning Center</Text>
-      {TRACKS.map(track => (
+      
+      {/* Search Bar */}
+      <View style={styles.searchContainer}>
+        <View style={styles.searchBar}>
+          <Feather name="search" size={20} color={COLORS.textSecondary} />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search courses, videos, articles..."
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            placeholderTextColor={COLORS.textSecondary}
+          />
+          {searchQuery.length > 0 && (
+            <TouchableOpacity onPress={() => setSearchQuery('')}>
+              <Feather name="x" size={18} color={COLORS.textSecondary} />
+            </TouchableOpacity>
+          )}
+        </View>
+      </View>
+
+      {filteredTracks.map(track => (
         <View key={track.id} style={styles.trackSection}>
           <Text style={styles.trackTitle}>{track.title}</Text>
           <Text style={styles.trackDesc}>{track.description}</Text>
@@ -268,6 +299,30 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: COLORS.primary,
     marginBottom: 18,
+  },
+  searchContainer: {
+    marginBottom: 20,
+  },
+  searchBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.white,
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderWidth: 1,
+    borderColor: COLORS.accent,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 1,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 16,
+    color: COLORS.text,
+    marginLeft: 12,
   },
   trackSection: {
     marginBottom: 28,

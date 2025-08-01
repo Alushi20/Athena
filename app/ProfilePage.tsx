@@ -36,6 +36,7 @@ import {
 import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
 import { COLORS,FONTS } from "../constants/Colors";
+import { useTheme } from "../contexts/ThemeContext";
 
 const { width, height } = Dimensions.get('window');
 
@@ -49,6 +50,8 @@ type RootStackParamList = {
 type ProfileScreenProps = NativeStackScreenProps<RootStackParamList, "Profile">;
 
 export default function ProfileScreen({ navigation }: ProfileScreenProps) {
+  const { colors, theme, toggleTheme } = useTheme();
+  
   // Basic Profile Data
   const [email, setEmail] = useState<string | null>(null);
   const [profilePic, setProfilePic] = useState<string | null>(null);
@@ -291,7 +294,7 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
     }
   };
 
-  const toggleTheme = async () => {
+  const toggleThemeSetting = async () => {
     setThemeDark(!themeDark);
     await Account.updatePrefs({ themeDark: !themeDark });
   };
@@ -693,6 +696,25 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
                   <Switch 
                     value={mentorshipNotifications} 
                     onValueChange={setMentorshipNotifications}
+                    trackColor={{ false: COLORS.accent, true: COLORS.primary }}
+                    thumbColor={COLORS.white}
+                  />
+                </View>
+              </View>
+            </View>
+
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Appearance</Text>
+              
+              <View style={styles.settingsGroup}>
+                <View style={styles.settingItem}>
+                  <View style={styles.settingInfo}>
+                    <Feather name="moon" size={20} color={COLORS.textSecondary} />
+                    <Text style={styles.settingLabel}>Dark Mode</Text>
+                  </View>
+                  <Switch 
+                    value={theme === 'dark'} 
+                    onValueChange={toggleTheme}
                     trackColor={{ false: COLORS.accent, true: COLORS.primary }}
                     thumbColor={COLORS.white}
                   />

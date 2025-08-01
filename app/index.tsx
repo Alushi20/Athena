@@ -6,6 +6,7 @@ import { ParamListBase } from '@react-navigation/native';
 import { Feather } from '@expo/vector-icons';
 import { COLORS } from '../constants/Colors';
 import { TextStyle } from 'react-native';
+import { ThemeProvider } from '../contexts/ThemeContext';
 import CommunitiesScreen from './CommunitiesScreen';
 import WelcomeScreen from './WelcomeScreen';
 import LoginPage from './loginPage';
@@ -147,16 +148,18 @@ const FeedbackProgressStack: React.FC = () => (
 
 export default function App() {
     return (
-        <NavigationContainer>
-            <Stack.Navigator screenOptions={commonOptions} initialRouteName="Welcome">
-                <Stack.Screen name="Welcome" component={WelcomeScreen} />
-                <Stack.Screen name="LoginPage" component={LoginPage} />
-                            <Stack.Screen name="SignUp" component={SignUpScreen} />
-            <Stack.Screen name="MentorOnboarding" component={MentorOnboardingScreen} />
-            <Stack.Screen name="MenteeOnboarding" component={MenteeOnboardingScreen} />
-            <Stack.Screen name="About" component={AboutScreen} />
-            <Stack.Screen name="Main" component={MainTabs} />
-            </Stack.Navigator>
-        </NavigationContainer>
+        <ThemeProvider>
+            <NavigationContainer>
+                <Stack.Navigator screenOptions={commonOptions} initialRouteName="Welcome">
+                    <Stack.Screen name="Welcome" component={WelcomeScreen} />
+                    <Stack.Screen name="LoginPage" component={LoginPage} />
+                    <Stack.Screen name="SignUp" component={SignUpScreen} />
+                    <Stack.Screen name="MentorOnboarding" component={MentorOnboardingScreen} />
+                    <Stack.Screen name="MenteeOnboarding" component={MenteeOnboardingScreen} />
+                    <Stack.Screen name="About" component={AboutScreen} />
+                    <Stack.Screen name="Main" component={MainTabs} />
+                </Stack.Navigator>
+            </NavigationContainer>
+        </ThemeProvider>
     );
 }

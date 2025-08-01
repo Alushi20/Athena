@@ -5,12 +5,14 @@ import { client } from "../lib/appwrite";
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons, Feather } from '@expo/vector-icons';
 import { COLORS } from '../constants/Colors';
+import { useTheme } from '../contexts/ThemeContext';
 import {auth} from '../lib/firebase-config'
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { signOut } from 'firebase/auth';
 //const account = new Account(client);
 
 export default function LoginPage({ navigation }: { navigation: any }) {
+  const { colors } = useTheme();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -79,9 +81,101 @@ export default function LoginPage({ navigation }: { navigation: any }) {
     Animated.spring(btnScale, { toValue: 1, friction: 3, useNativeDriver: true }).start();
   };
 
+  const styles = StyleSheet.create({
+    gradient: {
+      flex: 1,
+    },
+    formContainer: {
+      width: 320,
+      backgroundColor: colors.background === '#121212' ? 'rgba(45,45,45,0.95)' : 'rgba(255,255,255,0.92)',
+      borderRadius: 24,
+      padding: 28,
+      alignItems: 'center',
+      shadowColor: colors.primary,
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.12,
+      shadowRadius: 16,
+      elevation: 8,
+    },
+    title: {
+      fontSize: 28,
+      fontWeight: 'bold',
+      color: colors.primary,
+      marginBottom: 6,
+      letterSpacing: 1.1,
+    },
+    subtitle: {
+      fontSize: 16,
+      color: colors.textSecondary,
+      marginBottom: 18,
+      fontWeight: '500',
+    },
+    errorText: {
+      color: colors.error,
+      fontWeight: 'bold',
+      fontSize: 15,
+      textAlign: 'center',
+      marginBottom: 2,
+    },
+    inputWrapper: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.background,
+      borderRadius: 16,
+      paddingHorizontal: 14,
+      marginBottom: 14,
+      borderWidth: 2,
+      borderColor: colors.background,
+      width: '100%',
+      height: 48,
+      shadowColor: colors.secondary,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.08,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+    inputFocused: {
+      borderColor: colors.primary,
+      backgroundColor: colors.white,
+      shadowOpacity: 0.18,
+    },
+    input: {
+      flex: 1,
+      fontSize: 16,
+      color: colors.textSecondary,
+      paddingVertical: 8,
+      backgroundColor: 'transparent',
+    },
+    button: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.primary,
+      borderRadius: 18,
+      paddingVertical: 12,
+      justifyContent: 'center',
+      width: '100%',
+      shadowColor: colors.primary,
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.12,
+      shadowRadius: 8,
+      elevation: 4,
+    },
+    buttonText: {
+      color: colors.white,
+      fontWeight: 'bold',
+      fontSize: 17,
+      letterSpacing: 1,
+    },
+    signupButton: {
+      backgroundColor: colors.background,
+      borderWidth: 2,
+      borderColor: colors.primary,
+    },
+  });
+
   return (
     <LinearGradient
-      colors={[COLORS.gradient[0], COLORS.gradient[1]]}
+      colors={colors.background === '#121212' ? ['#121212', '#1E1E1E'] : [COLORS.gradient[0], COLORS.gradient[1]]}
       style={styles.gradient}
     >
       <KeyboardAvoidingView
@@ -175,94 +269,4 @@ export default function LoginPage({ navigation }: { navigation: any }) {
   );
 }
 
-const styles = StyleSheet.create({
-  gradient: {
-    flex: 1,
-  },
-  formContainer: {
-    width: 320,
-    backgroundColor: 'rgba(255,255,255,0.92)',
-    borderRadius: 24,
-    padding: 28,
-    alignItems: 'center',
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.12,
-    shadowRadius: 16,
-    elevation: 8,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: COLORS.primary,
-    marginBottom: 6,
-    letterSpacing: 1.1,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: COLORS.textSecondary,
-    marginBottom: 18,
-    fontWeight: '500',
-  },
-  errorText: {
-    color: COLORS.error,
-    fontWeight: 'bold',
-    fontSize: 15,
-    textAlign: 'center',
-    marginBottom: 2,
-  },
-  inputWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: COLORS.background,
-    borderRadius: 16,
-    paddingHorizontal: 14,
-    marginBottom: 14,
-    borderWidth: 2,
-    borderColor: COLORS.background,
-    width: '100%',
-    height: 48,
-    shadowColor: COLORS.secondary,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  inputFocused: {
-    borderColor: COLORS.primary,
-    backgroundColor: COLORS.white,
-    shadowOpacity: 0.18,
-  },
-  input: {
-    flex: 1,
-    fontSize: 16,
-    color: COLORS.textSecondary,
-    paddingVertical: 8,
-    backgroundColor: 'transparent',
-  },
-  button: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: COLORS.primary,
-    borderRadius: 18,
-    paddingVertical: 12,
-    justifyContent: 'center',
-    width: '100%',
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.12,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  buttonText: {
-    color: COLORS.white,
-    fontWeight: 'bold',
-    fontSize: 17,
-    letterSpacing: 1,
-  },
-  signupButton: {
-    backgroundColor: COLORS.background,
-    borderWidth: 2,
-    borderColor: COLORS.primary,
-  },
-});
+

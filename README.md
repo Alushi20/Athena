@@ -37,9 +37,32 @@
   ### done
   and then you will se the app!! congarts!!!
 
-## Upcoming fetures and future roadmap
+## Current Features
 
-In the future we would like to add the aability to choose who you want to chat with and a support center, videos with explanations and connect with famous woman that work in STEM that will also be connected in our app to help the woman that face challanges. In addition we want to find a way to find people STEM jobs that are searching for woman so it will be much easier to find a job. in addition we want to add educational center with videos and tutorials related to STEM.
+### Dark Mode Support
+The app now includes a comprehensive dark mode system:
+
+- **Toggle Dark Mode**: Go to Profile → Settings → Appearance → Dark Mode
+- **Persistent Preference**: Your theme choice is saved and persists between app launches
+- **App-wide Theming**: All screens and components adapt to light/dark themes
+- **Visual Indicator**: The home screen shows the current theme mode
+
+### How to Use Dark Mode
+1. Navigate to your **Profile** page
+2. Go to the **Settings** tab
+3. Find the **Appearance** section
+4. Toggle the **Dark Mode** switch
+5. The entire app will instantly switch themes
+
+### Theme Features
+- **Light Theme**: Clean, bright interface with beige backgrounds
+- **Dark Theme**: Eye-friendly dark interface with proper contrast
+- **Dynamic Colors**: All UI elements adapt to the selected theme
+- **Smooth Transitions**: Instant theme switching without app restart
+
+## Upcoming features and future roadmap
+
+In the future we would like to add the ability to choose who you want to chat with and a support center, videos with explanations and connect with famous woman that work in STEM that will also be connected in our app to help the woman that face challenges. In addition we want to find a way to find people STEM jobs that are searching for woman so it will be much easier to find a job. in addition we want to add educational center with videos and tutorials related to STEM.
 
 
 ## Credits

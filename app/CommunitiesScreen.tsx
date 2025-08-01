@@ -13,6 +13,7 @@ import {
 } from "react-native";
 import { Feather, MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import { COLORS } from '../constants/Colors';
+import { useTheme } from '../contexts/ThemeContext';
 import BackButton from '../components/BackButton';
 
 const { width } = Dimensions.get('window');
@@ -303,6 +304,7 @@ const CHATS = [
 const CATEGORIES = ["All", "Career", "Support", "Advocacy", "Events", "Mentorship", "Leadership", "Wellness"];
 
 export default function CommunitiesScreen({ navigation }: any) {
+  const { colors } = useTheme();
   const [activeTab, setActiveTab] = useState('communities');
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [communities, setCommunities] = useState(COMMUNITIES);
