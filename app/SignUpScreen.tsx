@@ -117,7 +117,7 @@ const SignUpScreen = ({ navigation }: any) => {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <ScrollView style={styles.safeArea}>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -126,57 +126,79 @@ const SignUpScreen = ({ navigation }: any) => {
         <View style={{ flex: 1 }}>
           <ScrollView
             contentContainerStyle={styles.scrollContainer}
-            showsVerticalScrollIndicator={true}
+            showsVerticalScrollIndicator={false}
             bounces={true}
             alwaysBounceVertical={true}
             keyboardShouldPersistTaps="handled"
           >
-            {/* Header Section */}
+            {/* Enhanced Header Section */}
             <View style={styles.headerSection}>
               <View style={styles.headerTop}>
                 <BackButton color={COLORS.white} />
               </View>
               <View style={styles.headerContent}>
-                <Feather name="user-plus" size={32} color={COLORS.white} />
+                <View style={styles.headerIconContainer}>
+                  <Feather name="user-plus" size={28} color={COLORS.white} />
+                </View>
                 <Text style={styles.title}>Join Athena</Text>
                 <Text style={styles.subtitle}>Connect with amazing women in STEM</Text>
+                <View style={styles.headerProgress}>
+                  <View style={styles.progressBar}>
+                    <View style={styles.progressFill} />
+                  </View>
+                  <Text style={styles.progressText}>Step 1 of 4</Text>
+                </View>
               </View>
             </View>
 
-            {/* Role Selection Section */}
+            {/* Enhanced Role Selection Section */}
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Choose Your Role</Text>
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>Choose Your Role</Text>
+                <Text style={styles.sectionSubtitle}>Select how you'd like to participate</Text>
+              </View>
               <View style={styles.roleSelection}>
                 <TouchableOpacity
                   style={[styles.roleButton, role === 'mentor' && styles.roleButtonSelected]}
                   onPress={() => setRole('mentor')}
                 >
-                  <View style={styles.roleIconContainer}>
+                  <View style={[styles.roleIconContainer, role === 'mentor' && styles.roleIconContainerSelected]}>
                     <Feather name="award" size={24} color={role === 'mentor' ? COLORS.white : COLORS.primary} />
                   </View>
                   <Text style={[styles.roleButtonText, role === 'mentor' && styles.roleButtonTextSelected]}>I'm a Mentor</Text>
-                  <Text style={[styles.roleDescription, role === 'mentor' && styles.roleDescriptionSelected]}>Share your expertise</Text>
+                  <Text style={[styles.roleDescription, role === 'mentor' && styles.roleDescriptionSelected]}>Share your expertise and guide others</Text>
+                  <View style={[styles.roleCheck, role === 'mentor' && styles.roleCheckSelected]}>
+                    <Feather name="check" size={16} color={role === 'mentor' ? COLORS.white : 'transparent'} />
+                  </View>
                 </TouchableOpacity>
 
                 <TouchableOpacity
                   style={[styles.roleButton, role === 'mentee' && styles.roleButtonSelected]}
                   onPress={() => setRole('mentee')}
                 >
-                  <View style={styles.roleIconContainer}>
+                  <View style={[styles.roleIconContainer, role === 'mentee' && styles.roleIconContainerSelected]}>
                     <Feather name="book-open" size={24} color={role === 'mentee' ? COLORS.white : COLORS.primary} />
                   </View>
                   <Text style={[styles.roleButtonText, role === 'mentee' && styles.roleButtonTextSelected]}>I'm a Mentee</Text>
-                  <Text style={[styles.roleDescription, role === 'mentee' && styles.roleDescriptionSelected]}>Learn and grow</Text>
+                  <Text style={[styles.roleDescription, role === 'mentee' && styles.roleDescriptionSelected]}>Learn and grow with guidance</Text>
+                  <View style={[styles.roleCheck, role === 'mentee' && styles.roleCheckSelected]}>
+                    <Feather name="check" size={16} color={role === 'mentee' ? COLORS.white : 'transparent'} />
+                  </View>
                 </TouchableOpacity>
               </View>
             </View>
 
-            {/* Basic Information Section */}
+            {/* Enhanced Basic Information Section */}
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Basic Information</Text>
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>Basic Information</Text>
+                <Text style={styles.sectionSubtitle}>Tell us about yourself</Text>
+              </View>
               <View style={styles.inputGroup}>
                 <View style={styles.inputContainer}>
-                  <Feather name="mail" size={18} color={COLORS.textSecondary} style={styles.inputIcon} />
+                  <View style={styles.inputIconContainer}>
+                    <Feather name="mail" size={18} color={COLORS.textSecondary} />
+                  </View>
                   <TextInput
                     style={styles.input}
                     placeholder="Email address"
@@ -184,65 +206,84 @@ const SignUpScreen = ({ navigation }: any) => {
                     onChangeText={setEmail}
                     autoCapitalize="none"
                     keyboardType="email-address"
+                    placeholderTextColor={COLORS.textSecondary}
                   />
                 </View>
 
                 <View style={styles.inputContainer}>
-                  <Feather name="user" size={18} color={COLORS.textSecondary} style={styles.inputIcon} />
+                  <View style={styles.inputIconContainer}>
+                    <Feather name="user" size={18} color={COLORS.textSecondary} />
+                  </View>
                   <TextInput
                     style={styles.input}
                     placeholder="Full name"
                     value={name}
                     onChangeText={setName}
+                    placeholderTextColor={COLORS.textSecondary}
                   />
                 </View>
 
                 <View style={styles.inputContainer}>
-                  <Feather name="at-sign" size={18} color={COLORS.textSecondary} style={styles.inputIcon} />
+                  <View style={styles.inputIconContainer}>
+                    <Feather name="at-sign" size={18} color={COLORS.textSecondary} />
+                  </View>
                   <TextInput
                     style={styles.input}
                     placeholder="Username"
                     value={username}
                     onChangeText={setUsername}
                     autoCapitalize="none"
+                    placeholderTextColor={COLORS.textSecondary}
                   />
                 </View>
 
                 <View style={styles.inputContainer}>
-                  <Feather name="lock" size={18} color={COLORS.textSecondary} style={styles.inputIcon} />
+                  <View style={styles.inputIconContainer}>
+                    <Feather name="lock" size={18} color={COLORS.textSecondary} />
+                  </View>
                   <TextInput
                     style={styles.input}
                     placeholder="Password"
                     value={password}
                     onChangeText={setPassword}
                     secureTextEntry
+                    placeholderTextColor={COLORS.textSecondary}
                   />
                 </View>
               </View>
             </View>
 
-            {/* Contact Information Section */}
+            {/* Enhanced Contact Information Section */}
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Contact Information</Text>
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>Contact Information</Text>
+                <Text style={styles.sectionSubtitle}>How can we reach you?</Text>
+              </View>
               <View style={styles.inputGroup}>
                 <View style={styles.inputContainer}>
-                  <Feather name="phone" size={18} color={COLORS.textSecondary} style={styles.inputIcon} />
+                  <View style={styles.inputIconContainer}>
+                    <Feather name="phone" size={18} color={COLORS.textSecondary} />
+                  </View>
                   <TextInput
                     style={styles.input}
                     placeholder="Phone number"
                     value={phone}
                     onChangeText={setPhone}
                     keyboardType="phone-pad"
+                    placeholderTextColor={COLORS.textSecondary}
                   />
                 </View>
 
                 <View style={styles.inputContainer}>
-                  <Feather name="map-pin" size={18} color={COLORS.textSecondary} style={styles.inputIcon} />
+                  <View style={styles.inputIconContainer}>
+                    <Feather name="map-pin" size={18} color={COLORS.textSecondary} />
+                  </View>
                   <TextInput
                     style={styles.input}
                     placeholder="Location"
                     value={location}
                     onChangeText={setLocation}
+                    placeholderTextColor={COLORS.textSecondary}
                   />
                 </View>
 
@@ -261,9 +302,12 @@ const SignUpScreen = ({ navigation }: any) => {
               </View>
             </View>
 
-            {/* Bio Section */}
+            {/* Enhanced Bio Section */}
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>About You</Text>
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>About You</Text>
+                <Text style={styles.sectionSubtitle}>Share your story</Text>
+              </View>
               <View style={styles.bioContainer}>
                 <TextInput
                   style={styles.bioInput}
@@ -272,14 +316,17 @@ const SignUpScreen = ({ navigation }: any) => {
                   onChangeText={setBio}
                   multiline
                   numberOfLines={4}
+                  placeholderTextColor={COLORS.textSecondary}
                 />
               </View>
             </View>
 
-            {/* Skills Section */}
+            {/* Enhanced Skills Section */}
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Skills & Expertise</Text>
-              <Text style={styles.sectionSubtitle}>Select your areas of expertise or interest</Text>
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>Skills & Expertise</Text>
+                <Text style={styles.sectionSubtitle}>Select your areas of expertise or interest</Text>
+              </View>
               <View style={styles.skillsContainer}>
                 {SKILLS.map(skill => (
                   <TouchableOpacity
@@ -293,9 +340,12 @@ const SignUpScreen = ({ navigation }: any) => {
               </View>
             </View>
 
-            {/* Upload Section */}
+            {/* Enhanced Upload Section */}
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Profile & Documents</Text>
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>Profile & Documents</Text>
+                <Text style={styles.sectionSubtitle}>Add your profile picture and resume</Text>
+              </View>
 
               <View style={styles.uploadSection}>
                 <TouchableOpacity style={styles.uploadCard} onPress={handlePickProfilePic}>
@@ -326,7 +376,7 @@ const SignUpScreen = ({ navigation }: any) => {
               </View>
             </View>
 
-            {/* Submit Button */}
+            {/* Enhanced Submit Button */}
             <View style={styles.submitSection}>
               <TouchableOpacity
                 style={[styles.submitBtn, loading && styles.submitBtnDisabled]}
@@ -354,7 +404,7 @@ const SignUpScreen = ({ navigation }: any) => {
           </ScrollView>
         </View>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </ScrollView>
   );
 };
 
@@ -396,15 +446,49 @@ const styles = StyleSheet.create({
     opacity: 0.9,
     textAlign: 'center',
   },
+  headerIconContainer: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  headerProgress: {
+    marginTop: 20,
+    alignItems: 'center',
+  },
+  progressBar: {
+    width: 120,
+    height: 4,
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    borderRadius: 2,
+    marginBottom: 8,
+  },
+  progressFill: {
+    width: '25%',
+    height: '100%',
+    backgroundColor: COLORS.white,
+    borderRadius: 2,
+  },
+  progressText: {
+    fontSize: 12,
+    color: COLORS.white,
+    opacity: 0.8,
+  },
   section: {
     paddingHorizontal: 24,
     marginTop: 24,
+  },
+  sectionHeader: {
+    marginBottom: 20,
   },
   sectionTitle: {
     fontSize: 20,
     fontWeight: 'bold',
     color: COLORS.text,
-    marginBottom: 16,
+    marginBottom: 8,
   },
   sectionSubtitle: {
     fontSize: 14,
@@ -459,6 +543,23 @@ const styles = StyleSheet.create({
     color: COLORS.white,
     opacity: 0.9,
   },
+  roleIconContainerSelected: {
+    backgroundColor: COLORS.white,
+  },
+  roleCheck: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: COLORS.accent,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  roleCheckSelected: {
+    backgroundColor: COLORS.white,
+  },
   inputGroup: {
     gap: 16,
   },
@@ -474,6 +575,15 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 2,
     elevation: 1,
+  },
+  inputIconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: COLORS.accent,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
   },
   inputIcon: {
     marginRight: 12,

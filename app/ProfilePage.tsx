@@ -20,8 +20,6 @@ import {
 } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import CustomButton from "../components/CustomButton";
-import { Account, Storage, ID } from "react-native-appwrite";
-import { client, config } from "../lib/appwrite";
 import { 
   Feather, 
   MaterialCommunityIcons, 
@@ -37,6 +35,9 @@ import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
 import { COLORS,FONTS } from "../constants/Colors";
 import { useTheme } from "../contexts/ThemeContext";
+// Firebase imports
+import { auth, db } from "../lib/firebase-config.js";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 
 const { width, height } = Dimensions.get('window');
 
@@ -60,7 +61,7 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
   const [bio, setBio] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
   const [location, setLocation] = useState<string>("");
-  const [skills, setSkills] = useState<string>("");
+  const [skills, setSkills] = useState<string[]>([]);
   const [linkedIn, setLinkedIn] = useState<string>("");
   const [github, setGithub] = useState<string>("");
   const [website, setWebsite] = useState<string>("");
@@ -98,18 +99,22 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
   // UI State
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [role, setRole] = useState<'mentor' | 'mentee' | null>(null);
-  const [uploading, setUploading] = useState(false);
   const [editMode, setEditMode] = useState(false);
-  const [selectedColor, setSelectedColor] = useState(COLORS.primary);
-  const [completeness, setCompleteness] = useState(0.75);
   const [activeTab, setActiveTab] = useState('personal');
+  const [showProgressModal, setShowProgressModal] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
+  const [role, setRole] = useState<'mentor' | 'mentee'>('mentee');
+  
+  // Progress & Stats
+  const [totalPoints, setTotalPoints] = useState(100);
+  const [level, setLevel] = useState(2);
+  const [levelProgress, setLevelProgress] = useState(60);
 
   const tabs = [
     { id: 'personal', title: 'Personal', icon: 'user' },
     { id: 'professional', title: 'Professional', icon: 'briefcase' },
     { id: 'documents', title: 'Documents', icon: 'file-text' },
+    { id: 'progress', title: 'Progress', icon: 'trending-up' },
     { id: 'connections', title: 'Current Connections', icon: 'users' },
     { id: 'settings', title: 'Settings', icon: 'settings' },
   ];
@@ -121,43 +126,74 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
 
   async function fetchUserData() {
     try {
-      const user = await Account.get();
-      setEmail(user.email);
-      setDisplayName(user.name);
-      setUsername(user.prefs?.username || "");
-      setBio(user.prefs?.bio || "");
-      setPhone(user.prefs?.phone || "");
-      setLocation(user.prefs?.location || "");
-      setSkills(user.prefs?.skills || "");
-      setLinkedIn(user.prefs?.linkedIn || "");
-      setGithub(user.prefs?.github || "");
-      setWebsite(user.prefs?.website || "");
-      setTimezone(user.prefs?.timezone || "");
-      setLanguages(user.prefs?.languages || "");
-      setInterests(user.prefs?.interests || "");
-      setCompany(user.prefs?.company || "");
-      setPosition(user.prefs?.position || "");
-      setExperience(user.prefs?.experience || "");
-      setEducation(user.prefs?.education || "");
-      setCertifications(user.prefs?.certifications || "");
-      setCvUrl(user.prefs?.cvUrl || null);
-      setCvName(user.prefs?.cvName || null);
-      setPortfolioUrl(user.prefs?.portfolioUrl || null);
-      setVerificationStatus(user.prefs?.verificationStatus || 'unverified');
-      setVerificationDocName(user.prefs?.verificationDocName || null);
-      setThemeDark(user.prefs?.themeDark || false);
-      setNotifications(user.prefs?.notifications !== false);
-      setEmailNotifications(user.prefs?.emailNotifications !== false);
-      setPushNotifications(user.prefs?.pushNotifications !== false);
-      setMentorshipNotifications(user.prefs?.mentorshipNotifications !== false);
-      setWorkshopNotifications(user.prefs?.workshopNotifications !== false);
-      setEventNotifications(user.prefs?.eventNotifications !== false);
-      setPrivacyPublic(user.prefs?.privacyPublic !== false);
-      setShowEmail(user.prefs?.showEmail !== false);
-      setShowPhone(user.prefs?.showPhone || false);
-      setShowLocation(user.prefs?.showLocation !== false);
-      setRole(user.prefs?.role || 'mentee');
-      setProfilePic(user.prefs?.profilePicUrl ? `${config.endpoint}/storage/buckets/${config.storageId}/files/${user.prefs.profilePicUrl}/view?project=${config.projectId}` : null);
+      const currentUser = auth.currentUser;
+      if (!currentUser) {
+        setError('No user logged in');
+        setLoading(false);
+        return;
+      }
+
+      // Get user data from Firestore
+      const userDocRef = doc(db, "users", currentUser.uid);
+      const userDoc = await getDoc(userDocRef);
+      
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        
+        // Set basic profile data
+        setEmail(currentUser.email);
+        setDisplayName(userData.name || currentUser.displayName);
+        setUsername(userData.username || "");
+        setBio(userData.bio || "");
+        setPhone(userData.phone || "");
+        setLocation(userData.location || "");
+        setSkills(userData.skills || []);
+        setRole(userData.role || 'mentee');
+        setShowPhone(userData.showPhone || false);
+        
+        // Set professional info
+        setCompany(userData.company || "");
+        setPosition(userData.position || "");
+        setExperience(userData.experience || "");
+        setEducation(userData.education || "");
+        setCertifications(userData.certifications || "");
+        
+        // Set social links
+        setLinkedIn(userData.linkedIn || "");
+        setGithub(userData.github || "");
+        setWebsite(userData.website || "");
+        
+        // Set additional info
+        setTimezone(userData.timezone || "");
+        setLanguages(userData.languages || "");
+        setInterests(userData.interests || "");
+        
+        // Set documents
+        setCvUrl(userData.cvUrl || null);
+        setCvName(userData.cvName || null);
+        setPortfolioUrl(userData.portfolioUrl || null);
+        setVerificationStatus(userData.verificationStatus || 'unverified');
+        setVerificationDocName(userData.verificationDocName || null);
+        
+        // Set settings
+        setThemeDark(userData.themeDark || false);
+        setNotifications(userData.notifications !== false);
+        setEmailNotifications(userData.emailNotifications !== false);
+        setPushNotifications(userData.pushNotifications !== false);
+        setMentorshipNotifications(userData.mentorshipNotifications !== false);
+        setWorkshopNotifications(userData.workshopNotifications !== false);
+        setEventNotifications(userData.eventNotifications !== false);
+        setPrivacyPublic(userData.privacyPublic !== false);
+        setShowEmail(userData.showEmail !== false);
+        setShowLocation(userData.showLocation !== false);
+        
+        // Set profile picture
+        setProfilePic(userData.profilePicUrl || null);
+        
+      } else {
+        console.log("No user document found");
+        setError('User profile not found');
+      }
     } catch (error) {
       console.error('Error fetching user data:', error);
       setError('Failed to load profile data');
@@ -166,9 +202,8 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
     }
   }
 
-  const renderSkillTags = (skillsString: string) => {
-    if (!skillsString) return null;
-    const skillsArray = skillsString.split(',').map(skill => skill.trim());
+  const renderSkillTags = (skillsArray: string[]) => {
+    if (!skillsArray || skillsArray.length === 0) return null;
     return (
       <View style={styles.skillsContainer}>
         {skillsArray.map((skill, index) => (
@@ -206,102 +241,63 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
   };
 
   const pickImage = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.8,
-    });
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
 
-    if (!result.canceled && result.assets && result.assets.length > 0) {
-      setUploading(true);
-      try {
-        const file = {
-          uri: result.assets[0].uri,
-          name: result.assets[0].fileName || 'profile.jpg',
-          type: result.assets[0].mimeType || 'image/jpeg',
-          size: result.assets[0].fileSize || 1,
-        };
-        const uploaded = await Storage.createFile(config.storageId, ID.unique(), file);
-        await Account.updatePrefs({ profilePicUrl: uploaded.$id });
-        setProfilePic(`${config.endpoint}/storage/buckets/${config.storageId}/files/${uploaded.$id}/view?project=${config.projectId}`);
-        Alert.alert('Success', 'Profile picture updated successfully!');
-      } catch (error) {
-        Alert.alert('Error', 'Failed to upload profile picture');
-      } finally {
-        setUploading(false);
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        setProfilePic(result.assets[0].uri);
+        // TODO: Upload to Firebase Storage and update profile
       }
+    } catch (error) {
+      console.error('Error picking image:', error);
+      Alert.alert('Error', 'Failed to pick image');
     }
   };
 
   const pickCV = async () => {
-    const result = await DocumentPicker.getDocumentAsync({
-      type: 'application/pdf',
-    });
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: 'application/pdf',
+      });
 
-    if (result.assets && result.assets.length > 0) {
-      setUploading(true);
-      try {
-        const file = {
-          uri: result.assets[0].uri,
-          name: result.assets[0].name,
-          type: result.assets[0].mimeType || 'application/pdf',
-          size: result.assets[0].size || 1,
-        };
-        const uploaded = await Storage.createFile(config.storageId, ID.unique(), file);
-        await Account.updatePrefs({ 
-          cvUrl: uploaded.$id,
-          cvName: result.assets[0].name 
-        });
-        setCvUrl(uploaded.$id);
+      if (result.assets && result.assets.length > 0) {
         setCvName(result.assets[0].name);
-        Alert.alert('Success', 'CV uploaded successfully!');
-      } catch (error) {
-        Alert.alert('Error', 'Failed to upload CV');
-      } finally {
-        setUploading(false);
+        // TODO: Upload to Firebase Storage and update profile
       }
+    } catch (error) {
+      console.error('Error picking CV:', error);
+      Alert.alert('Error', 'Failed to pick CV');
     }
   };
 
   const pickVerificationDoc = async () => {
-    const result = await DocumentPicker.getDocumentAsync({
-      type: 'application/pdf',
-    });
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: 'application/pdf',
+      });
 
-    if (result.assets && result.assets.length > 0) {
-      setUploading(true);
-      try {
-        const file = {
-          uri: result.assets[0].uri,
-          name: result.assets[0].name,
-          type: result.assets[0].mimeType || 'application/pdf',
-          size: result.assets[0].size || 1,
-        };
-        const uploaded = await Storage.createFile(config.storageId, ID.unique(), file);
-        await Account.updatePrefs({ 
-          verificationDocUrl: uploaded.$id,
-          verificationDocName: result.assets[0].name 
-        });
-        setVerificationStatus('pending');
+      if (result.assets && result.assets.length > 0) {
         setVerificationDocName(result.assets[0].name);
-        Alert.alert('Success', 'Verification document uploaded successfully!');
-      } catch (error) {
-        Alert.alert('Error', 'Failed to upload verification document');
-      } finally {
-        setUploading(false);
+        // TODO: Upload to Firebase Storage and update profile
       }
+    } catch (error) {
+      console.error('Error picking verification document:', error);
+      Alert.alert('Error', 'Failed to pick verification document');
     }
   };
 
   const toggleThemeSetting = async () => {
     setThemeDark(!themeDark);
-    await Account.updatePrefs({ themeDark: !themeDark });
+    toggleTheme();
   };
 
   const toggleNotifications = async () => {
     setNotifications(!notifications);
-    await Account.updatePrefs({ notifications: !notifications });
   };
 
   const toggleEditMode = () => {
@@ -309,32 +305,52 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
   };
 
   const saveProfile = async () => {
-    setLoading(true);
     try {
-      await Account.updatePrefs({
-        username,
-        bio,
-        phone,
-        location,
-        skills,
-        linkedIn,
-        github,
-        website,
-        timezone,
-        languages,
-        interests,
-        company,
-        position,
-        experience,
-        education,
-        certifications,
+      const currentUser = auth.currentUser;
+      if (!currentUser) {
+        Alert.alert('Error', 'No user logged in');
+        return;
+      }
+
+      // Update user data in Firestore
+      const userDocRef = doc(db, "users", currentUser.uid);
+      await updateDoc(userDocRef, {
+        name: displayName,
+        username: username,
+        bio: bio,
+        phone: phone,
+        location: location,
+        skills: skills,
+        company: company,
+        position: position,
+        experience: experience,
+        education: education,
+        certifications: certifications,
+        linkedIn: linkedIn,
+        github: github,
+        website: website,
+        timezone: timezone,
+        languages: languages,
+        interests: interests,
+        showPhone: showPhone,
+        showEmail: showEmail,
+        showLocation: showLocation,
+        themeDark: themeDark,
+        notifications: notifications,
+        emailNotifications: emailNotifications,
+        pushNotifications: pushNotifications,
+        mentorshipNotifications: mentorshipNotifications,
+        workshopNotifications: workshopNotifications,
+        eventNotifications: eventNotifications,
+        privacyPublic: privacyPublic,
+        // TODO: Add profile picture and document URLs when Firebase Storage is implemented
       });
+
       setEditMode(false);
       Alert.alert('Success', 'Profile updated successfully!');
     } catch (error) {
-      Alert.alert('Error', 'Failed to update profile');
-    } finally {
-      setLoading(false);
+      console.error('Error saving profile:', error);
+      Alert.alert('Error', 'Failed to save profile');
     }
   };
 
@@ -342,431 +358,340 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
     switch (activeTab) {
       case 'personal':
         return (
-          <View style={styles.tabContent}>
+          <ScrollView showsVerticalScrollIndicator={false} style={styles.tabContent}>
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Basic Information</Text>
-              <View style={styles.inputGroup}>
-                <View style={styles.inputContainer}>
-                  <Feather name="user" size={18} color={COLORS.textSecondary} style={styles.inputIcon} />
-                  <TextInput 
-                    style={styles.input} 
-                    placeholder="Full name" 
-                    value={displayName || ""} 
-                    onChangeText={setDisplayName}
-                    editable={editMode}
-                  />
-                </View>
-                
-                <View style={styles.inputContainer}>
-                  <Feather name="at-sign" size={18} color={COLORS.textSecondary} style={styles.inputIcon} />
-                  <TextInput 
-                    style={styles.input} 
-                    placeholder="Username" 
-                    value={username} 
-                    onChangeText={setUsername}
-                    editable={editMode}
-                  />
-                </View>
-                
-                <View style={styles.inputContainer}>
-                  <Feather name="phone" size={18} color={COLORS.textSecondary} style={styles.inputIcon} />
-                  <TextInput 
-                    style={styles.input} 
-                    placeholder="Phone number" 
-                    value={phone} 
-                    onChangeText={setPhone}
-                    editable={editMode}
-                  />
-                </View>
-                
-                <View style={styles.inputContainer}>
-                  <Feather name="map-pin" size={18} color={COLORS.textSecondary} style={styles.inputIcon} />
-                  <TextInput 
-                    style={styles.input} 
-                    placeholder="Location" 
-                    value={location} 
-                    onChangeText={setLocation}
-                    editable={editMode}
-                  />
-                </View>
+              <View style={styles.sectionHeader}>
+                <Feather name="user" size={20} color={COLORS.primary} />
+                <Text style={styles.sectionTitle}>Basic Information</Text>
               </View>
-            </View>
-
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>About You</Text>
-              <View style={styles.bioContainer}>
+              
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>Display Name</Text>
                 <TextInput 
-                  style={styles.bioInput} 
-                  placeholder="Tell us about yourself..." 
-                  value={bio} 
-                  onChangeText={setBio}
-                  multiline 
-                  numberOfLines={4}
+                  style={styles.input} 
+                  placeholder="Your display name" 
+                  value={displayName || ''} 
+                  onChangeText={setDisplayName}
                   editable={editMode}
                 />
               </View>
-            </View>
 
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Skills & Interests</Text>
               <View style={styles.inputGroup}>
-                <View style={styles.inputContainer}>
-                  <Feather name="award" size={18} color={COLORS.textSecondary} style={styles.inputIcon} />
-                  <TextInput 
-                    style={styles.input} 
-                    placeholder="Skills (comma separated)" 
-                    value={skills} 
-                    onChangeText={setSkills}
-                    editable={editMode}
-                  />
-                </View>
-                
-                <View style={styles.inputContainer}>
-                  <Feather name="heart" size={18} color={COLORS.textSecondary} style={styles.inputIcon} />
-                  <TextInput 
-                    style={styles.input} 
-                    placeholder="Interests" 
-                    value={interests} 
-                    onChangeText={setInterests}
-                    editable={editMode}
-                  />
-                </View>
+                <Text style={styles.inputLabel}>Username</Text>
+                <TextInput 
+                  style={styles.input} 
+                  placeholder="Your username" 
+                  value={username} 
+                  onChangeText={setUsername}
+                  editable={editMode}
+                />
               </View>
-              {renderSkillTags(skills)}
-            </View>
 
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Social Links</Text>
               <View style={styles.inputGroup}>
-                <View style={styles.inputContainer}>
-                  <Feather name="linkedin" size={18} color={COLORS.textSecondary} style={styles.inputIcon} />
-                  <TextInput 
-                    style={styles.input} 
-                    placeholder="LinkedIn URL" 
-                    value={linkedIn} 
-                    onChangeText={setLinkedIn}
-                    editable={editMode}
-                  />
-                </View>
-                
-                <View style={styles.inputContainer}>
-                  <Feather name="github" size={18} color={COLORS.textSecondary} style={styles.inputIcon} />
-                  <TextInput 
-                    style={styles.input} 
-                    placeholder="GitHub URL" 
-                    value={github} 
-                    onChangeText={setGithub}
-                    editable={editMode}
-                  />
-                </View>
-                
-                <View style={styles.inputContainer}>
-                  <Feather name="globe" size={18} color={COLORS.textSecondary} style={styles.inputIcon} />
-                  <TextInput 
-                    style={styles.input} 
-                    placeholder="Website URL" 
-                    value={website} 
-                    onChangeText={setWebsite}
-                    editable={editMode}
-                  />
-                </View>
+                <Text style={styles.inputLabel}>Bio</Text>
+                <TextInput 
+                  style={[styles.input, styles.textArea]} 
+                  placeholder="Tell us about yourself" 
+                  value={bio} 
+                  onChangeText={setBio}
+                  multiline
+                  numberOfLines={3}
+                  editable={editMode}
+                />
               </View>
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>Phone</Text>
+                <TextInput 
+                  style={styles.input} 
+                  placeholder="Your phone number" 
+                  value={phone} 
+                  onChangeText={setPhone}
+                  editable={editMode}
+                />
+              </View>
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>Location</Text>
+                <TextInput 
+                  style={styles.input} 
+                  placeholder="Your location" 
+                  value={location} 
+                  onChangeText={setLocation}
+                  editable={editMode}
+                />
+              </View>
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>Skills</Text>
+                <TextInput 
+                  style={styles.input} 
+                  placeholder="Skills (comma separated)" 
+                  value={skills.join(', ')} 
+                  onChangeText={text => setSkills(text.split(',').map(s => s.trim()))}
+                  editable={editMode}
+                />
+                {renderSkillTags(skills)}
+              </View>
+
               {renderSocialLinks()}
             </View>
-          </View>
+          </ScrollView>
         );
 
       case 'professional':
         return (
-          <View style={styles.tabContent}>
+          <ScrollView showsVerticalScrollIndicator={false} style={styles.tabContent}>
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Professional Information</Text>
-              <View style={styles.inputGroup}>
-                <View style={styles.inputContainer}>
-                  <Feather name="briefcase" size={18} color={COLORS.textSecondary} style={styles.inputIcon} />
-                  <TextInput 
-                    style={styles.input} 
-                    placeholder="Company" 
-                    value={company} 
-                    onChangeText={setCompany}
-                    editable={editMode}
-                  />
-                </View>
-                
-                <View style={styles.inputContainer}>
-                  <Feather name="user-check" size={18} color={COLORS.textSecondary} style={styles.inputIcon} />
-                  <TextInput 
-                    style={styles.input} 
-                    placeholder="Position" 
-                    value={position} 
-                    onChangeText={setPosition}
-                    editable={editMode}
-                  />
-                </View>
-                
-                <View style={styles.inputContainer}>
-                  <Feather name="clock" size={18} color={COLORS.textSecondary} style={styles.inputIcon} />
-                  <TextInput 
-                    style={styles.input} 
-                    placeholder="Years of experience" 
-                    value={experience} 
-                    onChangeText={setExperience}
-                    editable={editMode}
-                  />
-                </View>
+              <View style={styles.sectionHeader}>
+                <Feather name="briefcase" size={20} color={COLORS.primary} />
+                <Text style={styles.sectionTitle}>Professional Information</Text>
               </View>
-            </View>
+              
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>Company</Text>
+                <TextInput 
+                  style={styles.input} 
+                  placeholder="Your company" 
+                  value={company} 
+                  onChangeText={setCompany}
+                  editable={editMode}
+                />
+              </View>
 
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Education & Certifications</Text>
               <View style={styles.inputGroup}>
-                <View style={styles.inputContainer}>
-                  <Feather name="graduation-cap" size={18} color={COLORS.textSecondary} style={styles.inputIcon} />
-                  <TextInput 
-                    style={styles.input} 
-                    placeholder="Education" 
-                    value={education} 
-                    onChangeText={setEducation}
-                    editable={editMode}
-                  />
-                </View>
-                
-                <View style={styles.inputContainer}>
-                  <Feather name="award" size={18} color={COLORS.textSecondary} style={styles.inputIcon} />
-                  <TextInput 
-                    style={styles.input} 
-                    placeholder="Certifications" 
-                    value={certifications} 
-                    onChangeText={setCertifications}
-                    editable={editMode}
-                  />
-                </View>
+                <Text style={styles.inputLabel}>Position</Text>
+                <TextInput 
+                  style={styles.input} 
+                  placeholder="Your position" 
+                  value={position} 
+                  onChangeText={setPosition}
+                  editable={editMode}
+                />
+              </View>
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>Experience</Text>
+                <TextInput 
+                  style={[styles.input, styles.textArea]} 
+                  placeholder="Your experience" 
+                  value={experience} 
+                  onChangeText={setExperience}
+                  multiline
+                  numberOfLines={3}
+                  editable={editMode}
+                />
+              </View>
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>Education</Text>
+                <TextInput 
+                  style={[styles.input, styles.textArea]} 
+                  placeholder="Your education" 
+                  value={education} 
+                  onChangeText={setEducation}
+                  multiline
+                  numberOfLines={3}
+                  editable={editMode}
+                />
+              </View>
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>Certifications</Text>
+                <TextInput 
+                  style={[styles.input, styles.textArea]} 
+                  placeholder="Your certifications" 
+                  value={certifications} 
+                  onChangeText={setCertifications}
+                  multiline
+                  numberOfLines={3}
+                  editable={editMode}
+                />
               </View>
             </View>
-          </View>
+          </ScrollView>
         );
 
       case 'documents':
         return (
-          <View style={styles.tabContent}>
+          <ScrollView showsVerticalScrollIndicator={false} style={styles.tabContent}>
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Documents</Text>
+              <View style={styles.sectionHeader}>
+                <Feather name="file-text" size={20} color={COLORS.primary} />
+                <Text style={styles.sectionTitle}>Documents</Text>
+              </View>
               
-              <View style={styles.uploadSection}>
-                <TouchableOpacity style={styles.uploadCard} onPress={pickCV}>
-                  <View style={styles.uploadIconContainer}>
-                    <Feather name="file-text" size={24} color={COLORS.primary} />
-                  </View>
-                  <View style={styles.uploadContent}>
-                    <Text style={styles.uploadTitle}>CV/Resume</Text>
-                    <Text style={styles.uploadSubtitle}>
-                      {cvName ? cvName : 'Upload your CV or resume'}
-                    </Text>
-                  </View>
-                  {cvName && <Feather name="check-circle" size={20} color={COLORS.success} />}
-                </TouchableOpacity>
-                
-                <TouchableOpacity style={styles.uploadCard} onPress={pickVerificationDoc}>
-                  <View style={styles.uploadIconContainer}>
-                    <Feather name="shield" size={24} color={COLORS.primary} />
-                  </View>
-                  <View style={styles.uploadContent}>
-                    <Text style={styles.uploadTitle}>Verification Document</Text>
-                    <Text style={styles.uploadSubtitle}>
-                      {verificationDocName ? verificationDocName : 'Upload verification document'}
-                    </Text>
-                  </View>
-                  {verificationStatus === 'verified' && <Feather name="check-circle" size={20} color={COLORS.success} />}
-                  {verificationStatus === 'pending' && <Feather name="clock" size={20} color={COLORS.warning} />}
+              <View style={styles.documentSection}>
+                <Text style={styles.documentTitle}>CV/Resume</Text>
+                <TouchableOpacity style={styles.documentButton} onPress={pickCV}>
+                  <Feather name="upload" size={20} color={COLORS.primary} />
+                  <Text style={styles.documentButtonText}>
+                    {cvName ? `Update CV (${cvName})` : 'Upload CV'}
+                  </Text>
                 </TouchableOpacity>
               </View>
+
+              <View style={styles.documentSection}>
+                <Text style={styles.documentTitle}>Verification Document</Text>
+                <TouchableOpacity style={styles.documentButton} onPress={pickVerificationDoc}>
+                  <Feather name="upload" size={20} color={COLORS.primary} />
+                  <Text style={styles.documentButtonText}>
+                    {verificationDocName ? `Update Document (${verificationDocName})` : 'Upload Document'}
+                  </Text>
+                </TouchableOpacity>
+                <Text style={styles.verificationStatus}>
+                  Status: {verificationStatus}
+                </Text>
+              </View>
             </View>
-          </View>
+          </ScrollView>
+        );
+
+      case 'progress':
+        return (
+          <ScrollView showsVerticalScrollIndicator={false} style={styles.tabContent}>
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <Feather name="trending-up" size={20} color={COLORS.primary} />
+                <Text style={styles.sectionTitle}>Profile Completeness Progress</Text>
+              </View>
+              
+              <View style={styles.progressSection}>
+                <View style={styles.progressHeader}>
+                  <Text style={styles.progressTitle}>Profile Completion</Text>
+                  <Text style={styles.progressPercentage}>75%</Text>
+                </View>
+                <View style={styles.progressBarContainer}>
+                  <View style={styles.progressBar}>
+                    <View style={[styles.progressFill, { width: '75%' }]} />
+                  </View>
+                </View>
+                <Text style={styles.progressSubtext}>Complete your profile to unlock more features</Text>
+              </View>
+
+              <View style={styles.checklistSection}>
+                <Text style={styles.checklistTitle}>Profile Checklist</Text>
+                <View style={styles.checklistItem}>
+                  <Feather 
+                    name={displayName ? "check-circle" : "circle"} 
+                    size={20} 
+                    color={displayName ? COLORS.success : COLORS.textSecondary} 
+                  />
+                  <Text style={[styles.checklistText, displayName && styles.checklistTextCompleted]}>
+                    Add your display name
+                  </Text>
+                </View>
+                <View style={styles.checklistItem}>
+                  <Feather 
+                    name={bio ? "check-circle" : "circle"} 
+                    size={20} 
+                    color={bio ? COLORS.success : COLORS.textSecondary} 
+                  />
+                  <Text style={[styles.checklistText, bio && styles.checklistTextCompleted]}>
+                    Write your bio
+                  </Text>
+                </View>
+                <View style={styles.checklistItem}>
+                  <Feather 
+                    name={skills.length > 0 ? "check-circle" : "circle"} 
+                    size={20} 
+                    color={skills.length > 0 ? COLORS.success : COLORS.textSecondary} 
+                  />
+                  <Text style={[styles.checklistText, skills.length > 0 && styles.checklistTextCompleted]}>
+                    Add your skills
+                  </Text>
+                </View>
+                <View style={styles.checklistItem}>
+                  <Feather 
+                    name={company ? "check-circle" : "circle"} 
+                    size={20} 
+                    color={company ? COLORS.success : COLORS.textSecondary} 
+                  />
+                  <Text style={[styles.checklistText, company && styles.checklistTextCompleted]}>
+                    Add your company
+                  </Text>
+                </View>
+                <View style={styles.checklistItem}>
+                  <Feather 
+                    name={cvName ? "check-circle" : "circle"} 
+                    size={20} 
+                    color={cvName ? COLORS.success : COLORS.textSecondary} 
+                  />
+                  <Text style={[styles.checklistText, cvName && styles.checklistTextCompleted]}>
+                    Upload your CV
+                  </Text>
+                </View>
+              </View>
+            </View>
+          </ScrollView>
         );
 
       case 'connections':
         return (
-          <View style={styles.tabContent}>
+          <ScrollView showsVerticalScrollIndicator={false} style={styles.tabContent}>
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Current Connections</Text>
+              <View style={styles.sectionHeader}>
+                <Feather name="users" size={20} color={COLORS.primary} />
+                <Text style={styles.sectionTitle}>Current Connections</Text>
+              </View>
               
               <View style={styles.connectionsContainer}>
-                <View style={styles.connectionCard}>
-                  <View style={styles.connectionAvatar}>
-                    <Feather name="user" size={24} color={COLORS.primary} />
-                  </View>
-                  <View style={styles.connectionInfo}>
-                    <Text style={styles.connectionName}>Dr. Sarah Johnson</Text>
-                    <Text style={styles.connectionRole}>Mentor - Computer Science</Text>
-                    <Text style={styles.connectionStatus}>Active - 3 months</Text>
-                  </View>
-                  <TouchableOpacity style={styles.connectionAction}>
-                    <Feather name="message-circle" size={20} color={COLORS.primary} />
-                  </TouchableOpacity>
-                </View>
-
-                <View style={styles.connectionCard}>
-                  <View style={styles.connectionAvatar}>
-                    <Feather name="user" size={24} color={COLORS.secondary} />
-                  </View>
-                  <View style={styles.connectionInfo}>
-                    <Text style={styles.connectionName}>Maria Rodriguez</Text>
-                    <Text style={styles.connectionRole}>Mentee - Data Science</Text>
-                    <Text style={styles.connectionStatus}>Active - 1 month</Text>
-                  </View>
-                  <TouchableOpacity style={styles.connectionAction}>
-                    <Feather name="message-circle" size={20} color={COLORS.secondary} />
-                  </TouchableOpacity>
-                </View>
-
-                <View style={styles.connectionCard}>
-                  <View style={styles.connectionAvatar}>
-                    <Feather name="user" size={24} color={COLORS.primary} />
-                  </View>
-                  <View style={styles.connectionInfo}>
-                    <Text style={styles.connectionName}>Prof. Emily Chen</Text>
-                    <Text style={styles.connectionRole}>Mentor - Engineering</Text>
-                    <Text style={styles.connectionStatus}>Active - 6 months</Text>
-                  </View>
-                  <TouchableOpacity style={styles.connectionAction}>
-                    <Feather name="message-circle" size={20} color={COLORS.primary} />
-                  </TouchableOpacity>
-                </View>
-              </View>
-
-              <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Connection Statistics</Text>
-                <View style={styles.statsContainer}>
-                  <View style={styles.statCard}>
-                    <Text style={styles.statNumber}>3</Text>
-                    <Text style={styles.statLabel}>Active Connections</Text>
-                  </View>
-                  <View style={styles.statCard}>
-                    <Text style={styles.statNumber}>12</Text>
-                    <Text style={styles.statLabel}>Total Sessions</Text>
-                  </View>
-                  <View style={styles.statCard}>
-                    <Text style={styles.statNumber}>4.8</Text>
-                    <Text style={styles.statLabel}>Avg. Rating</Text>
-                  </View>
-                </View>
+                <Text style={styles.noConnectionsText}>No active connections yet</Text>
+                <Text style={styles.noConnectionsSubtext}>Start connecting with mentors and mentees!</Text>
               </View>
             </View>
-          </View>
+          </ScrollView>
         );
 
       case 'settings':
         return (
-          <View style={styles.tabContent}>
+          <ScrollView showsVerticalScrollIndicator={false} style={styles.tabContent}>
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Notifications</Text>
-              
-              <View style={styles.settingsGroup}>
-                <View style={styles.settingItem}>
-                  <View style={styles.settingInfo}>
-                    <Feather name="bell" size={20} color={COLORS.textSecondary} />
-                    <Text style={styles.settingLabel}>Push Notifications</Text>
-                  </View>
-                  <Switch 
-                    value={pushNotifications} 
-                    onValueChange={setPushNotifications}
-                    trackColor={{ false: COLORS.accent, true: COLORS.primary }}
-                    thumbColor={COLORS.white}
-                  />
-                </View>
-                
-                <View style={styles.settingItem}>
-                  <View style={styles.settingInfo}>
-                    <Feather name="mail" size={20} color={COLORS.textSecondary} />
-                    <Text style={styles.settingLabel}>Email Notifications</Text>
-                  </View>
-                  <Switch 
-                    value={emailNotifications} 
-                    onValueChange={setEmailNotifications}
-                    trackColor={{ false: COLORS.accent, true: COLORS.primary }}
-                    thumbColor={COLORS.white}
-                  />
-                </View>
-                
-                <View style={styles.settingItem}>
-                  <View style={styles.settingInfo}>
-                    <Feather name="users" size={20} color={COLORS.textSecondary} />
-                    <Text style={styles.settingLabel}>Mentorship Notifications</Text>
-                  </View>
-                  <Switch 
-                    value={mentorshipNotifications} 
-                    onValueChange={setMentorshipNotifications}
-                    trackColor={{ false: COLORS.accent, true: COLORS.primary }}
-                    thumbColor={COLORS.white}
-                  />
-                </View>
+              <View style={styles.sectionHeader}>
+                <Feather name="settings" size={20} color={COLORS.primary} />
+                <Text style={styles.sectionTitle}>Settings</Text>
               </View>
-            </View>
+              
+              <View style={styles.settingItem}>
+                <View style={styles.settingInfo}>
+                  <Text style={styles.settingTitle}>Dark Theme</Text>
+                  <Text style={styles.settingDescription}>Switch to dark mode</Text>
+                </View>
+                <Switch 
+                  value={themeDark} 
+                  onValueChange={toggleThemeSetting}
+                  trackColor={{ false: COLORS.textSecondary, true: COLORS.primary }}
+                  thumbColor={themeDark ? COLORS.white : COLORS.white}
+                />
+              </View>
 
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Appearance</Text>
-              
-              <View style={styles.settingsGroup}>
-                <View style={styles.settingItem}>
-                  <View style={styles.settingInfo}>
-                    <Feather name="moon" size={20} color={COLORS.textSecondary} />
-                    <Text style={styles.settingLabel}>Dark Mode</Text>
-                  </View>
-                  <Switch 
-                    value={theme === 'dark'} 
-                    onValueChange={toggleTheme}
-                    trackColor={{ false: COLORS.accent, true: COLORS.primary }}
-                    thumbColor={COLORS.white}
-                  />
+              <View style={styles.settingItem}>
+                <View style={styles.settingInfo}>
+                  <Text style={styles.settingTitle}>Notifications</Text>
+                  <Text style={styles.settingDescription}>Receive push notifications</Text>
                 </View>
+                <Switch 
+                  value={notifications} 
+                  onValueChange={toggleNotifications}
+                  trackColor={{ false: COLORS.textSecondary, true: COLORS.primary }}
+                  thumbColor={notifications ? COLORS.white : COLORS.white}
+                />
               </View>
-            </View>
 
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Privacy</Text>
-              
-              <View style={styles.settingsGroup}>
-                <View style={styles.settingItem}>
-                  <View style={styles.settingInfo}>
-                    <Feather name="eye" size={20} color={COLORS.textSecondary} />
-                    <Text style={styles.settingLabel}>Public Profile</Text>
-                  </View>
-                  <Switch 
-                    value={privacyPublic} 
-                    onValueChange={setPrivacyPublic}
-                    trackColor={{ false: COLORS.accent, true: COLORS.primary }}
-                    thumbColor={COLORS.white}
-                  />
+              <View style={styles.settingItem}>
+                <View style={styles.settingInfo}>
+                  <Text style={styles.settingTitle}>Public Profile</Text>
+                  <Text style={styles.settingDescription}>Make your profile visible to others</Text>
                 </View>
-                
-                <View style={styles.settingItem}>
-                  <View style={styles.settingInfo}>
-                    <Feather name="mail" size={20} color={COLORS.textSecondary} />
-                    <Text style={styles.settingLabel}>Show Email</Text>
-                  </View>
-                  <Switch 
-                    value={showEmail} 
-                    onValueChange={setShowEmail}
-                    trackColor={{ false: COLORS.accent, true: COLORS.primary }}
-                    thumbColor={COLORS.white}
-                  />
-                </View>
-                
-                <View style={styles.settingItem}>
-                  <View style={styles.settingInfo}>
-                    <Feather name="phone" size={20} color={COLORS.textSecondary} />
-                    <Text style={styles.settingLabel}>Show Phone</Text>
-                  </View>
-                  <Switch 
-                    value={showPhone} 
-                    onValueChange={setShowPhone}
-                    trackColor={{ false: COLORS.accent, true: COLORS.primary }}
-                    thumbColor={COLORS.white}
-                  />
-                </View>
+                <Switch 
+                  value={privacyPublic} 
+                  onValueChange={setPrivacyPublic}
+                  trackColor={{ false: COLORS.textSecondary, true: COLORS.primary }}
+                  thumbColor={privacyPublic ? COLORS.white : COLORS.white}
+                />
               </View>
             </View>
-          </View>
+          </ScrollView>
         );
 
       default:
@@ -803,17 +728,12 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
                   <Feather name="camera" size={16} color={COLORS.white} />
                 </View>
               </TouchableOpacity>
-              {uploading && (
-                <View style={styles.uploadingOverlay}>
-                  <ActivityIndicator size="small" color={COLORS.white} />
-                </View>
-              )}
             </View>
             
             <View style={styles.profileInfo}>
               <Text style={styles.profileName}>{displayName || "No Name"}</Text>
               {role && (
-                <View style={[styles.roleBadge, { backgroundColor: selectedColor }]}>
+                <View style={[styles.roleBadge, { backgroundColor: COLORS.primary }]}>
                   <Text style={styles.roleBadgeText}>
                     {role.charAt(0).toUpperCase() + role.slice(1)}
                   </Text>
@@ -823,7 +743,7 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
             
             <TouchableOpacity 
               style={styles.progressButton}
-              onPress={() => navigation.navigate('FeedbackProgress' as never)}
+              onPress={() => navigation.navigate('Achievements' as never)}
             >
               <Feather name="bar-chart-2" size={20} color={COLORS.white} />
               <Text style={styles.progressButtonText}>Progress</Text>
@@ -831,27 +751,7 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
           </View>
         </View>
 
-        {/* Profile Completeness Progress */}
-        <View style={styles.progressSection}>
-          <View style={styles.progressHeader}>
-            <Text style={styles.progressTitle}>Profile Completeness</Text>
-            <Text style={styles.progressPercentage}>{Math.round(completeness * 100)}%</Text>
-          </View>
-          <View style={styles.progressBarContainer}>
-            <Animated.View 
-              style={[
-                styles.progressBar, 
-                { 
-                  width: `${completeness * 100}%`,
-                  backgroundColor: selectedColor 
-                }
-              ]} 
-            />
-          </View>
-          <Text style={styles.progressSubtext}>
-            Complete your profile to get better mentorship matches
-          </Text>
-        </View>
+
 
         {/* Tab Navigation */}
         <View style={styles.tabContainer}>
@@ -865,14 +765,14 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
                 key={tab.id}
                 style={[
                   styles.tabButton,
-                  activeTab === tab.id && { backgroundColor: selectedColor }
+                  activeTab === tab.id && { backgroundColor: COLORS.primary }
                 ]}
                 onPress={() => setActiveTab(tab.id as any)}
               >
                 <Feather 
                   name={tab.icon as any} 
                   size={18} 
-                  color={activeTab === tab.id ? COLORS.white : selectedColor} 
+                  color={activeTab === tab.id ? COLORS.white : COLORS.primary} 
                 />
                 <Text style={[
                   styles.tabButtonText,
@@ -927,8 +827,9 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
             title="Logout"
             onPress={async () => {
               try {
-                await Account.deleteSession('current');
-                navigation.replace("LoginPage");
+                // await Account.deleteSession('current'); // Removed Appwrite logout
+                // navigation.replace("LoginPage"); // Removed Appwrite logout
+                Alert.alert('Info', 'Logout functionality is not yet implemented.');
               } catch (error) {
                 Alert.alert('Error', 'Failed to logout');
               }
@@ -1120,36 +1021,41 @@ const styles = StyleSheet.create({
   section: {
     marginBottom: 24,
   },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
   sectionTitle: {
     fontSize: 20,
     fontWeight: 'bold',
     color: COLORS.text,
-    marginBottom: 16,
+    marginLeft: 8,
   },
   inputGroup: {
     gap: 16,
   },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  inputLabel: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    marginBottom: 4,
+  },
+  input: {
     backgroundColor: COLORS.white,
     borderRadius: 12,
     paddingHorizontal: 16,
-    paddingVertical: 4,
+    paddingVertical: 16,
+    fontSize: 16,
+    color: COLORS.text,
     shadowColor: COLORS.primary,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 2,
     elevation: 1,
   },
-  inputIcon: {
-    marginRight: 12,
-  },
-  input: {
-    flex: 1,
-    fontSize: 16,
-    color: COLORS.text,
-    paddingVertical: 16,
+  textArea: {
+    minHeight: 100,
+    paddingTop: 16,
   },
   bioContainer: {
     backgroundColor: COLORS.white,
@@ -1247,6 +1153,34 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: COLORS.textSecondary,
   },
+  documentSection: {
+    marginTop: 16,
+  },
+  documentTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: COLORS.text,
+    marginBottom: 12,
+  },
+  documentButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.accent,
+    borderRadius: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    gap: 12,
+  },
+  documentButtonText: {
+    color: COLORS.white,
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  verificationStatus: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    marginTop: 12,
+  },
   settingsGroup: {
     gap: 12,
   },
@@ -1265,9 +1199,17 @@ const styles = StyleSheet.create({
     elevation: 1,
   },
   settingInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
+    flex: 1,
+  },
+  settingTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: COLORS.text,
+    marginBottom: 4,
+  },
+  settingDescription: {
+    fontSize: 12,
+    color: COLORS.textSecondary,
   },
   settingLabel: {
     fontSize: 16,
@@ -1290,10 +1232,171 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 8,
     shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 4,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  // Progress and Achievements Styles
+  levelCard: {
+    backgroundColor: COLORS.white,
+    borderRadius: 16,
+    padding: 20,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  levelInfo: {
+    marginBottom: 16,
+  },
+  levelTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: COLORS.text,
+    marginBottom: 4,
+  },
+  levelSubtitle: {
+    fontSize: 16,
+    color: COLORS.textSecondary,
+  },
+  levelProgressContainer: {
+    marginTop: 8,
+  },
+  levelProgressBar: {
+    height: 8,
+    backgroundColor: COLORS.accent,
+    borderRadius: 4,
+    marginBottom: 8,
+  },
+  levelProgressFill: {
+    height: '100%',
+    backgroundColor: COLORS.primary,
+    borderRadius: 4,
+  },
+  levelProgressText: {
+    fontSize: 12,
+    color: COLORS.textSecondary,
+    textAlign: 'center',
+  },
+  achievementsContainer: {
+    gap: 12,
+  },
+  achievementCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.white,
+    borderRadius: 12,
+    padding: 16,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+    position: 'relative',
+  },
+  achievementCardUnlocked: {
+    backgroundColor: COLORS.primary,
+  },
+  achievementIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: COLORS.accent,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  achievementIconUnlocked: {
+    backgroundColor: COLORS.white,
+  },
+  achievementContent: {
+    flex: 1,
+  },
+  achievementTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: COLORS.text,
+    marginBottom: 4,
+  },
+  achievementTitleUnlocked: {
+    color: COLORS.white,
+  },
+  achievementDescription: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    marginBottom: 8,
+  },
+  achievementProgress: {
+    marginTop: 8,
+  },
+  achievementProgressBar: {
+    height: 4,
+    backgroundColor: COLORS.accent,
+    borderRadius: 2,
+    marginBottom: 4,
+  },
+  achievementProgressFill: {
+    height: '100%',
+    backgroundColor: COLORS.primary,
+    borderRadius: 2,
+  },
+  achievementProgressText: {
+    fontSize: 12,
+    color: COLORS.textSecondary,
+  },
+  achievementPoints: {
+    alignItems: 'center',
+    marginLeft: 12,
+  },
+  achievementPointsText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: COLORS.textSecondary,
+  },
+  achievementPointsTextUnlocked: {
+    color: COLORS.white,
+  },
+  achievementBadge: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: COLORS.success,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  statsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
+  statCard: {
+    width: '48%',
+    backgroundColor: COLORS.white,
+    borderRadius: 12,
+    padding: 16,
+    alignItems: 'center',
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  statNumber: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: COLORS.text,
+    marginTop: 8,
+    marginBottom: 4,
+  },
+  statLabel: {
+    fontSize: 12,
+    color: COLORS.textSecondary,
+    textAlign: 'center',
   },
   editButton: {
     backgroundColor: COLORS.primary,
@@ -1386,7 +1489,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     marginTop: 16,
   },
-  statCard: {
+  statsCard: {
     alignItems: 'center',
     backgroundColor: COLORS.white,
     borderRadius: 12,
@@ -1399,15 +1502,92 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 2,
   },
-  statNumber: {
+  statsNumber: {
     fontSize: 24,
     fontWeight: 'bold',
     color: COLORS.primary,
     marginBottom: 4,
   },
-  statLabel: {
+  statsLabel: {
     fontSize: 12,
     color: COLORS.textSecondary,
     textAlign: 'center',
+  },
+  // Progress tab styles
+  progressSection: {
+    marginBottom: 24,
+  },
+  progressHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  progressTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: COLORS.text,
+  },
+  progressPercentage: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: COLORS.primary,
+  },
+  progressBarContainer: {
+    height: 8,
+    backgroundColor: COLORS.accent,
+    borderRadius: 4,
+    marginBottom: 8,
+    overflow: 'hidden',
+  },
+  progressBar: {
+    height: '100%',
+    borderRadius: 4,
+  },
+  progressFill: {
+    height: '100%',
+    backgroundColor: COLORS.primary,
+    borderRadius: 4,
+  },
+  progressSubtext: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    textAlign: 'center',
+  },
+  checklistSection: {
+    marginTop: 16,
+  },
+  checklistTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: COLORS.text,
+    marginBottom: 16,
+  },
+  checklistItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+    gap: 12,
+  },
+  checklistText: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    flex: 1,
+  },
+  checklistTextCompleted: {
+    color: COLORS.success,
+    textDecorationLine: 'line-through',
+  },
+  noConnectionsText: {
+    fontSize: 16,
+    color: COLORS.textSecondary,
+    textAlign: 'center',
+    marginTop: 20,
+  },
+  noConnectionsSubtext: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    textAlign: 'center',
+    marginTop: 4,
   },
 });

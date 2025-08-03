@@ -28,6 +28,7 @@ import MenteeOnboardingScreen from './MenteeOnboardingScreen';
 import MentorshipDashboardScreen from './MentorshipDashboardScreen';
 import UnifiedMentorshipScreen from './UnifiedMentorshipScreen';
 import AboutScreen from './AboutScreen';
+import AchievementsScreen from './AchievementsScreen';
 
 // Type definitions for navigation
 export type RootStackParamList = {
@@ -52,6 +53,7 @@ export type RootStackParamList = {
     MenteeOnboarding: undefined;
     MentorshipDashboard: undefined;
     About: undefined;
+    Achievements: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -86,11 +88,7 @@ const HomeStack: React.FC = () => (
     </Stack.Navigator>
 );
 
-const ChatStack: React.FC = () => (
-    <Stack.Navigator screenOptions={commonOptions}>
-        <Stack.Screen name="Chat" component={ChatScreen} />
-    </Stack.Navigator>
-);
+
 
 const CommunitiesStack: React.FC = () => (
     <Stack.Navigator screenOptions={commonOptions}>
@@ -103,6 +101,7 @@ const ProfileStack: React.FC = () => (
     <Stack.Navigator screenOptions={commonOptions}>
         <Stack.Screen name="Profile" component={ProfilePage as ScreenComponent<RootStackParamList, 'Profile'>} />
         <Stack.Screen name="FeedbackProgress" component={FeedbackProgressScreen} />
+        <Stack.Screen name="Achievements" component={AchievementsScreen} />
     </Stack.Navigator>
 );
 

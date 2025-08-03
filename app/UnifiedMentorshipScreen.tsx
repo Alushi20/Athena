@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, Animated, ActivityIndicator, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, Animated, ActivityIndicator, Image, TextInput } from 'react-native';
 import { COLORS } from '../constants/Colors';
 import { Feather } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -38,6 +38,19 @@ interface Mentorship {
   matchScore?: number;
 }
 
+interface Mentor {
+  id: string;
+  name: string;
+  role: string;
+  company: string;
+  skills: string[];
+  rating: number;
+  sessions: number;
+  experience: string;
+  profilePic: string;
+  badge: string;
+}
+
 const UnifiedMentorshipScreen: React.FC = () => {
   const [status, setStatus] = useState<MentorshipStatus>({
     totalMentorships: 0,
@@ -51,8 +64,94 @@ const UnifiedMentorshipScreen: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [userRole, setUserRole] = useState<'mentor' | 'mentee' | null>(null);
   const [activeTab, setActiveTab] = useState<'overview' | 'schedule' | 'connections' | 'findMentor'>('overview');
+  
+  // Filter state for findMentor tab
+  const [activeFilter, setActiveFilter] = useState<string>('All');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [mentors, setMentors] = useState<Mentor[]>([]);
+  
   const navigation = useNavigation();
   const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  // Mock mentor data
+  const mockMentors: Mentor[] = [
+    {
+      id: '1',
+      name: 'Dr. Sarah Chen',
+      role: 'AI Research Lead',
+      company: 'Google',
+      skills: ['Machine Learning', 'Python', 'Research', 'AI/ML'],
+      rating: 4.9,
+      sessions: 156,
+      experience: '5+ years',
+      profilePic: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&h=150&fit=crop&crop=face',
+      badge: 'star'
+    },
+    {
+      id: '2',
+      name: 'Prof. Emily Watson',
+      role: 'Data Scientist',
+      company: 'Netflix',
+      skills: ['Data Science', 'SQL', 'Analytics', 'Data Science'],
+      rating: 4.8,
+      sessions: 89,
+      experience: '3+ years',
+      profilePic: 'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=150&h=150&fit=crop&crop=face',
+      badge: 'award'
+    },
+    {
+      id: '3',
+      name: 'Maria Rodriguez',
+      role: 'UX Designer',
+      company: 'Spotify',
+      skills: ['UX/UI', 'Design Systems', 'Prototyping', 'UX/UI'],
+      rating: 4.7,
+      sessions: 203,
+      experience: '7+ years',
+      profilePic: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=150&h=150&fit=crop&crop=face',
+      badge: 'trending-up'
+    },
+    {
+      id: '4',
+      name: 'Alexandra Thompson',
+      role: 'Senior Developer',
+      company: 'Microsoft',
+      skills: ['React', 'TypeScript', 'Architecture', 'Web Dev'],
+      rating: 4.9,
+      sessions: 127,
+      experience: '6+ years',
+      profilePic: 'https://images.unsplash.com/photo-1502823403499-6ccfcf4fb453?w=150&h=150&fit=crop&crop=face',
+      badge: 'zap'
+    },
+    {
+      id: '5',
+      name: 'Dr. Jennifer Park',
+      role: 'Cybersecurity Expert',
+      company: 'Amazon',
+      skills: ['Cybersecurity', 'Network Security', 'Penetration Testing', 'Cybersecurity'],
+      rating: 4.8,
+      sessions: 94,
+      experience: '8+ years',
+      profilePic: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
+      badge: 'shield'
+    },
+    {
+      id: '6',
+      name: 'Sophie Williams',
+      role: 'Mobile Developer',
+      company: 'Apple',
+      skills: ['iOS', 'Swift', 'Mobile Development', 'Mobile'],
+      rating: 4.6,
+      sessions: 178,
+      experience: '4+ years',
+      profilePic: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
+      badge: 'smartphone'
+    }
+  ];
+
+  useEffect(() => {
+    setMentors(mockMentors);
+  }, []);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -149,6 +248,22 @@ const UnifiedMentorshipScreen: React.FC = () => {
 
     fetchDashboardData();
   }, []);
+
+  // Filter mentors based on active filter and search query
+  const filteredMentors = mentors.filter(mentor => {
+    const matchesFilter = activeFilter === 'All' || mentor.skills.includes(activeFilter);
+    const matchesSearch = searchQuery === '' || 
+      mentor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      mentor.role.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      mentor.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      mentor.skills.some(skill => skill.toLowerCase().includes(searchQuery.toLowerCase()));
+    
+    return matchesFilter && matchesSearch;
+  });
+
+  const handleFilterPress = (filter: string) => {
+    setActiveFilter(activeFilter === filter ? 'All' : filter);
+  };
 
   const getActivityIcon = (type: string) => {
     switch (type) {
@@ -520,7 +635,13 @@ const UnifiedMentorshipScreen: React.FC = () => {
             <View style={styles.searchContainer}>
               <View style={styles.searchBar}>
                 <Feather name="search" size={20} color={COLORS.textSecondary} />
-                <Text style={styles.searchPlaceholder}>Search mentors by skills, industry, or name...</Text>
+                <TextInput
+                  style={styles.searchInput}
+                  placeholder="Search mentors by skills, industry, or name..."
+                  placeholderTextColor={COLORS.textSecondary}
+                  value={searchQuery}
+                  onChangeText={setSearchQuery}
+                />
               </View>
             </View>
 
@@ -528,25 +649,37 @@ const UnifiedMentorshipScreen: React.FC = () => {
             <View style={styles.filtersContainer}>
               <Text style={styles.filtersTitle}>Filters</Text>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filtersScroll}>
-                <TouchableOpacity style={[styles.filterChip, styles.filterChipActive]}>
+                <TouchableOpacity style={[styles.filterChip, activeFilter === 'All' && styles.filterChipActive]} onPress={() => handleFilterPress('All')}>
                   <Text style={styles.filterChipText}>All</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.filterChip}>
+                <TouchableOpacity style={[styles.filterChip, activeFilter === 'Machine Learning' && styles.filterChipActive]} onPress={() => handleFilterPress('Machine Learning')}>
                   <Text style={styles.filterChipText}>AI/ML</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.filterChip}>
+                <TouchableOpacity style={[styles.filterChip, activeFilter === 'Data Science' && styles.filterChipActive]} onPress={() => handleFilterPress('Data Science')}>
                   <Text style={styles.filterChipText}>Data Science</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.filterChip}>
+                <TouchableOpacity style={[styles.filterChip, activeFilter === 'Web Dev' && styles.filterChipActive]} onPress={() => handleFilterPress('Web Dev')}>
                   <Text style={styles.filterChipText}>Web Dev</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.filterChip}>
+                <TouchableOpacity style={[styles.filterChip, activeFilter === 'Mobile' && styles.filterChipActive]} onPress={() => handleFilterPress('Mobile')}>
                   <Text style={styles.filterChipText}>Mobile</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.filterChip}>
+                <TouchableOpacity style={[styles.filterChip, activeFilter === 'UX/UI' && styles.filterChipActive]} onPress={() => handleFilterPress('UX/UI')}>
                   <Text style={styles.filterChipText}>UX/UI</Text>
                 </TouchableOpacity>
               </ScrollView>
+            </View>
+
+            {/* Results Counter */}
+            <View style={styles.resultsContainer}>
+              <Text style={styles.resultsText}>
+                {filteredMentors.length} mentor{filteredMentors.length !== 1 ? 's' : ''} found
+              </Text>
+              {(activeFilter !== 'All' || searchQuery !== '') && (
+                <TouchableOpacity onPress={() => { setActiveFilter('All'); setSearchQuery(''); }}>
+                  <Text style={styles.clearFiltersText}>Clear filters</Text>
+                </TouchableOpacity>
+              )}
             </View>
 
             {/* Featured Mentors with Profile Pictures */}
@@ -558,410 +691,58 @@ const UnifiedMentorshipScreen: React.FC = () => {
                 </TouchableOpacity>
               </View>
               <View style={styles.featuredMentors}>
-                <TouchableOpacity style={styles.mentorCard}>
-                  <View style={styles.mentorCardHeader}>
-                    <Image 
-                      source={{ uri: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&h=150&fit=crop&crop=face' }} 
-                      style={styles.mentorProfilePic}
-                    />
-                    <View style={styles.mentorBadge}>
-                      <Feather name="star" size={12} color={COLORS.white} />
-                    </View>
+                {filteredMentors.length > 0 ? (
+                  filteredMentors.map((mentor) => (
+                    <TouchableOpacity key={mentor.id} style={styles.mentorCard}>
+                      <View style={styles.mentorCardHeader}>
+                        <Image 
+                          source={{ uri: mentor.profilePic }} 
+                          style={styles.mentorProfilePic}
+                        />
+                        <View style={styles.mentorBadge}>
+                          <Feather name={mentor.badge as any} size={12} color={COLORS.white} />
+                        </View>
+                      </View>
+                      <View style={styles.mentorInfo}>
+                        <Text style={styles.mentorName}>{mentor.name}</Text>
+                        <Text style={styles.mentorRole}>{mentor.role} at {mentor.company}</Text>
+                        <View style={styles.mentorTags}>
+                          {mentor.skills.slice(0, 3).map((skill, index) => (
+                            <View key={index} style={styles.tag}>
+                              <Text style={styles.tagText}>{skill}</Text>
+                            </View>
+                          ))}
+                        </View>
+                        <View style={styles.mentorStats}>
+                          <View style={styles.statItem}>
+                            <Feather name="star" size={14} color={COLORS.primary} />
+                            <Text style={styles.statText}>{mentor.rating.toFixed(1)}</Text>
+                          </View>
+                          <View style={styles.statItem}>
+                            <Feather name="users" size={14} color={COLORS.textSecondary} />
+                            <Text style={styles.statText}>{mentor.sessions} sessions</Text>
+                          </View>
+                          <View style={styles.statItem}>
+                            <Feather name="clock" size={14} color={COLORS.textSecondary} />
+                            <Text style={styles.statText}>{mentor.experience}</Text>
+                          </View>
+                        </View>
+                      </View>
+                      <TouchableOpacity style={styles.connectButton}>
+                        <Feather name="user-plus" size={16} color={COLORS.white} />
+                        <Text style={styles.connectButtonText}>Connect</Text>
+                      </TouchableOpacity>
+                    </TouchableOpacity>
+                  ))
+                ) : (
+                  <View style={styles.emptyContainer}>
+                    <Feather name="search" size={48} color={COLORS.textSecondary} />
+                    <Text style={styles.emptyTitle}>No mentors found</Text>
+                    <Text style={styles.emptyText}>
+                      Try adjusting your search terms or browse all mentors
+                    </Text>
                   </View>
-                  <View style={styles.mentorInfo}>
-                    <Text style={styles.mentorName}>Dr. Sarah Chen</Text>
-                    <Text style={styles.mentorRole}>AI Research Lead at Google</Text>
-                    <View style={styles.mentorTags}>
-                      <View style={styles.tag}>
-                        <Text style={styles.tagText}>Machine Learning</Text>
-                      </View>
-                      <View style={styles.tag}>
-                        <Text style={styles.tagText}>Python</Text>
-                      </View>
-                      <View style={styles.tag}>
-                        <Text style={styles.tagText}>Research</Text>
-                      </View>
-                    </View>
-                    <View style={styles.mentorStats}>
-                      <View style={styles.statItem}>
-                        <Feather name="star" size={14} color={COLORS.primary} />
-                        <Text style={styles.statText}>4.9</Text>
-                      </View>
-                      <View style={styles.statItem}>
-                        <Feather name="users" size={14} color={COLORS.textSecondary} />
-                        <Text style={styles.statText}>156 sessions</Text>
-                      </View>
-                      <View style={styles.statItem}>
-                        <Feather name="clock" size={14} color={COLORS.textSecondary} />
-                        <Text style={styles.statText}>5+ years</Text>
-                      </View>
-                    </View>
-                  </View>
-                  <TouchableOpacity style={styles.connectButton}>
-                    <Feather name="user-plus" size={16} color={COLORS.white} />
-                    <Text style={styles.connectButtonText}>Connect</Text>
-                  </TouchableOpacity>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.mentorCard}>
-                  <View style={styles.mentorCardHeader}>
-                    <Image 
-                      source={{ uri: 'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=150&h=150&fit=crop&crop=face' }} 
-                      style={styles.mentorProfilePic}
-                    />
-                    <View style={styles.mentorBadge}>
-                      <Feather name="award" size={12} color={COLORS.white} />
-                    </View>
-                  </View>
-                  <View style={styles.mentorInfo}>
-                    <Text style={styles.mentorName}>Prof. Emily Watson</Text>
-                    <Text style={styles.mentorRole}>Data Scientist at Netflix</Text>
-                    <View style={styles.mentorTags}>
-                      <View style={styles.tag}>
-                        <Text style={styles.tagText}>Data Science</Text>
-                      </View>
-                      <View style={styles.tag}>
-                        <Text style={styles.tagText}>SQL</Text>
-                      </View>
-                      <View style={styles.tag}>
-                        <Text style={styles.tagText}>Analytics</Text>
-                      </View>
-                    </View>
-                    <View style={styles.mentorStats}>
-                      <View style={styles.statItem}>
-                        <Feather name="star" size={14} color={COLORS.primary} />
-                        <Text style={styles.statText}>4.8</Text>
-                      </View>
-                      <View style={styles.statItem}>
-                        <Feather name="users" size={14} color={COLORS.textSecondary} />
-                        <Text style={styles.statText}>89 sessions</Text>
-                      </View>
-                      <View style={styles.statItem}>
-                        <Feather name="clock" size={14} color={COLORS.textSecondary} />
-                        <Text style={styles.statText}>3+ years</Text>
-                      </View>
-                    </View>
-                  </View>
-                  <TouchableOpacity style={styles.connectButton}>
-                    <Feather name="user-plus" size={16} color={COLORS.white} />
-                    <Text style={styles.connectButtonText}>Connect</Text>
-                  </TouchableOpacity>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.mentorCard}>
-                  <View style={styles.mentorCardHeader}>
-                    <Image 
-                      source={{ uri: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=150&h=150&fit=crop&crop=face' }} 
-                      style={styles.mentorProfilePic}
-                    />
-                    <View style={styles.mentorBadge}>
-                      <Feather name="trending-up" size={12} color={COLORS.white} />
-                    </View>
-                  </View>
-                  <View style={styles.mentorInfo}>
-                    <Text style={styles.mentorName}>Maria Rodriguez</Text>
-                    <Text style={styles.mentorRole}>UX Designer at Spotify</Text>
-                    <View style={styles.mentorTags}>
-                      <View style={styles.tag}>
-                        <Text style={styles.tagText}>UX/UI</Text>
-                      </View>
-                      <View style={styles.tag}>
-                        <Text style={styles.tagText}>Design Systems</Text>
-                      </View>
-                      <View style={styles.tag}>
-                        <Text style={styles.tagText}>Prototyping</Text>
-                      </View>
-                    </View>
-                    <View style={styles.mentorStats}>
-                      <View style={styles.statItem}>
-                        <Feather name="star" size={14} color={COLORS.primary} />
-                        <Text style={styles.statText}>4.7</Text>
-                      </View>
-                      <View style={styles.statItem}>
-                        <Feather name="users" size={14} color={COLORS.textSecondary} />
-                        <Text style={styles.statText}>203 sessions</Text>
-                      </View>
-                      <View style={styles.statItem}>
-                        <Feather name="clock" size={14} color={COLORS.textSecondary} />
-                        <Text style={styles.statText}>7+ years</Text>
-                      </View>
-                    </View>
-                  </View>
-                  <TouchableOpacity style={styles.connectButton}>
-                    <Feather name="user-plus" size={16} color={COLORS.white} />
-                    <Text style={styles.connectButtonText}>Connect</Text>
-                  </TouchableOpacity>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.mentorCard}>
-                  <View style={styles.mentorCardHeader}>
-                    <Image 
-                      source={{ uri: 'https://images.unsplash.com/photo-1502823403499-6ccfcf4fb453?w=150&h=150&fit=crop&crop=face' }} 
-                      style={styles.mentorProfilePic}
-                    />
-                    <View style={styles.mentorBadge}>
-                      <Feather name="zap" size={12} color={COLORS.white} />
-                    </View>
-                  </View>
-                  <View style={styles.mentorInfo}>
-                    <Text style={styles.mentorName}>Alexandra Thompson</Text>
-                    <Text style={styles.mentorRole}>Senior Developer at Microsoft</Text>
-                    <View style={styles.mentorTags}>
-                      <View style={styles.tag}>
-                        <Text style={styles.tagText}>React</Text>
-                      </View>
-                      <View style={styles.tag}>
-                        <Text style={styles.tagText}>TypeScript</Text>
-                      </View>
-                      <View style={styles.tag}>
-                        <Text style={styles.tagText}>Architecture</Text>
-                      </View>
-                    </View>
-                    <View style={styles.mentorStats}>
-                      <View style={styles.statItem}>
-                        <Feather name="star" size={14} color={COLORS.primary} />
-                        <Text style={styles.statText}>4.9</Text>
-                      </View>
-                      <View style={styles.statItem}>
-                        <Feather name="users" size={14} color={COLORS.textSecondary} />
-                        <Text style={styles.statText}>127 sessions</Text>
-                      </View>
-                      <View style={styles.statItem}>
-                        <Feather name="clock" size={14} color={COLORS.textSecondary} />
-                        <Text style={styles.statText}>6+ years</Text>
-                      </View>
-                    </View>
-                  </View>
-                  <TouchableOpacity style={styles.connectButton}>
-                    <Feather name="user-plus" size={16} color={COLORS.white} />
-                    <Text style={styles.connectButtonText}>Connect</Text>
-                  </TouchableOpacity>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.mentorCard}>
-                  <View style={styles.mentorCardHeader}>
-                    <Image 
-                      source={{ uri: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face' }} 
-                      style={styles.mentorProfilePic}
-                    />
-                    <View style={styles.mentorBadge}>
-                      <Feather name="shield" size={12} color={COLORS.white} />
-                    </View>
-                  </View>
-                  <View style={styles.mentorInfo}>
-                    <Text style={styles.mentorName}>Dr. Jennifer Park</Text>
-                    <Text style={styles.mentorRole}>Cybersecurity Expert at Amazon</Text>
-                    <View style={styles.mentorTags}>
-                      <View style={styles.tag}>
-                        <Text style={styles.tagText}>Cybersecurity</Text>
-                      </View>
-                      <View style={styles.tag}>
-                        <Text style={styles.tagText}>Network Security</Text>
-                      </View>
-                      <View style={styles.tag}>
-                        <Text style={styles.tagText}>Penetration Testing</Text>
-                      </View>
-                    </View>
-                    <View style={styles.mentorStats}>
-                      <View style={styles.statItem}>
-                        <Feather name="star" size={14} color={COLORS.primary} />
-                        <Text style={styles.statText}>4.8</Text>
-                      </View>
-                      <View style={styles.statItem}>
-                        <Feather name="users" size={14} color={COLORS.textSecondary} />
-                        <Text style={styles.statText}>94 sessions</Text>
-                      </View>
-                      <View style={styles.statItem}>
-                        <Feather name="clock" size={14} color={COLORS.textSecondary} />
-                        <Text style={styles.statText}>8+ years</Text>
-                      </View>
-                    </View>
-                  </View>
-                  <TouchableOpacity style={styles.connectButton}>
-                    <Feather name="user-plus" size={16} color={COLORS.white} />
-                    <Text style={styles.connectButtonText}>Connect</Text>
-                  </TouchableOpacity>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.mentorCard}>
-                  <View style={styles.mentorCardHeader}>
-                    <Image 
-                      source={{ uri: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face' }} 
-                      style={styles.mentorProfilePic}
-                    />
-                    <View style={styles.mentorBadge}>
-                      <Feather name="smartphone" size={12} color={COLORS.white} />
-                    </View>
-                  </View>
-                  <View style={styles.mentorInfo}>
-                    <Text style={styles.mentorName}>Sophie Williams</Text>
-                    <Text style={styles.mentorRole}>Mobile Developer at Apple</Text>
-                    <View style={styles.mentorTags}>
-                      <View style={styles.tag}>
-                        <Text style={styles.tagText}>iOS</Text>
-                      </View>
-                      <View style={styles.tag}>
-                        <Text style={styles.tagText}>Swift</Text>
-                      </View>
-                      <View style={styles.tag}>
-                        <Text style={styles.tagText}>Mobile UX</Text>
-                      </View>
-                    </View>
-                    <View style={styles.mentorStats}>
-                      <View style={styles.statItem}>
-                        <Feather name="star" size={14} color={COLORS.primary} />
-                        <Text style={styles.statText}>4.7</Text>
-                      </View>
-                      <View style={styles.statItem}>
-                        <Feather name="users" size={14} color={COLORS.textSecondary} />
-                        <Text style={styles.statText}>156 sessions</Text>
-                      </View>
-                      <View style={styles.statItem}>
-                        <Feather name="clock" size={14} color={COLORS.textSecondary} />
-                        <Text style={styles.statText}>4+ years</Text>
-                      </View>
-                    </View>
-                  </View>
-                  <TouchableOpacity style={styles.connectButton}>
-                    <Feather name="user-plus" size={16} color={COLORS.white} />
-                    <Text style={styles.connectButtonText}>Connect</Text>
-                  </TouchableOpacity>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.mentorCard}>
-                  <View style={styles.mentorCardHeader}>
-                    <Image 
-                      source={{ uri: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop&crop=face' }} 
-                      style={styles.mentorProfilePic}
-                    />
-                    <View style={styles.mentorBadge}>
-                      <Feather name="database" size={12} color={COLORS.white} />
-                    </View>
-                  </View>
-                  <View style={styles.mentorInfo}>
-                    <Text style={styles.mentorName}>Dr. Lisa Chen</Text>
-                    <Text style={styles.mentorRole}>Data Engineer at Netflix</Text>
-                    <View style={styles.mentorTags}>
-                      <View style={styles.tag}>
-                        <Text style={styles.tagText}>Big Data</Text>
-                      </View>
-                      <View style={styles.tag}>
-                        <Text style={styles.tagText}>Apache Spark</Text>
-                      </View>
-                      <View style={styles.tag}>
-                        <Text style={styles.tagText}>Data Pipelines</Text>
-                      </View>
-                    </View>
-                    <View style={styles.mentorStats}>
-                      <View style={styles.statItem}>
-                        <Feather name="star" size={14} color={COLORS.primary} />
-                        <Text style={styles.statText}>4.9</Text>
-                      </View>
-                      <View style={styles.statItem}>
-                        <Feather name="users" size={14} color={COLORS.textSecondary} />
-                        <Text style={styles.statText}>203 sessions</Text>
-                      </View>
-                      <View style={styles.statItem}>
-                        <Feather name="clock" size={14} color={COLORS.textSecondary} />
-                        <Text style={styles.statText}>9+ years</Text>
-                      </View>
-                    </View>
-                  </View>
-                  <TouchableOpacity style={styles.connectButton}>
-                    <Feather name="user-plus" size={16} color={COLORS.white} />
-                    <Text style={styles.connectButtonText}>Connect</Text>
-                  </TouchableOpacity>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.mentorCard}>
-                  <View style={styles.mentorCardHeader}>
-                    <Image 
-                      source={{ uri: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&h=150&fit=crop&crop=face' }} 
-                      style={styles.mentorProfilePic}
-                    />
-                    <View style={styles.mentorBadge}>
-                      <Feather name="code" size={12} color={COLORS.white} />
-                    </View>
-                  </View>
-                  <View style={styles.mentorInfo}>
-                    <Text style={styles.mentorName}>Amanda Foster</Text>
-                    <Text style={styles.mentorRole}>Full Stack Developer at Airbnb</Text>
-                    <View style={styles.mentorTags}>
-                      <View style={styles.tag}>
-                        <Text style={styles.tagText}>JavaScript</Text>
-                      </View>
-                      <View style={styles.tag}>
-                        <Text style={styles.tagText}>Node.js</Text>
-                      </View>
-                      <View style={styles.tag}>
-                        <Text style={styles.tagText}>MongoDB</Text>
-                      </View>
-                    </View>
-                    <View style={styles.mentorStats}>
-                      <View style={styles.statItem}>
-                        <Feather name="star" size={14} color={COLORS.primary} />
-                        <Text style={styles.statText}>4.6</Text>
-                      </View>
-                      <View style={styles.statItem}>
-                        <Feather name="users" size={14} color={COLORS.textSecondary} />
-                        <Text style={styles.statText}>78 sessions</Text>
-                      </View>
-                      <View style={styles.statItem}>
-                        <Feather name="clock" size={14} color={COLORS.textSecondary} />
-                        <Text style={styles.statText}>5+ years</Text>
-                      </View>
-                    </View>
-                  </View>
-                  <TouchableOpacity style={styles.connectButton}>
-                    <Feather name="user-plus" size={16} color={COLORS.white} />
-                    <Text style={styles.connectButtonText}>Connect</Text>
-                  </TouchableOpacity>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.mentorCard}>
-                  <View style={styles.mentorCardHeader}>
-                    <Image 
-                      source={{ uri: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop&crop=face' }} 
-                      style={styles.mentorProfilePic}
-                    />
-                    <View style={styles.mentorBadge}>
-                      <Feather name="trending-up" size={12} color={COLORS.white} />
-                    </View>
-                  </View>
-                  <View style={styles.mentorInfo}>
-                    <Text style={styles.mentorName}>Dr. Rachel Kim</Text>
-                    <Text style={styles.mentorRole}>Product Manager at Uber</Text>
-                    <View style={styles.mentorTags}>
-                      <View style={styles.tag}>
-                        <Text style={styles.tagText}>Product Strategy</Text>
-                      </View>
-                      <View style={styles.tag}>
-                        <Text style={styles.tagText}>User Research</Text>
-                      </View>
-                      <View style={styles.tag}>
-                        <Text style={styles.tagText}>Agile</Text>
-                      </View>
-                    </View>
-                    <View style={styles.mentorStats}>
-                      <View style={styles.statItem}>
-                        <Feather name="star" size={14} color={COLORS.primary} />
-                        <Text style={styles.statText}>4.8</Text>
-                      </View>
-                      <View style={styles.statItem}>
-                        <Feather name="users" size={14} color={COLORS.textSecondary} />
-                        <Text style={styles.statText}>112 sessions</Text>
-                      </View>
-                      <View style={styles.statItem}>
-                        <Feather name="clock" size={14} color={COLORS.textSecondary} />
-                        <Text style={styles.statText}>7+ years</Text>
-                      </View>
-                    </View>
-                  </View>
-                  <TouchableOpacity style={styles.connectButton}>
-                    <Feather name="user-plus" size={16} color={COLORS.white} />
-                    <Text style={styles.connectButtonText}>Connect</Text>
-                  </TouchableOpacity>
-                </TouchableOpacity>
+                )}
               </View>
             </View>
 
@@ -1621,6 +1402,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: COLORS.accent,
   },
+  searchInput: {
+    flex: 1,
+    fontSize: 14,
+    color: COLORS.text,
+    paddingVertical: 0,
+    marginLeft: 8,
+  },
   searchPlaceholder: {
     fontSize: 14,
     color: COLORS.textSecondary,
@@ -1896,6 +1684,52 @@ const styles = StyleSheet.create({
     color: COLORS.textPrimary,
     marginBottom: 8,
     textAlign: 'center',
+  },
+  resultsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    backgroundColor: COLORS.white,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: COLORS.accent,
+  },
+  resultsText: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    fontWeight: '500',
+  },
+  clearFiltersText: {
+    fontSize: 12,
+    color: COLORS.primary,
+    fontWeight: '600',
+  },
+  emptyContainer: {
+    alignItems: 'center',
+    paddingVertical: 40,
+    backgroundColor: COLORS.white,
+    borderRadius: 12,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  emptyTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: COLORS.textPrimary,
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  emptyText: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    textAlign: 'center',
+    paddingHorizontal: 20,
   },
 });
 
