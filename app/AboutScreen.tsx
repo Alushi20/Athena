@@ -1,19 +1,13 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity, Animated, Dimensions } from 'react-native';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { View, Text, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity, Animated, Dimensions, StatusBar } from 'react-native';
 import { Feather, MaterialIcons, Ionicons } from '@expo/vector-icons';
 import { COLORS } from '../constants/Colors';
 import { LinearGradient } from 'expo-linear-gradient';
+import BackButton from '../components/BackButton';
 
 const { width, height } = Dimensions.get('window');
 
-type RootStackParamList = {
-  About: undefined;
-};
-
-type AboutScreenProps = NativeStackScreenProps<RootStackParamList, 'About'>;
-
-export default function AboutScreen({ navigation }: AboutScreenProps) {
+export default function AboutScreen({ navigation }: any) {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(50)).current;
 
@@ -34,25 +28,52 @@ export default function AboutScreen({ navigation }: AboutScreenProps) {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header */}
-      <Animated.View style={[styles.header, { opacity: fadeAnim }]}>
-        <TouchableOpacity 
-          onPress={() => navigation.goBack()}
-          style={styles.backButton}
-        >
-          <Feather name="arrow-left" size={24} color={COLORS.white} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>About Athena</Text>
-        <View style={styles.placeholder} />
-      </Animated.View>
+      <StatusBar barStyle="light-content" backgroundColor={COLORS.primary} />
+      
+      {/* Navigation Header - Fixed and Always Visible */}
+      <View style={styles.header}>
+        <View style={styles.headerTop}>
+          <BackButton color={COLORS.white} />
+        </View>
+        <View style={styles.headerContent}>
+          <View>
+            <Text style={styles.headerTitle}>About Athena</Text>
+            <Text style={styles.headerSubtitle}>Our mission to keep women in STEM</Text>
+          </View>
+          <View style={styles.headerActions}>
+            <TouchableOpacity 
+              style={styles.actionButton}
+              onPress={() => {
+                // Handle share action
+                console.log('Share About Athena');
+              }}
+              activeOpacity={0.8}
+            >
+              <Feather name="share-2" size={20} color={COLORS.white} />
+            </TouchableOpacity>
+            
+            <TouchableOpacity 
+              style={styles.actionButton}
+              onPress={() => {
+                // Handle more options
+                console.log('More options');
+              }}
+              activeOpacity={0.8}
+            >
+              <Feather name="more-horizontal" size={20} color={COLORS.white} />
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
 
       <ScrollView 
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
-        bounces={false}
+        bounces={true}
         alwaysBounceVertical={false}
-        nestedScrollEnabled={true}
+        keyboardShouldPersistTaps="handled"
+        scrollEventThrottle={16}
       >
         {/* Hero Section */}
         <Animated.View style={[styles.heroSection, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
@@ -298,11 +319,25 @@ export default function AboutScreen({ navigation }: AboutScreenProps) {
               Ready to be part of the solution? Join our community of women in STEM, attend our events, or help us organize activities in your city. Together, we can change the retention statistics.
             </Text>
             <View style={styles.contactButtons}>
-              <TouchableOpacity style={styles.primaryButton}>
+              <TouchableOpacity 
+                style={styles.primaryButton}
+                activeOpacity={0.8}
+                onPress={() => {
+                  // Handle join community action
+                  console.log('Join Community pressed');
+                }}
+              >
                 <Feather name="users" size={20} color={COLORS.white} />
                 <Text style={styles.primaryButtonText}>Join Community</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.secondaryButton}>
+              <TouchableOpacity 
+                style={styles.secondaryButton}
+                activeOpacity={0.8}
+                onPress={() => {
+                  // Handle find events action
+                  console.log('Find Events pressed');
+                }}
+              >
                 <Feather name="calendar" size={20} color={COLORS.primary} />
                 <Text style={styles.secondaryButtonText}>Find Events</Text>
               </TouchableOpacity>
@@ -320,23 +355,58 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
   },
   header: {
+    backgroundColor: COLORS.primary,
+    paddingHorizontal: 20,
+    paddingTop: 15,
+    paddingBottom: 25,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+    zIndex: 1000,
+  },
+  headerTop: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    backgroundColor: COLORS.primary,
+    marginBottom: 16,
   },
-  backButton: {
-    padding: 8,
+  headerContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   headerTitle: {
-    fontSize: 20,
+    fontSize: 28,
     fontWeight: 'bold',
     color: COLORS.white,
+    marginBottom: 6,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
-  placeholder: {
-    width: 40,
+  headerSubtitle: {
+    fontSize: 14,
+    color: 'rgba(255, 255, 255, 0.8)',
+    lineHeight: 18,
+  },
+  headerActions: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  actionButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: 'rgba(0, 0, 0, 0.2)',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 4,
   },
   scrollView: {
     flex: 1,

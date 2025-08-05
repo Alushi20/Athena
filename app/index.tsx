@@ -29,6 +29,7 @@ import MentorshipDashboardScreen from './MentorshipDashboardScreen';
 import UnifiedMentorshipScreen from './UnifiedMentorshipScreen';
 import AboutScreen from './AboutScreen';
 import AchievementsScreen from './AchievementsScreen';
+import CreateCommunityScreen from './CreateCommunityScreen';
 
 // Type definitions for navigation
 export type RootStackParamList = {
@@ -54,6 +55,7 @@ export type RootStackParamList = {
     MentorshipDashboard: undefined;
     About: undefined;
     Achievements: undefined;
+    CreateCommunity: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -94,6 +96,7 @@ const CommunitiesStack: React.FC = () => (
     <Stack.Navigator screenOptions={commonOptions}>
         <Stack.Screen name="CommunitiesList" component={CommunitiesScreen} />
         <Stack.Screen name="CommunityDetail" component={CommunityDetailScreen as React.FC} />
+        <Stack.Screen name="CreateCommunity" component={CreateCommunityScreen} />
     </Stack.Navigator>
 );
 
@@ -102,6 +105,7 @@ const ProfileStack: React.FC = () => (
         <Stack.Screen name="Profile" component={ProfilePage as ScreenComponent<RootStackParamList, 'Profile'>} />
         <Stack.Screen name="FeedbackProgress" component={FeedbackProgressScreen} />
         <Stack.Screen name="Achievements" component={AchievementsScreen} />
+        <Stack.Screen name="About" component={AboutScreen} />
     </Stack.Navigator>
 );
 
@@ -122,6 +126,8 @@ const MentorshipRequestsStack: React.FC = () => (
         <Stack.Screen name="MentorshipChat" component={MentorshipChatScreen} />
     </Stack.Navigator>
 );
+
+
 
 const MainTabs: React.FC = () => (
     <Tab.Navigator screenOptions={tabOptions}>
@@ -155,7 +161,8 @@ export default function App() {
                     <Stack.Screen name="SignUp" component={SignUpScreen} />
                     <Stack.Screen name="MentorOnboarding" component={MentorOnboardingScreen} />
                     <Stack.Screen name="MenteeOnboarding" component={MenteeOnboardingScreen} />
-                    <Stack.Screen name="About" component={AboutScreen} />
+                    <Stack.Screen name="CreateCommunity" component={CreateCommunityScreen} />
+                    <Stack.Screen name="MentorshipDashboard" component={UnifiedMentorshipScreen} />
                     <Stack.Screen name="Main" component={MainTabs} />
                 </Stack.Navigator>
             </NavigationContainer>

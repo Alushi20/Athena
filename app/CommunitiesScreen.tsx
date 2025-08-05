@@ -594,7 +594,11 @@ export default function CommunitiesScreen({ navigation }: any) {
         {/* Create Community Button - Only show in Communities tab */}
         {activeTab === 'communities' && (
           <View style={styles.createButtonContainer}>
-            <TouchableOpacity style={styles.createBtn} activeOpacity={0.9}>
+            <TouchableOpacity 
+              style={styles.createBtn} 
+              activeOpacity={0.9}
+              onPress={() => navigation.navigate('CreateCommunity' as never)}
+            >
               <Feather name="plus" size={24} color={COLORS.white} />
               <Text style={styles.createBtnText}>Create New Community</Text>
             </TouchableOpacity>

@@ -118,291 +118,238 @@ const SignUpScreen = ({ navigation }: any) => {
 
   return (
     <ScrollView style={styles.safeArea}>
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
+      <KeyboardAvoidingView 
+        style={{ flex: 1 }} 
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={0}
       >
-        <View style={{ flex: 1 }}>
-          <ScrollView
-            contentContainerStyle={styles.scrollContainer}
-            showsVerticalScrollIndicator={false}
-            bounces={true}
-            alwaysBounceVertical={true}
-            keyboardShouldPersistTaps="handled"
-          >
-            {/* Enhanced Header Section */}
-            <View style={styles.headerSection}>
-              <View style={styles.headerTop}>
-                <BackButton color={COLORS.white} />
-              </View>
-              <View style={styles.headerContent}>
-                <View style={styles.headerIconContainer}>
-                  <Feather name="user-plus" size={28} color={COLORS.white} />
-                </View>
-                <Text style={styles.title}>Join Athena</Text>
-                <Text style={styles.subtitle}>Connect with amazing women in STEM</Text>
-                <View style={styles.headerProgress}>
-                  <View style={styles.progressBar}>
-                    <View style={styles.progressFill} />
-                  </View>
-                  <Text style={styles.progressText}>Step 1 of 4</Text>
-                </View>
-              </View>
-            </View>
-
-            {/* Enhanced Role Selection Section */}
-            <View style={styles.section}>
-              <View style={styles.sectionHeader}>
-                <Text style={styles.sectionTitle}>Choose Your Role</Text>
-                <Text style={styles.sectionSubtitle}>Select how you'd like to participate</Text>
-              </View>
-              <View style={styles.roleSelection}>
-                <TouchableOpacity
-                  style={[styles.roleButton, role === 'mentor' && styles.roleButtonSelected]}
-                  onPress={() => setRole('mentor')}
-                >
-                  <View style={[styles.roleIconContainer, role === 'mentor' && styles.roleIconContainerSelected]}>
-                    <Feather name="award" size={24} color={role === 'mentor' ? COLORS.white : COLORS.primary} />
-                  </View>
-                  <Text style={[styles.roleButtonText, role === 'mentor' && styles.roleButtonTextSelected]}>I'm a Mentor</Text>
-                  <Text style={[styles.roleDescription, role === 'mentor' && styles.roleDescriptionSelected]}>Share your expertise and guide others</Text>
-                  <View style={[styles.roleCheck, role === 'mentor' && styles.roleCheckSelected]}>
-                    <Feather name="check" size={16} color={role === 'mentor' ? COLORS.white : 'transparent'} />
-                  </View>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={[styles.roleButton, role === 'mentee' && styles.roleButtonSelected]}
-                  onPress={() => setRole('mentee')}
-                >
-                  <View style={[styles.roleIconContainer, role === 'mentee' && styles.roleIconContainerSelected]}>
-                    <Feather name="book-open" size={24} color={role === 'mentee' ? COLORS.white : COLORS.primary} />
-                  </View>
-                  <Text style={[styles.roleButtonText, role === 'mentee' && styles.roleButtonTextSelected]}>I'm a Mentee</Text>
-                  <Text style={[styles.roleDescription, role === 'mentee' && styles.roleDescriptionSelected]}>Learn and grow with guidance</Text>
-                  <View style={[styles.roleCheck, role === 'mentee' && styles.roleCheckSelected]}>
-                    <Feather name="check" size={16} color={role === 'mentee' ? COLORS.white : 'transparent'} />
-                  </View>
-                </TouchableOpacity>
-              </View>
-            </View>
-
-            {/* Enhanced Basic Information Section */}
-            <View style={styles.section}>
-              <View style={styles.sectionHeader}>
-                <Text style={styles.sectionTitle}>Basic Information</Text>
-                <Text style={styles.sectionSubtitle}>Tell us about yourself</Text>
-              </View>
-              <View style={styles.inputGroup}>
-                <View style={styles.inputContainer}>
-                  <View style={styles.inputIconContainer}>
-                    <Feather name="mail" size={18} color={COLORS.textSecondary} />
-                  </View>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Email address"
-                    value={email}
-                    onChangeText={setEmail}
-                    autoCapitalize="none"
-                    keyboardType="email-address"
-                    placeholderTextColor={COLORS.textSecondary}
-                  />
-                </View>
-
-                <View style={styles.inputContainer}>
-                  <View style={styles.inputIconContainer}>
-                    <Feather name="user" size={18} color={COLORS.textSecondary} />
-                  </View>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Full name"
-                    value={name}
-                    onChangeText={setName}
-                    placeholderTextColor={COLORS.textSecondary}
-                  />
-                </View>
-
-                <View style={styles.inputContainer}>
-                  <View style={styles.inputIconContainer}>
-                    <Feather name="at-sign" size={18} color={COLORS.textSecondary} />
-                  </View>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Username"
-                    value={username}
-                    onChangeText={setUsername}
-                    autoCapitalize="none"
-                    placeholderTextColor={COLORS.textSecondary}
-                  />
-                </View>
-
-                <View style={styles.inputContainer}>
-                  <View style={styles.inputIconContainer}>
-                    <Feather name="lock" size={18} color={COLORS.textSecondary} />
-                  </View>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Password"
-                    value={password}
-                    onChangeText={setPassword}
-                    secureTextEntry
-                    placeholderTextColor={COLORS.textSecondary}
-                  />
-                </View>
-              </View>
-            </View>
-
-            {/* Enhanced Contact Information Section */}
-            <View style={styles.section}>
-              <View style={styles.sectionHeader}>
-                <Text style={styles.sectionTitle}>Contact Information</Text>
-                <Text style={styles.sectionSubtitle}>How can we reach you?</Text>
-              </View>
-              <View style={styles.inputGroup}>
-                <View style={styles.inputContainer}>
-                  <View style={styles.inputIconContainer}>
-                    <Feather name="phone" size={18} color={COLORS.textSecondary} />
-                  </View>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Phone number"
-                    value={phone}
-                    onChangeText={setPhone}
-                    keyboardType="phone-pad"
-                    placeholderTextColor={COLORS.textSecondary}
-                  />
-                </View>
-
-                <View style={styles.inputContainer}>
-                  <View style={styles.inputIconContainer}>
-                    <Feather name="map-pin" size={18} color={COLORS.textSecondary} />
-                  </View>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Location"
-                    value={location}
-                    onChangeText={setLocation}
-                    placeholderTextColor={COLORS.textSecondary}
-                  />
-                </View>
-
-                <View style={styles.switchContainer}>
-                  <View style={styles.switchLabelContainer}>
-                    <Feather name="eye" size={16} color={COLORS.textSecondary} />
-                    <Text style={styles.switchLabel}>Show phone on profile</Text>
-                  </View>
-                  <Switch
-                    value={showPhone}
-                    onValueChange={setShowPhone}
-                    trackColor={{ false: COLORS.accent, true: COLORS.primary }}
-                    thumbColor={COLORS.white}
-                  />
-                </View>
-              </View>
-            </View>
-
-            {/* Enhanced Bio Section */}
-            <View style={styles.section}>
-              <View style={styles.sectionHeader}>
-                <Text style={styles.sectionTitle}>About You</Text>
-                <Text style={styles.sectionSubtitle}>Share your story</Text>
-              </View>
-              <View style={styles.bioContainer}>
-                <TextInput
-                  style={styles.bioInput}
-                  placeholder="Tell us about yourself, your interests, and what you're passionate about..."
-                  value={bio}
-                  onChangeText={setBio}
-                  multiline
-                  numberOfLines={4}
-                  placeholderTextColor={COLORS.textSecondary}
-                />
-              </View>
-            </View>
-
-            {/* Enhanced Skills Section */}
-            <View style={styles.section}>
-              <View style={styles.sectionHeader}>
-                <Text style={styles.sectionTitle}>Skills & Expertise</Text>
-                <Text style={styles.sectionSubtitle}>Select your areas of expertise or interest</Text>
-              </View>
-              <View style={styles.skillsContainer}>
-                {SKILLS.map(skill => (
-                  <TouchableOpacity
-                    key={skill}
-                    style={[styles.skillTag, skills.includes(skill) && styles.skillTagSelected]}
-                    onPress={() => handleSkillToggle(skill)}
-                  >
-                    <Text style={[styles.skillText, skills.includes(skill) && styles.skillTextSelected]}>{skill}</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View>
-
-            {/* Enhanced Upload Section */}
-            <View style={styles.section}>
-              <View style={styles.sectionHeader}>
-                <Text style={styles.sectionTitle}>Profile & Documents</Text>
-                <Text style={styles.sectionSubtitle}>Add your profile picture and resume</Text>
-              </View>
-
-              <View style={styles.uploadSection}>
-                <TouchableOpacity style={styles.uploadCard} onPress={handlePickProfilePic}>
-                  <View style={styles.uploadIconContainer}>
-                    <Feather name="image" size={24} color={COLORS.primary} />
-                  </View>
-                  <View style={styles.uploadContent}>
-                    <Text style={styles.uploadTitle}>Profile Picture</Text>
-                    <Text style={styles.uploadSubtitle}>
-                      {profilePic ? 'Change photo' : 'Add a profile picture'}
-                    </Text>
-                  </View>
-                  {profilePic && <Image source={{ uri: profilePic.uri }} style={styles.previewImg} />}
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.uploadCard} onPress={handlePickCV}>
-                  <View style={styles.uploadIconContainer}>
-                    <Feather name="file-text" size={24} color={COLORS.primary} />
-                  </View>
-                  <View style={styles.uploadContent}>
-                    <Text style={styles.uploadTitle}>CV/Resume</Text>
-                    <Text style={styles.uploadSubtitle}>
-                      {cv ? cv.name : 'Upload your CV or resume'}
-                    </Text>
-                  </View>
-                  {cv && <Feather name="check-circle" size={20} color={COLORS.success} />}
-                </TouchableOpacity>
-              </View>
-            </View>
-
-            {/* Enhanced Submit Button */}
-            <View style={styles.submitSection}>
-              <TouchableOpacity
-                style={[styles.submitBtn, loading && styles.submitBtnDisabled]}
-                onPress={handleSignUp}
-                disabled={loading}
-              >
-                {loading ? (
-                  <ActivityIndicator color={COLORS.white} size="small" />
-                ) : (
-                  <>
-                    <Feather name="user-plus" size={20} color={COLORS.white} />
-                    <Text style={styles.submitBtnText}>Create Account</Text>
-                  </>
-                )}
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.loginLink}
-                onPress={() => navigation.navigate('LoginPage')}
-              >
-                <Text style={styles.loginLinkText}>Already have an account? </Text>
-                <Text style={styles.loginLinkBold}>Sign In</Text>
-              </TouchableOpacity>
-            </View>
-          </ScrollView>
+        <ScrollView
+          contentContainerStyle={styles.scrollContainer}
+          showsVerticalScrollIndicator={true}
+          bounces={true}
+          alwaysBounceVertical={true}
+          keyboardShouldPersistTaps="handled"
+        >
+        {/* Header Section */}
+        <View style={styles.headerSection}>
+          <View style={styles.headerTop}>
+            <BackButton color={COLORS.white} />
+          </View>
+          <View style={styles.headerContent}>
+            <Feather name="user-plus" size={32} color={COLORS.white} />
+            <Text style={styles.title}>Join Athena</Text>
+            <Text style={styles.subtitle}>Connect with amazing women in STEM</Text>
+          </View>
         </View>
+
+        {/* Role Selection Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Choose Your Role</Text>
+          <View style={styles.roleSelection}>
+            <TouchableOpacity
+              style={[styles.roleButton, role === 'mentor' && styles.roleButtonSelected]}
+              onPress={() => setRole('mentor')}
+            >
+              <View style={styles.roleIconContainer}>
+                <Feather name="award" size={24} color={role === 'mentor' ? COLORS.white : COLORS.primary} />
+              </View>
+              <Text style={[styles.roleButtonText, role === 'mentor' && styles.roleButtonTextSelected]}>I'm a Mentor</Text>
+              <Text style={[styles.roleDescription, role === 'mentor' && styles.roleDescriptionSelected]}>Share your expertise</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity
+              style={[styles.roleButton, role === 'mentee' && styles.roleButtonSelected]}
+              onPress={() => setRole('mentee')}
+            >
+              <View style={styles.roleIconContainer}>
+                <Feather name="book-open" size={24} color={role === 'mentee' ? COLORS.white : COLORS.primary} />
+              </View>
+              <Text style={[styles.roleButtonText, role === 'mentee' && styles.roleButtonTextSelected]}>I'm a Mentee</Text>
+              <Text style={[styles.roleDescription, role === 'mentee' && styles.roleDescriptionSelected]}>Learn and grow</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Basic Information Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Basic Information</Text>
+          <View style={styles.inputGroup}>
+            <View style={styles.inputContainer}>
+              <Feather name="mail" size={18} color={COLORS.textSecondary} style={styles.inputIcon} />
+              <TextInput 
+                style={styles.input} 
+                placeholder="Email address" 
+                value={email} 
+                onChangeText={setEmail} 
+                autoCapitalize="none" 
+                keyboardType="email-address" 
+              />
+            </View>
+            
+            <View style={styles.inputContainer}>
+              <Feather name="user" size={18} color={COLORS.textSecondary} style={styles.inputIcon} />
+              <TextInput 
+                style={styles.input} 
+                placeholder="Full name" 
+                value={name} 
+                onChangeText={setName} 
+              />
+            </View>
+            
+            <View style={styles.inputContainer}>
+              <Feather name="at-sign" size={18} color={COLORS.textSecondary} style={styles.inputIcon} />
+              <TextInput 
+                style={styles.input} 
+                placeholder="Username" 
+                value={username} 
+                onChangeText={setUsername} 
+                autoCapitalize="none" 
+              />
+            </View>
+            
+            <View style={styles.inputContainer}>
+              <Feather name="lock" size={18} color={COLORS.textSecondary} style={styles.inputIcon} />
+              <TextInput 
+                style={styles.input} 
+                placeholder="Password" 
+                value={password} 
+                onChangeText={setPassword} 
+                secureTextEntry 
+              />
+            </View>
+          </View>
+        </View>
+
+        {/* Contact Information Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Contact Information</Text>
+          <View style={styles.inputGroup}>
+            <View style={styles.inputContainer}>
+              <Feather name="phone" size={18} color={COLORS.textSecondary} style={styles.inputIcon} />
+              <TextInput 
+                style={styles.input} 
+                placeholder="Phone number" 
+                value={phone} 
+                onChangeText={setPhone} 
+                keyboardType="phone-pad" 
+              />
+            </View>
+            
+            <View style={styles.inputContainer}>
+              <Feather name="map-pin" size={18} color={COLORS.textSecondary} style={styles.inputIcon} />
+              <TextInput 
+                style={styles.input} 
+                placeholder="Location" 
+                value={location} 
+                onChangeText={setLocation} 
+              />
+            </View>
+            
+            <View style={styles.switchContainer}>
+              <View style={styles.switchLabelContainer}>
+                <Feather name="eye" size={16} color={COLORS.textSecondary} />
+                <Text style={styles.switchLabel}>Show phone on profile</Text>
+              </View>
+              <Switch 
+                value={showPhone} 
+                onValueChange={setShowPhone}
+                trackColor={{ false: COLORS.accent, true: COLORS.primary }}
+                thumbColor={COLORS.white}
+              />
+            </View>
+          </View>
+        </View>
+
+        {/* Bio Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>About You</Text>
+          <View style={styles.bioContainer}>
+            <TextInput 
+              style={styles.bioInput} 
+              placeholder="Tell us about yourself, your interests, and what you're passionate about..." 
+              value={bio} 
+              onChangeText={setBio} 
+              multiline 
+              numberOfLines={4}
+            />
+          </View>
+        </View>
+
+        {/* Skills Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Skills & Expertise</Text>
+          <Text style={styles.sectionSubtitle}>Select your areas of expertise or interest</Text>
+          <View style={styles.skillsContainer}>
+            {SKILLS.map(skill => (
+              <TouchableOpacity
+                key={skill}
+                style={[styles.skillTag, skills.includes(skill) && styles.skillTagSelected]}
+                onPress={() => handleSkillToggle(skill)}
+              >
+                <Text style={[styles.skillText, skills.includes(skill) && styles.skillTextSelected]}>{skill}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
+        {/* Upload Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Profile & Documents</Text>
+          
+          <View style={styles.uploadSection}>
+            <TouchableOpacity style={styles.uploadCard} onPress={handlePickProfilePic}>
+              <View style={styles.uploadIconContainer}>
+                <Feather name="image" size={24} color={COLORS.primary} />
+              </View>
+              <View style={styles.uploadContent}>
+                <Text style={styles.uploadTitle}>Profile Picture</Text>
+                <Text style={styles.uploadSubtitle}>
+                  {profilePic ? 'Change photo' : 'Add a profile picture'}
+                </Text>
+              </View>
+              {profilePic && <Image source={{ uri: profilePic.uri }} style={styles.previewImg} />}
+            </TouchableOpacity>
+            
+            <TouchableOpacity style={styles.uploadCard} onPress={handlePickCV}>
+              <View style={styles.uploadIconContainer}>
+                <Feather name="file-text" size={24} color={COLORS.primary} />
+              </View>
+              <View style={styles.uploadContent}>
+                <Text style={styles.uploadTitle}>CV/Resume</Text>
+                <Text style={styles.uploadSubtitle}>
+                  {cv ? cv.name : 'Upload your CV or resume'}
+                </Text>
+              </View>
+              {cv && <Feather name="check-circle" size={20} color={COLORS.success} />}
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Submit Button */}
+        <View style={styles.submitSection}>
+          <TouchableOpacity 
+            style={[styles.submitBtn, loading && styles.submitBtnDisabled]} 
+            onPress={handleSignUp} 
+            disabled={loading}
+          >
+            {loading ? (
+              <ActivityIndicator color={COLORS.white} size="small" />
+            ) : (
+              <>
+                <Feather name="user-plus" size={20} color={COLORS.white} />
+                <Text style={styles.submitBtnText}>Create Account</Text>
+              </>
+            )}
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            style={styles.loginLink}
+            onPress={() => navigation.navigate('LoginPage')}
+          >
+            <Text style={styles.loginLinkText}>Already have an account? </Text>
+            <Text style={styles.loginLinkBold}>Sign In</Text>
+          </TouchableOpacity>
+        </View>
+        </ScrollView>
       </KeyboardAvoidingView>
     </ScrollView>
   );

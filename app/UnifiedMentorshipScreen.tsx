@@ -69,6 +69,7 @@ const UnifiedMentorshipScreen: React.FC = () => {
   const [activeFilter, setActiveFilter] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [mentors, setMentors] = useState<Mentor[]>([]);
+  const [showTimeSlots, setShowTimeSlots] = useState<boolean>(false);
   
   const navigation = useNavigation();
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -289,28 +290,149 @@ const UnifiedMentorshipScreen: React.FC = () => {
     switch (activeTab) {
       case 'overview':
         return (
-          <ScrollView showsVerticalScrollIndicator={false}>
-            {/* Status Cards */}
-            <View style={styles.statusContainer}>
-              <View style={styles.statusCard}>
-                <Feather name="users" size={24} color={COLORS.primary} />
-                <Text style={styles.statusNumber}>{status.totalMentorships}</Text>
-                <Text style={styles.statusLabel}>Total Connections</Text>
+          <ScrollView showsVerticalScrollIndicator={false} style={styles.overviewContainer}>
+            {/* Welcome Section */}
+            <View style={styles.welcomeSection}>
+              <View style={styles.welcomeHeader}>
+                <View style={styles.welcomeIcon}>
+                  <Feather name="sun" size={24} color={COLORS.white} />
+                </View>
+                <View style={styles.welcomeText}>
+                  <Text style={styles.welcomeTitle}>
+                    {userRole === 'mentor' ? 'Welcome back, Mentor!' : 'Welcome back, Mentee!'}
+                  </Text>
+                  <Text style={styles.welcomeSubtitle}>
+                    {userRole === 'mentor' 
+                      ? 'Ready to inspire the next generation?' 
+                      : 'Ready to grow your skills today?'}
+                  </Text>
+                </View>
               </View>
-              <View style={styles.statusCard}>
-                <Feather name="check-circle" size={24} color={COLORS.success} />
-                <Text style={styles.statusNumber}>{status.activeMentorships}</Text>
-                <Text style={styles.statusLabel}>Active</Text>
+            </View>
+
+            {/* Progress Overview */}
+            <View style={styles.progressSection}>
+              <Text style={styles.sectionTitle}>Your Progress</Text>
+              <View style={styles.progressGrid}>
+                <View style={styles.progressCard}>
+                  <View style={styles.progressIconContainer}>
+                    <Feather name="users" size={20} color={COLORS.primary} />
+                  </View>
+                  <Text style={styles.progressNumber}>{status.totalMentorships}</Text>
+                  <Text style={styles.progressLabel}>Total Connections</Text>
+                  <View style={styles.progressBar}>
+                    <View style={[styles.progressFill, { width: `${Math.min((status.totalMentorships / 10) * 100, 100)}%` }]} />
+                  </View>
+                </View>
+
+                <View style={styles.progressCard}>
+                  <View style={styles.progressIconContainer}>
+                    <Feather name="check-circle" size={20} color={COLORS.success} />
+                  </View>
+                  <Text style={styles.progressNumber}>{status.activeMentorships}</Text>
+                  <Text style={styles.progressLabel}>Active</Text>
+                  <View style={styles.progressBar}>
+                    <View style={[styles.progressFill, { width: `${Math.min((status.activeMentorships / 5) * 100, 100)}%`, backgroundColor: COLORS.success }]} />
+                  </View>
+                </View>
+
+                <View style={styles.progressCard}>
+                  <View style={styles.progressIconContainer}>
+                    <Feather name="clock" size={20} color={COLORS.warning} />
+                  </View>
+                  <Text style={styles.progressNumber}>{status.pendingRequests}</Text>
+                  <Text style={styles.progressLabel}>Pending</Text>
+                  <View style={styles.progressBar}>
+                    <View style={[styles.progressFill, { width: `${Math.min((status.pendingRequests / 3) * 100, 100)}%`, backgroundColor: COLORS.warning }]} />
+                  </View>
+                </View>
+
+                <View style={styles.progressCard}>
+                  <View style={styles.progressIconContainer}>
+                    <Feather name="calendar" size={20} color={COLORS.accent} />
+                  </View>
+                  <Text style={styles.progressNumber}>{status.upcomingSessions}</Text>
+                  <Text style={styles.progressLabel}>Upcoming</Text>
+                  <View style={styles.progressBar}>
+                    <View style={[styles.progressFill, { width: `${Math.min((status.upcomingSessions / 5) * 100, 100)}%`, backgroundColor: COLORS.accent }]} />
+                  </View>
+                </View>
               </View>
-              <View style={styles.statusCard}>
-                <Feather name="clock" size={24} color={COLORS.warning} />
-                <Text style={styles.statusNumber}>{status.pendingRequests}</Text>
-                <Text style={styles.statusLabel}>Pending</Text>
+            </View>
+
+
+
+            {/* Recent Activity */}
+            <View style={styles.activitySection}>
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>Recent Activity</Text>
+                <TouchableOpacity>
+                  <Text style={styles.viewAllText}>View All</Text>
+                </TouchableOpacity>
+              </View>
+              
+              <View style={styles.activityList}>
+                {recentActivity.slice(0, 3).map((activity) => (
+                  <TouchableOpacity key={activity.id} style={styles.activityCard}>
+                    <View style={[styles.activityIcon, { backgroundColor: getActivityColor(activity.type) }]}>
+                      <Feather name={getActivityIcon(activity.type) as any} size={16} color={COLORS.white} />
+                    </View>
+                    <View style={styles.activityContent}>
+                      <Text style={styles.activityTitle}>{activity.title}</Text>
+                      <Text style={styles.activityDescription}>{activity.description}</Text>
+                      <Text style={styles.activityTime}>{activity.timestamp}</Text>
+                    </View>
+                    <Feather name="chevron-right" size={16} color={COLORS.textSecondary} />
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+
+            {/* Upcoming Sessions */}
+            <View style={styles.upcomingSection}>
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>Upcoming Sessions</Text>
+                <TouchableOpacity>
+                  <Text style={styles.viewAllText}>View All</Text>
+                </TouchableOpacity>
+              </View>
+              
+              <View style={styles.upcomingList}>
+                <View style={styles.upcomingSessionCard}>
+                  <View style={styles.upcomingDateContainer}>
+                    <Text style={styles.upcomingDate}>15</Text>
+                    <Text style={styles.upcomingMonth}>Jan</Text>
+                  </View>
+                  <View style={styles.upcomingContent}>
+                    <Text style={styles.upcomingTitle}>Machine Learning Basics</Text>
+                    <Text style={styles.upcomingMentor}>with Prof. Emily Watson</Text>
+                    <Text style={styles.upcomingTime}>10:00 AM - 11:30 AM</Text>
+                  </View>
+                  <TouchableOpacity style={styles.upcomingAction}>
+                    <Feather name="calendar" size={16} color={COLORS.primary} />
+                  </TouchableOpacity>
+                </View>
+
+                <View style={styles.upcomingSessionCard}>
+                  <View style={styles.upcomingDateContainer}>
+                    <Text style={styles.upcomingDate}>18</Text>
+                    <Text style={styles.upcomingMonth}>Jan</Text>
+                  </View>
+                  <View style={styles.upcomingContent}>
+                    <Text style={styles.upcomingTitle}>Career Development Chat</Text>
+                    <Text style={styles.upcomingMentor}>with Maria Rodriguez</Text>
+                    <Text style={styles.upcomingTime}>2:00 PM - 3:00 PM</Text>
+                  </View>
+                  <TouchableOpacity style={styles.upcomingAction}>
+                    <Feather name="calendar" size={16} color={COLORS.primary} />
+                  </TouchableOpacity>
+                </View>
               </View>
             </View>
 
             {/* Mentorship Flow */}
-            <View style={styles.section}>
+            <View style={styles.flowSection}>
+              <Text style={styles.sectionTitle}>Your Journey</Text>
               <MentorshipFlowDiagram 
                 currentStep="chat"
                 onStepPress={(step) => {
@@ -319,24 +441,6 @@ const UnifiedMentorshipScreen: React.FC = () => {
                   }
                 }}
               />
-            </View>
-
-            {/* Recent Activity */}
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Recent Activity</Text>
-              {recentActivity.map((activity) => (
-                <TouchableOpacity key={activity.id} style={styles.activityCard}>
-                  <View style={[styles.activityIcon, { backgroundColor: getActivityColor(activity.type) }]}>
-                    <Feather name={getActivityIcon(activity.type) as any} size={16} color={COLORS.white} />
-                  </View>
-                  <View style={styles.activityContent}>
-                    <Text style={styles.activityTitle}>{activity.title}</Text>
-                    <Text style={styles.activityDescription}>{activity.description}</Text>
-                    <Text style={styles.activityTime}>{activity.timestamp}</Text>
-                  </View>
-                  <Feather name="chevron-right" size={16} color={COLORS.textSecondary} />
-                </TouchableOpacity>
-              ))}
             </View>
           </ScrollView>
         );
@@ -350,7 +454,10 @@ const UnifiedMentorshipScreen: React.FC = () => {
                 <Text style={styles.scheduleTitle}>My Schedule</Text>
                 <Text style={styles.scheduleSubtitle}>Manage your mentorship sessions</Text>
               </View>
-              <TouchableOpacity style={styles.addSessionButton}>
+              <TouchableOpacity 
+                style={styles.addSessionButton}
+                onPress={() => setShowTimeSlots(!showTimeSlots)}
+              >
                 <Feather name="plus" size={20} color={COLORS.white} />
               </TouchableOpacity>
             </View>
@@ -373,6 +480,104 @@ const UnifiedMentorshipScreen: React.FC = () => {
                 <Text style={styles.scheduleStatLabel}>This Month</Text>
               </View>
             </View>
+
+            {/* Optional Time Slots */}
+            {showTimeSlots && (
+              <View style={styles.optionalTimeSlotsContainer}>
+                <View style={styles.optionalTimeSlotsHeader}>
+                  <Text style={styles.optionalTimeSlotsTitle}>Available Time Slots</Text>
+                  <TouchableOpacity onPress={() => setShowTimeSlots(false)}>
+                    <Feather name="x" size={20} color={COLORS.textSecondary} />
+                  </TouchableOpacity>
+                </View>
+                
+                <View style={styles.optionalTimeSlotsGrid}>
+                  <TouchableOpacity 
+                    style={styles.optionalTimeSlot}
+                    onPress={() => {
+                      setShowTimeSlots(false);
+                      navigation.navigate('Scheduling' as never, { mentorId: 'default', matchId: 'default' } as never);
+                    }}
+                  >
+                    <View style={styles.optionalTimeSlotHeader}>
+                      <Text style={styles.optionalTimeSlotTime}>09:00 AM</Text>
+                      <Text style={styles.optionalTimeSlotDuration}>30 min</Text>
+                    </View>
+                    <Text style={styles.optionalTimeSlotLabel}>Quick Chat</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity 
+                    style={styles.optionalTimeSlot}
+                    onPress={() => {
+                      setShowTimeSlots(false);
+                      navigation.navigate('Scheduling' as never, { mentorId: 'default', matchId: 'default' } as never);
+                    }}
+                  >
+                    <View style={styles.optionalTimeSlotHeader}>
+                      <Text style={styles.optionalTimeSlotTime}>10:30 AM</Text>
+                      <Text style={styles.optionalTimeSlotDuration}>60 min</Text>
+                    </View>
+                    <Text style={styles.optionalTimeSlotLabel}>Full Session</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity 
+                    style={styles.optionalTimeSlot}
+                    onPress={() => {
+                      setShowTimeSlots(false);
+                      navigation.navigate('Scheduling' as never, { mentorId: 'default', matchId: 'default' } as never);
+                    }}
+                  >
+                    <View style={styles.optionalTimeSlotHeader}>
+                      <Text style={styles.optionalTimeSlotTime}>02:00 PM</Text>
+                      <Text style={styles.optionalTimeSlotDuration}>45 min</Text>
+                    </View>
+                    <Text style={styles.optionalTimeSlotLabel}>Workshop</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity 
+                    style={styles.optionalTimeSlot}
+                    onPress={() => {
+                      setShowTimeSlots(false);
+                      navigation.navigate('Scheduling' as never, { mentorId: 'default', matchId: 'default' } as never);
+                    }}
+                  >
+                    <View style={styles.optionalTimeSlotHeader}>
+                      <Text style={styles.optionalTimeSlotTime}>04:15 PM</Text>
+                      <Text style={styles.optionalTimeSlotDuration}>30 min</Text>
+                    </View>
+                    <Text style={styles.optionalTimeSlotLabel}>Q&A Session</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity 
+                    style={styles.optionalTimeSlot}
+                    onPress={() => {
+                      setShowTimeSlots(false);
+                      navigation.navigate('Scheduling' as never, { mentorId: 'default', matchId: 'default' } as never);
+                    }}
+                  >
+                    <View style={styles.optionalTimeSlotHeader}>
+                      <Text style={styles.optionalTimeSlotTime}>06:00 PM</Text>
+                      <Text style={styles.optionalTimeSlotDuration}>90 min</Text>
+                    </View>
+                    <Text style={styles.optionalTimeSlotLabel}>Deep Dive</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity 
+                    style={styles.optionalTimeSlot}
+                    onPress={() => {
+                      setShowTimeSlots(false);
+                      navigation.navigate('Scheduling' as never, { mentorId: 'default', matchId: 'default' } as never);
+                    }}
+                  >
+                    <View style={styles.optionalTimeSlotHeader}>
+                      <Text style={styles.optionalTimeSlotTime}>08:30 PM</Text>
+                      <Text style={styles.optionalTimeSlotDuration}>60 min</Text>
+                    </View>
+                    <Text style={styles.optionalTimeSlotLabel}>Evening Session</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            )}
 
             {/* Today's Sessions */}
             <View style={styles.section}>
@@ -566,7 +771,10 @@ const UnifiedMentorshipScreen: React.FC = () => {
 
             {/* Quick Actions */}
             <View style={styles.scheduleQuickActions}>
-              <TouchableOpacity style={styles.quickActionCard}>
+              <TouchableOpacity 
+                style={styles.quickActionCard}
+                onPress={() => navigation.navigate('Scheduling' as never, { mentorId: 'default', matchId: 'default' } as never)}
+              >
                 <View style={styles.quickActionIcon}>
                   <Feather name="plus" size={24} color={COLORS.primary} />
                 </View>
@@ -590,7 +798,13 @@ const UnifiedMentorshipScreen: React.FC = () => {
                 </View>
               </TouchableOpacity>
 
-              <TouchableOpacity style={styles.quickActionCard}>
+              <TouchableOpacity 
+                style={styles.quickActionCard}
+                onPress={() => {
+                  // Handle set availability
+                  console.log('Set availability pressed');
+                }}
+              >
                 <View style={styles.quickActionIcon}>
                   <Feather name="clock" size={24} color={COLORS.secondary} />
                 </View>
@@ -598,7 +812,13 @@ const UnifiedMentorshipScreen: React.FC = () => {
                 <Text style={styles.quickActionSubtitle}>Manage your schedule</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity style={styles.quickActionCard}>
+              <TouchableOpacity 
+                style={styles.quickActionCard}
+                onPress={() => {
+                  // Handle calendar sync
+                  console.log('Calendar sync pressed');
+                }}
+              >
                 <View style={styles.quickActionIcon}>
                   <Feather name="calendar" size={24} color={COLORS.success} />
                 </View>
@@ -728,7 +948,10 @@ const UnifiedMentorshipScreen: React.FC = () => {
                           </View>
                         </View>
                       </View>
-                      <TouchableOpacity style={styles.connectButton}>
+                      <TouchableOpacity 
+                        style={styles.connectButton}
+                        onPress={() => navigation.navigate('MentorProfile' as never, { mentorId: mentor.id } as never)}
+                      >
                         <Feather name="user-plus" size={16} color={COLORS.white} />
                         <Text style={styles.connectButtonText}>Connect</Text>
                       </TouchableOpacity>
@@ -750,7 +973,13 @@ const UnifiedMentorshipScreen: React.FC = () => {
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Browse by Category</Text>
               <View style={styles.categoryGrid}>
-                <TouchableOpacity style={styles.categoryCard}>
+                <TouchableOpacity 
+                  style={styles.categoryCard}
+                  onPress={() => {
+                    setActiveFilter('Web Dev');
+                    setSearchQuery('');
+                  }}
+                >
                   <View style={styles.categoryIcon}>
                     <Feather name="code" size={24} color={COLORS.white} />
                   </View>
@@ -758,7 +987,13 @@ const UnifiedMentorshipScreen: React.FC = () => {
                   <Text style={styles.categoryCount}>24 mentors</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.categoryCard}>
+                <TouchableOpacity 
+                  style={styles.categoryCard}
+                  onPress={() => {
+                    setActiveFilter('Data Science');
+                    setSearchQuery('');
+                  }}
+                >
                   <View style={styles.categoryIcon}>
                     <Feather name="database" size={24} color={COLORS.white} />
                   </View>
@@ -766,7 +1001,13 @@ const UnifiedMentorshipScreen: React.FC = () => {
                   <Text style={styles.categoryCount}>18 mentors</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.categoryCard}>
+                <TouchableOpacity 
+                  style={styles.categoryCard}
+                  onPress={() => {
+                    setActiveFilter('Mobile');
+                    setSearchQuery('');
+                  }}
+                >
                   <View style={styles.categoryIcon}>
                     <Feather name="smartphone" size={24} color={COLORS.white} />
                   </View>
@@ -774,7 +1015,13 @@ const UnifiedMentorshipScreen: React.FC = () => {
                   <Text style={styles.categoryCount}>15 mentors</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.categoryCard}>
+                <TouchableOpacity 
+                  style={styles.categoryCard}
+                  onPress={() => {
+                    setActiveFilter('Cybersecurity');
+                    setSearchQuery('');
+                  }}
+                >
                   <View style={styles.categoryIcon}>
                     <Feather name="shield" size={24} color={COLORS.white} />
                   </View>
@@ -1023,7 +1270,7 @@ const styles = StyleSheet.create({
     height: 8,
     backgroundColor: COLORS.accent,
     borderRadius: 4,
-    marginBottom: 8,
+    marginTop: 8,
   },
   progressFill: {
     height: '100%',
@@ -1730,6 +1977,211 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
     textAlign: 'center',
     paddingHorizontal: 20,
+  },
+  overviewContainer: {
+    flex: 1,
+  },
+  welcomeSection: {
+    backgroundColor: COLORS.primary,
+    padding: 20,
+    borderRadius: 12,
+    marginBottom: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  welcomeHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  welcomeIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: COLORS.white,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  welcomeText: {
+    flex: 1,
+  },
+  welcomeTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: COLORS.white,
+    marginBottom: 4,
+  },
+  welcomeSubtitle: {
+    fontSize: 14,
+    color: COLORS.white,
+  },
+  progressSection: {
+    marginBottom: 20,
+  },
+  progressGrid: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  progressIconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: COLORS.white,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  progressNumber: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: COLORS.textPrimary,
+    marginBottom: 4,
+  },
+  progressLabel: {
+    fontSize: 12,
+    color: COLORS.textSecondary,
+    marginBottom: 8,
+  },
+  quickActionsSection: {
+    marginBottom: 20,
+  },
+  quickActionsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  activitySection: {
+    marginBottom: 20,
+  },
+  activityList: {
+    gap: 12,
+  },
+  upcomingSection: {
+    marginBottom: 20,
+  },
+  upcomingList: {
+    gap: 12,
+  },
+  flowSection: {
+    marginBottom: 20,
+  },
+  // Optional Time Slots Styles
+  optionalTimeSlotsContainer: {
+    backgroundColor: COLORS.white,
+    borderRadius: 12,
+    margin: 20,
+    padding: 16,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  optionalTimeSlotsHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  optionalTimeSlotsTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: COLORS.text,
+  },
+  optionalTimeSlotsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
+  optionalTimeSlot: {
+    width: '48%',
+    backgroundColor: COLORS.background,
+    borderRadius: 8,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: COLORS.accent,
+  },
+  optionalTimeSlotHeader: {
+    marginBottom: 4,
+  },
+  optionalTimeSlotTime: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: COLORS.primary,
+  },
+  optionalTimeSlotDuration: {
+    fontSize: 12,
+    color: COLORS.textSecondary,
+  },
+  optionalTimeSlotLabel: {
+    fontSize: 12,
+    color: COLORS.textSecondary,
+    fontStyle: 'italic',
+  },
+  quickActionCard: {
+    width: '48%',
+    backgroundColor: COLORS.white,
+    borderRadius: 16,
+    padding: 16,
+    alignItems: 'center',
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  quickActionIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: COLORS.accent,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  quickActionTitle: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: COLORS.text,
+    marginBottom: 4,
+    textAlign: 'center',
+  },
+  quickActionSubtitle: {
+    fontSize: 11,
+    color: COLORS.textSecondary,
+    textAlign: 'center',
+  },
+  progressCard: {
+    flex: 1,
+    backgroundColor: COLORS.white,
+    borderRadius: 16,
+    padding: 16,
+    alignItems: 'center',
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  progressBar: {
+    width: '100%',
+    height: 4,
+    backgroundColor: COLORS.accent,
+    borderRadius: 2,
+    marginTop: 8,
+  },
+  progressFill: {
+    height: '100%',
+    backgroundColor: COLORS.primary,
+    borderRadius: 2,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 12,
   },
 });
 

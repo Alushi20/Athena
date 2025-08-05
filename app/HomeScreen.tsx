@@ -178,42 +178,7 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
       textAlign: 'center',
       fontStyle: 'italic',
     },
-    mainCardsContainer: {
-      width: '100%',
-      gap: 18,
-      marginBottom: 18,
-    },
-    mainCard: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      backgroundColor: colors.white,
-      borderRadius: 18,
-      padding: 18,
-      shadowColor: colors.primary,
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.10,
-      shadowRadius: 8,
-      elevation: 4,
-      borderLeftWidth: 4,
-      borderLeftColor: colors.primary,
-    },
-    mainCardIconWrapper: {
-      marginRight: 16,
-      backgroundColor: colors.primary,
-      borderRadius: 12,
-      padding: 10,
-    },
-    mainCardTitle: {
-      fontSize: 18,
-      fontWeight: 'bold',
-      color: colors.text,
-      marginBottom: 4,
-    },
-    mainCardDesc: {
-      fontSize: 14,
-      color: colors.textSecondary,
-      opacity: 0.9,
-    },
+
     sectionHeaderContainer: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -518,21 +483,7 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
       fontSize: 12,
       color: colors.textSecondary,
     },
-    themeIndicator: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      backgroundColor: colors.primary,
-      paddingHorizontal: 12,
-      paddingVertical: 6,
-      borderRadius: 16,
-      marginTop: 8,
-    },
-    themeText: {
-      color: colors.white,
-      fontSize: 12,
-      fontWeight: '600',
-      marginLeft: 4,
-    },
+
   });
 
   return (
@@ -553,10 +504,6 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
           <Text style={styles.title}>Athena</Text>
           <Text style={styles.subtitle}>Empowering Women in STEM</Text>
           <Text style={styles.welcomeText}>Welcome back! Ready to grow your skills?</Text>
-          <View style={styles.themeIndicator}>
-            <Feather name={colors.background === '#121212' ? 'moon' : 'sun'} size={16} color={colors.white} />
-            <Text style={styles.themeText}>{colors.background === '#121212' ? 'Dark' : 'Light'} Mode</Text>
-          </View>
           
           {/* Stats Cards */}
           <View style={styles.statsContainer}>
@@ -588,38 +535,7 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
           <Text style={styles.message}>{message}</Text>
         )}
 
-        {/* About Athena and Mentorship Hub Cards */}
-        <View style={styles.mainCardsContainer}>
-          <TouchableOpacity
-            style={styles.mainCard}
-            onPress={() => navigation.navigate("About" as never)}
-            activeOpacity={0.8}
-          >
-            <View style={styles.mainCardIconWrapper}>
-              <Feather name="info" size={24} color={colors.white} />
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.mainCardTitle}>About Athena</Text>
-              <Text style={styles.mainCardDesc}>Learn about our mission, vision, values, and more!</Text>
-            </View>
-            <Feather name="chevron-right" size={24} color={colors.primary} />
-          </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.mainCard}
-            activeOpacity={0.9}
-            onPress={() => navigation.navigate("MentorshipDashboard" as never)}
-          >
-            <View style={styles.mainCardIconWrapper}>
-              <Feather name="activity" size={24} color={colors.white} />
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.mainCardTitle}>Mentorship Hub</Text>
-              <Text style={styles.mainCardDesc}>View your mentorship journey, track progress, and manage connections</Text>
-            </View>
-            <Feather name="chevron-right" size={24} color={colors.primary} />
-          </TouchableOpacity>
-        </View>
 
         {/* Quick Actions */}
         <View style={styles.sectionHeaderContainer}>
@@ -630,7 +546,7 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
         <View style={styles.sectionsContainer}>
           <TouchableOpacity
             style={styles.sectionCard}
-            onPress={() => navigation.navigate("Main" as never, { screen: "MentorshipTab" } as never)}
+            onPress={() => navigation.navigate("MentorshipDashboard" as never)}
             activeOpacity={0.8}
           >
             <View style={styles.sectionIconWrapper}>
@@ -670,6 +586,17 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
               <Feather name="message-square" size={28} color={colors.secondary} />
             </View>
             <Text style={styles.sectionTitle}>Communities</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity
+            style={styles.sectionCard}
+            onPress={() => navigation.navigate("Main" as never, { screen: "ProfileTab", params: { screen: "About" } } as never)}
+            activeOpacity={0.8}
+          >
+            <View style={styles.sectionIconWrapper}>
+              <Feather name="info" size={28} color={colors.primary} />
+            </View>
+            <Text style={styles.sectionTitle}>About Athena</Text>
           </TouchableOpacity>
         </View>
 
@@ -744,9 +671,6 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
               <Text style={styles.eventTitle}>Women in Tech Conference</Text>
               <Text style={styles.eventTime}>2:00 PM - 5:00 PM</Text>
               <Text style={styles.eventLocation}>Virtual Event</Text>
-              <View style={styles.eventBadge}>
-                <Text style={styles.eventBadgeText}>Free</Text>
-              </View>
             </View>
           </TouchableOpacity>
 
@@ -759,9 +683,6 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
               <Text style={styles.eventTitle}>AI Workshop Series</Text>
               <Text style={styles.eventTime}>10:00 AM - 12:00 PM</Text>
               <Text style={styles.eventLocation}>Online Workshop</Text>
-              <View style={styles.eventBadge}>
-                <Text style={styles.eventBadgeText}>Premium</Text>
-              </View>
             </View>
           </TouchableOpacity>
         </View>
