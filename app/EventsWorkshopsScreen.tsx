@@ -4,15 +4,7 @@ import { COLORS } from '../constants/Colors';
 import { Feather } from '@expo/vector-icons';
 import CalendarIntegration from '../components/CalendarIntegration';
 import BackButton from '../components/BackButton';
-import {
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  setDoc,
-  deleteDoc
-} from "firebase/firestore";
-import { auth, db } from "../lib/firebase-config.js";
+
 
 type TabType = 'events' | 'workshops';
 
@@ -46,55 +38,170 @@ const EventsWorkshopsScreen: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [success, setSuccess] = useState(false);
 
-  // Fetch events and workshops from Firestore
+  // Mock data for events and workshops
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      const user = auth.currentUser;
 
       try {
-        // Fetch events
-        const eventsSnap = await getDocs(collection(db, "events"));
-        const eventData: EventItem[] = [];
-        for (const docSnap of eventsSnap.docs) {
-          const data = docSnap.data() as Omit<EventItem, 'id' | 'registered'>;
-          let registered = false;
+        // Mock events data
+        const mockEvents: EventItem[] = [
+          {
+            id: '1',
+            title: 'Women in Tech Conference 2024',
+            date: '2024-01-15',
+            time: '14:00',
+            endTime: '17:00',
+            location: 'Virtual Event',
+            description: 'Join us for an inspiring conference featuring keynote speakers, panel discussions, and networking opportunities for women in technology.',
+            registerCount: 156,
+            registered: false,
+          },
+          {
+            id: '2',
+            title: 'AI Workshop Series',
+            date: '2024-01-18',
+            time: '10:00',
+            endTime: '12:00',
+            location: 'Online Workshop',
+            description: 'Learn the fundamentals of artificial intelligence and machine learning through hands-on workshops and real-world projects.',
+            registerCount: 89,
+            registered: false,
+          },
+          {
+            id: '3',
+            title: 'Networking Mixer',
+            date: '2024-01-22',
+            time: '18:00',
+            endTime: '20:00',
+            location: 'Tech Hub Downtown',
+            description: 'Connect with fellow professionals in a relaxed networking environment. Light refreshments provided.',
+            registerCount: 45,
+            registered: false,
+          },
+          {
+            id: '4',
+            title: 'Career Development Seminar',
+            date: '2024-01-25',
+            time: '15:30',
+            endTime: '17:30',
+            location: 'Virtual Event',
+            description: 'Expert-led seminar on career advancement strategies, salary negotiation, and building your professional brand.',
+            registerCount: 203,
+            registered: false,
+          },
+          {
+            id: '5',
+            title: 'Code Review Best Practices',
+            date: '2024-01-28',
+            time: '13:00',
+            endTime: '15:00',
+            location: 'Online Workshop',
+            description: 'Learn effective code review techniques, feedback strategies, and how to maintain code quality in team environments.',
+            registerCount: 67,
+            registered: false,
+          },
+          {
+            id: '6',
+            title: 'Leadership in Tech Panel',
+            date: '2024-02-01',
+            time: '16:00',
+            endTime: '18:00',
+            location: 'Virtual Event',
+            description: 'Panel discussion with tech leaders sharing insights on leadership, management, and career growth in technology.',
+            registerCount: 134,
+            registered: false,
+          },
+        ];
 
-          if (user) {
-            const regSnap = await getDoc(doc(db, `users/${user.uid}/events/${docSnap.id}`));
-            registered = regSnap.exists();
-          }
+        // Mock workshops data
+        const mockWorkshops: WorkshopItem[] = [
+          {
+            id: 'w1',
+            title: 'Introduction to Machine Learning',
+            date: '2024-01-16',
+            time: '09:00',
+            duration: 120,
+            skill: 'AI/ML',
+            description: 'A comprehensive introduction to machine learning concepts, algorithms, and practical applications.',
+            registered: false,
+          },
+          {
+            id: 'w2',
+            title: 'React Native Development',
+            date: '2024-01-19',
+            time: '14:00',
+            duration: 90,
+            skill: 'Mobile Development',
+            description: 'Learn to build cross-platform mobile applications using React Native framework.',
+            registered: false,
+          },
+          {
+            id: 'w3',
+            title: 'Data Visualization with Python',
+            date: '2024-01-23',
+            time: '10:30',
+            duration: 75,
+            skill: 'Data Science',
+            description: 'Master data visualization techniques using Python libraries like Matplotlib and Seaborn.',
+            registered: false,
+          },
+          {
+            id: 'w4',
+            title: 'Cybersecurity Fundamentals',
+            date: '2024-01-26',
+            time: '13:00',
+            duration: 60,
+            skill: 'Cybersecurity',
+            description: 'Learn essential cybersecurity concepts, threat detection, and security best practices.',
+            registered: false,
+          },
+          {
+            id: 'w5',
+            title: 'UX/UI Design Principles',
+            date: '2024-01-29',
+            time: '15:00',
+            duration: 90,
+            skill: 'UX/UI',
+            description: 'Explore user experience and interface design principles, wireframing, and prototyping techniques.',
+            registered: false,
+          },
+          {
+            id: 'w6',
+            title: 'Cloud Computing with AWS',
+            date: '2024-02-02',
+            time: '11:00',
+            duration: 120,
+            skill: 'Cloud Computing',
+            description: 'Introduction to AWS services, cloud architecture, and deployment strategies.',
+            registered: false,
+          },
+          {
+            id: 'w7',
+            title: 'Git and Version Control',
+            date: '2024-02-05',
+            time: '14:30',
+            duration: 60,
+            skill: 'Development Tools',
+            description: 'Master Git workflows, branching strategies, and collaborative development practices.',
+            registered: false,
+          },
+          {
+            id: 'w8',
+            title: 'Agile Project Management',
+            date: '2024-02-08',
+            time: '16:00',
+            duration: 90,
+            skill: 'Project Management',
+            description: 'Learn Agile methodologies, Scrum practices, and effective team collaboration techniques.',
+            registered: false,
+          },
+        ];
 
-          eventData.push({
-            id: docSnap.id,
-            ...data,
-            registered,
-          });
-        }
-
-        // Fetch workshops
-        const workshopsSnap = await getDocs(collection(db, "workshops"));
-        const workshopData: WorkshopItem[] = [];
-        for (const docSnap of workshopsSnap.docs) {
-          const data = docSnap.data() as Omit<WorkshopItem, 'id' | 'registered'>;
-          let registered = false;
-
-          if (user) {
-            const regSnap = await getDoc(doc(db, `users/${user.uid}/workshops/${docSnap.id}`));
-            registered = regSnap.exists();
-          }
-
-          workshopData.push({
-            id: docSnap.id,
-            ...data,
-            registered,
-          });
-        }
-
-        setEvents(eventData);
-        setWorkshops(workshopData);
+        setEvents(mockEvents);
+        setWorkshops(mockWorkshops);
       } catch (err) {
-        console.error("Error fetching data:", err);
+        console.error("Error loading mock data:", err);
       } finally {
         setLoading(false);
       }
@@ -104,46 +211,28 @@ const EventsWorkshopsScreen: React.FC = () => {
   }, []);
 
   const handleRegister = async (id: string) => {
-    const user = auth.currentUser;
-    if (!user) return;
-
-    const eventRef = doc(db, `users/${user.uid}/events/${id}`);
-    const eventSnap = await getDoc(eventRef);
-
-    if (eventSnap.exists()) {
-      await deleteDoc(eventRef);
-      setEvents(evts =>
-        evts.map(e => (e.id === id ? { ...e, registered: false, registerCount: (e.registerCount || 1) - 1 } : e))
-      );
-    } else {
-      await setDoc(eventRef, { eventId: id });
-      setEvents(evts =>
-        evts.map(e => (e.id === id ? { ...e, registered: true, registerCount: (e.registerCount || 0) + 1 } : e))
-      );
-    }
+    setEvents(evts =>
+      evts.map(e => {
+        if (e.id === id) {
+          const newRegistered = !e.registered;
+          return {
+            ...e,
+            registered: newRegistered,
+            registerCount: newRegistered ? (e.registerCount || 0) + 1 : (e.registerCount || 1) - 1
+          };
+        }
+        return e;
+      })
+    );
 
     setSuccess(true);
     setTimeout(() => setSuccess(false), 1200);
   };
 
   const handleWorkshopRegister = async (id: string) => {
-    const user = auth.currentUser;
-    if (!user) return;
-
-    const eventRef = doc(db, `users/${user.uid}/workshops/${id}`);
-    const eventSnap = await getDoc(eventRef);
-
-    if (eventSnap.exists()) {
-      await deleteDoc(eventRef);
-      setWorkshops(ws =>
-        ws.map(w => (w.id === id ? { ...w, registered: false } : w))
-      );
-    } else {
-      await setDoc(eventRef, { workshopId: id });
-      setWorkshops(ws =>
-        ws.map(w => (w.id === id ? { ...w, registered: true } : w))
-      );
-    }
+    setWorkshops(ws =>
+      ws.map(w => (w.id === id ? { ...w, registered: !w.registered } : w))
+    );
 
     setSuccess(true);
     setTimeout(() => setSuccess(false), 1200);

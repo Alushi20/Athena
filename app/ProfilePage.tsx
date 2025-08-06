@@ -365,16 +365,7 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
                 <Text style={styles.sectionTitle}>Basic Information</Text>
               </View>
               
-              <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Display Name</Text>
-                <TextInput 
-                  style={styles.input} 
-                  placeholder="Your display name" 
-                  value={displayName || ''} 
-                  onChangeText={setDisplayName}
-                  editable={editMode}
-                />
-              </View>
+              
 
               <View style={styles.inputGroup}>
                 <Text style={styles.inputLabel}>Username</Text>
@@ -731,10 +722,15 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
             </View>
             
             <View style={styles.profileInfo}>
-              <Text style={styles.profileName}>{displayName || "No Name"}</Text>
+              <Text style={styles.profileName}>{username || displayName || "No Name"}</Text>
               {role && (
-                <View style={[styles.roleBadge, { backgroundColor: COLORS.primary }]}>
-                  <Text style={styles.roleBadgeText}>
+                <View style={[styles.roleTag, { backgroundColor: role === 'mentor' ? COLORS.secondary : COLORS.accent }]}>
+                  <Feather 
+                    name={role === 'mentor' ? 'award' : 'user'} 
+                    size={12} 
+                    color={COLORS.white} 
+                  />
+                  <Text style={styles.roleTagText}>
                     {role.charAt(0).toUpperCase() + role.slice(1)}
                   </Text>
                 </View>
@@ -927,16 +923,25 @@ const styles = StyleSheet.create({
     color: COLORS.white,
     marginBottom: 4,
   },
-  roleBadge: {
-    borderRadius: 12,
-    paddingVertical: 4,
+  roleTag: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 16,
+    paddingVertical: 6,
     paddingHorizontal: 12,
     alignSelf: 'flex-start',
+    gap: 4,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
   },
-  roleBadgeText: {
+  roleTagText: {
     color: COLORS.white,
     fontWeight: 'bold',
     fontSize: 12,
+    textTransform: 'uppercase',
   },
   progressButton: {
     backgroundColor: COLORS.secondary,

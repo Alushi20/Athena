@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, SafeAreaView, ActivityIndicator, StyleSheet, ScrollView, TouchableOpacity, FlatList, Dimensions } from "react-native";
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { StackScreenProps } from "@react-navigation/stack";
 import CustomButton from "../components/CustomButton"; 
 import InfoCard from "../components/InfoCard"; 
 import { Feather, MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../contexts/ThemeContext';
+import ScreenWrapper from "../components/ScreenWrapper";
 
 type RootStackParamList = {
   LoginPage: undefined;
@@ -15,7 +16,7 @@ type RootStackParamList = {
   Main: undefined;
 };
 
-type HomeScreenProps = NativeStackScreenProps<RootStackParamList, "Home">;
+type HomeScreenProps = StackScreenProps<RootStackParamList, "Home">;
 
 const { width } = Dimensions.get('window');
 
@@ -266,6 +267,9 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
       paddingHorizontal: 24,
       marginBottom: 20,
     },
+    featuredScrollContent: {
+      paddingRight: 24,
+    },
     featuredMentorCard: {
       width: 160,
       backgroundColor: colors.white,
@@ -483,11 +487,15 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
       fontSize: 12,
       color: colors.textSecondary,
     },
+    aboutCard: {
+      width: '100%',
+      marginBottom: 12,
+    },
 
   });
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <ScreenWrapper navigation={navigation}>
       <ScrollView
         contentContainerStyle={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
@@ -589,7 +597,7 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
           </TouchableOpacity>
           
           <TouchableOpacity
-            style={styles.sectionCard}
+            style={[styles.sectionCard, styles.aboutCard]}
             onPress={() => navigation.navigate("Main" as never, { screen: "ProfileTab", params: { screen: "About" } } as never)}
             activeOpacity={0.8}
           >
@@ -606,7 +614,12 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
           <View style={styles.sectionHeaderLine} />
         </View>
         
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.featuredScrollContainer}>
+        <ScrollView 
+          horizontal 
+          showsHorizontalScrollIndicator={false} 
+          style={styles.featuredScrollContainer}
+          contentContainerStyle={styles.featuredScrollContent}
+        >
           <View style={styles.featuredMentorCard}>
             <View style={styles.mentorAvatar}>
               <Feather name="user" size={24} color={colors.white} />
@@ -618,7 +631,10 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
               <Text style={styles.mentorStat}>4.9★</Text>
               <Text style={styles.mentorStat}>156 sessions</Text>
             </View>
-            <TouchableOpacity style={styles.connectMentorButton}>
+            <TouchableOpacity 
+              style={styles.connectMentorButton}
+              onPress={() => navigation.navigate('MentorProfile' as never, { mentorId: '1' } as never)}
+            >
               <Text style={styles.connectMentorText}>Connect</Text>
             </TouchableOpacity>
           </View>
@@ -634,7 +650,10 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
               <Text style={styles.mentorStat}>4.8★</Text>
               <Text style={styles.mentorStat}>89 sessions</Text>
             </View>
-            <TouchableOpacity style={styles.connectMentorButton}>
+            <TouchableOpacity 
+              style={styles.connectMentorButton}
+              onPress={() => navigation.navigate('MentorProfile' as never, { mentorId: '2' } as never)}
+            >
               <Text style={styles.connectMentorText}>Connect</Text>
             </TouchableOpacity>
           </View>
@@ -650,7 +669,105 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
               <Text style={styles.mentorStat}>4.7★</Text>
               <Text style={styles.mentorStat}>203 sessions</Text>
             </View>
-            <TouchableOpacity style={styles.connectMentorButton}>
+            <TouchableOpacity 
+              style={styles.connectMentorButton}
+              onPress={() => navigation.navigate('MentorProfile' as never, { mentorId: '3' } as never)}
+            >
+              <Text style={styles.connectMentorText}>Connect</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.featuredMentorCard}>
+            <View style={styles.mentorAvatar}>
+              <Feather name="user" size={24} color={colors.white} />
+            </View>
+            <Text style={styles.mentorName}>Dr. Lisa Park</Text>
+            <Text style={styles.mentorRole}>Machine Learning Engineer</Text>
+            <Text style={styles.mentorCompany}>Microsoft</Text>
+            <View style={styles.mentorStats}>
+              <Text style={styles.mentorStat}>4.9★</Text>
+              <Text style={styles.mentorStat}>234 sessions</Text>
+            </View>
+            <TouchableOpacity 
+              style={styles.connectMentorButton}
+              onPress={() => navigation.navigate('MentorProfile' as never, { mentorId: '4' } as never)}
+            >
+              <Text style={styles.connectMentorText}>Connect</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.featuredMentorCard}>
+            <View style={styles.mentorAvatar}>
+              <Feather name="user" size={24} color={colors.white} />
+            </View>
+            <Text style={styles.mentorName}>Alex Thompson</Text>
+            <Text style={styles.mentorRole}>Product Manager</Text>
+            <Text style={styles.mentorCompany}>Apple</Text>
+            <View style={styles.mentorStats}>
+              <Text style={styles.mentorStat}>4.8★</Text>
+              <Text style={styles.mentorStat}>167 sessions</Text>
+            </View>
+            <TouchableOpacity 
+              style={styles.connectMentorButton}
+              onPress={() => navigation.navigate('MentorProfile' as never, { mentorId: '5' } as never)}
+            >
+              <Text style={styles.connectMentorText}>Connect</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.featuredMentorCard}>
+            <View style={styles.mentorAvatar}>
+              <Feather name="user" size={24} color={colors.white} />
+            </View>
+            <Text style={styles.mentorName}>Dr. Priya Sharma</Text>
+            <Text style={styles.mentorRole}>Cybersecurity Expert</Text>
+            <Text style={styles.mentorCompany}>IBM</Text>
+            <View style={styles.mentorStats}>
+              <Text style={styles.mentorStat}>4.9★</Text>
+              <Text style={styles.mentorStat}>198 sessions</Text>
+            </View>
+            <TouchableOpacity 
+              style={styles.connectMentorButton}
+              onPress={() => navigation.navigate('MentorProfile' as never, { mentorId: '6' } as never)}
+            >
+              <Text style={styles.connectMentorText}>Connect</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.featuredMentorCard}>
+            <View style={styles.mentorAvatar}>
+              <Feather name="user" size={24} color={colors.white} />
+            </View>
+            <Text style={styles.mentorName}>Jennifer Lee</Text>
+            <Text style={styles.mentorRole}>Software Engineer</Text>
+            <Text style={styles.mentorCompany}>Meta</Text>
+            <View style={styles.mentorStats}>
+              <Text style={styles.mentorStat}>4.7★</Text>
+              <Text style={styles.mentorStat}>145 sessions</Text>
+            </View>
+            <TouchableOpacity 
+              style={styles.connectMentorButton}
+              onPress={() => navigation.navigate('MentorProfile' as never, { mentorId: '7' } as never)}
+            >
+              <Text style={styles.connectMentorText}>Connect</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.featuredMentorCard}>
+            <View style={styles.mentorAvatar}>
+              <Feather name="user" size={24} color={colors.white} />
+            </View>
+            <Text style={styles.mentorName}>Dr. Rachel Green</Text>
+            <Text style={styles.mentorRole}>Data Science Lead</Text>
+            <Text style={styles.mentorCompany}>Amazon</Text>
+            <View style={styles.mentorStats}>
+              <Text style={styles.mentorStat}>4.8★</Text>
+              <Text style={styles.mentorStat}>276 sessions</Text>
+            </View>
+            <TouchableOpacity 
+              style={styles.connectMentorButton}
+              onPress={() => navigation.navigate('MentorProfile' as never, { mentorId: '8' } as never)}
+            >
               <Text style={styles.connectMentorText}>Connect</Text>
             </TouchableOpacity>
           </View>
@@ -662,7 +779,10 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
         </View>
         
         <View style={styles.featuredEventsContainer}>
-          <TouchableOpacity style={styles.eventCard}>
+          <TouchableOpacity 
+            style={styles.eventCard}
+            onPress={() => navigation.navigate('Main' as never, { screen: 'EventsWorkshopsTab' } as never)}
+          >
             <View style={styles.eventDateContainer}>
               <Text style={styles.eventDate}>15</Text>
               <Text style={styles.eventMonth}>Jan</Text>
@@ -674,7 +794,10 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
             </View>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.eventCard}>
+          <TouchableOpacity 
+            style={styles.eventCard}
+            onPress={() => navigation.navigate('Main' as never, { screen: 'EventsWorkshopsTab' } as never)}
+          >
             <View style={styles.eventDateContainer}>
               <Text style={styles.eventDate}>18</Text>
               <Text style={styles.eventMonth}>Jan</Text>
@@ -693,7 +816,10 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
         </View>
         
         <View style={styles.communityHighlightsContainer}>
-          <TouchableOpacity style={styles.highlightCard}>
+          <TouchableOpacity 
+            style={styles.highlightCard}
+            onPress={() => navigation.navigate('Main' as never, { screen: 'CommunitiesTab' } as never)}
+          >
             <View style={styles.highlightIcon}>
               <Feather name="trending-up" size={20} color={colors.primary} />
             </View>
@@ -702,7 +828,10 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
             <Text style={styles.highlightStats}>2,847 members • 156 posts today</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.highlightCard}>
+          <TouchableOpacity 
+            style={styles.highlightCard}
+            onPress={() => navigation.navigate('Main' as never, { screen: 'CommunitiesTab' } as never)}
+          >
             <View style={styles.highlightIcon}>
               <Feather name="award" size={20} color={colors.secondary} />
             </View>
@@ -718,7 +847,10 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
         </View>
         
         <View style={styles.learningResourcesContainer}>
-          <TouchableOpacity style={styles.resourceCard}>
+          <TouchableOpacity 
+            style={styles.resourceCard}
+            onPress={() => navigation.navigate('Main' as never, { screen: 'LearningCenterTab' } as never)}
+          >
             <View style={styles.resourceIcon}>
               <Feather name="play-circle" size={24} color={colors.primary} />
             </View>
@@ -732,7 +864,10 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
             </View>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.resourceCard}>
+          <TouchableOpacity 
+            style={styles.resourceCard}
+            onPress={() => navigation.navigate('Main' as never, { screen: 'LearningCenterTab' } as never)}
+          >
             <View style={styles.resourceIcon}>
               <Feather name="book" size={24} color={colors.secondary} />
             </View>
@@ -748,6 +883,6 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
         </View>
 
       </ScrollView>
-    </SafeAreaView>
+    </ScreenWrapper>
   );
 }

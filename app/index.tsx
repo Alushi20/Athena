@@ -131,15 +131,15 @@ const MentorshipRequestsStack: React.FC = () => (
 
 const MainTabs: React.FC = () => (
     <Tab.Navigator screenOptions={tabOptions}>
-        <Tab.Screen name="HomeTab" component={HomeStack} options={{ title: 'Home', tabBarIcon: ({ color, size }) => <Feather name="home" color={color} size={size} /> }} />
+        <Tab.Screen name="HomeTab" component={HomeStack} options={{ title: '', tabBarIcon: ({ color, size }) => <Feather name="home" color={color} size={size} /> }} />
         <Tab.Screen name="MentorshipTab" component={MentorshipStack} options={{ 
-          title: 'Mentorship', 
+          title: '', 
           tabBarIcon: ({ color, size }) => <Feather name="users" color={color} size={size} />
         }} />
-        <Tab.Screen name="LearningCenterTab" component={LearningCenterScreen} options={{ title: 'Learning', tabBarIcon: ({ color, size }) => <Feather name="book-open" color={color} size={size} /> }} />
-        <Tab.Screen name="EventsWorkshopsTab" component={EventsWorkshopsScreen} options={{ title: 'Events & Workshops', tabBarIcon: ({ color, size }) => <Feather name="calendar" color={color} size={size} /> }} />
-        <Tab.Screen name="CommunitiesTab" component={CommunitiesStack} options={{ title: 'Communities', tabBarIcon: ({ color, size }) => <Feather name="message-square" color={color} size={size} /> }} />
-        <Tab.Screen name="ProfileTab" component={ProfileStack} options={{ title: 'Profile', tabBarIcon: ({ color, size }) => <Feather name="user" color={color} size={size} /> }} />
+        <Tab.Screen name="LearningCenterTab" component={LearningCenterScreen} options={{ title: '', tabBarIcon: ({ color, size }) => <Feather name="book-open" color={color} size={size} /> }} />
+        <Tab.Screen name="EventsWorkshopsTab" component={EventsWorkshopsScreen} options={{ title: '', tabBarIcon: ({ color, size }) => <Feather name="calendar" color={color} size={size} /> }} />
+        <Tab.Screen name="CommunitiesTab" component={CommunitiesStack} options={{ title: '', tabBarIcon: ({ color, size }) => <Feather name="message-square" color={color} size={size} /> }} />
+        <Tab.Screen name="ProfileTab" component={ProfileStack} options={{ title: '', tabBarIcon: ({ color, size }) => <Feather name="user" color={color} size={size} /> }} />
     </Tab.Navigator>
 );
 
@@ -163,6 +163,8 @@ export default function App() {
                     <Stack.Screen name="MenteeOnboarding" component={MenteeOnboardingScreen} />
                     <Stack.Screen name="CreateCommunity" component={CreateCommunityScreen} />
                     <Stack.Screen name="MentorshipDashboard" component={UnifiedMentorshipScreen} />
+                    <Stack.Screen name="Achievements" component={AchievementsScreen} />
+                    <Stack.Screen name="About" component={AboutScreen} />
                     <Stack.Screen name="Main" component={MainTabs} />
                 </Stack.Navigator>
             </NavigationContainer>

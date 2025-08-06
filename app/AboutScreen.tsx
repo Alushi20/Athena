@@ -96,18 +96,18 @@ export default function AboutScreen({ navigation }: any) {
               </Text>
               <View style={styles.heroStats}>
                 <View style={styles.statItem}>
-                  <Text style={styles.statNumber}>65%</Text>
+                  <Text style={styles.statNumber}>45%</Text>
                   <Text style={styles.statLabel}>Women Leave STEM</Text>
                 </View>
                 <View style={styles.statDivider} />
                 <View style={styles.statItem}>
-                  <Text style={styles.statNumber}>28%</Text>
+                  <Text style={styles.statNumber}>16%</Text>
                   <Text style={styles.statLabel}>Leadership Roles</Text>
                 </View>
                 <View style={styles.statDivider} />
                 <View style={styles.statItem}>
-                  <Text style={styles.statNumber}>85%</Text>
-                  <Text style={styles.statLabel}>Stay Rate</Text>
+                  <Text style={styles.statNumber}>35%</Text>
+                  <Text style={styles.statLabel}>Women in the STEM workforce</Text>
                 </View>
               </View>
             </View>
