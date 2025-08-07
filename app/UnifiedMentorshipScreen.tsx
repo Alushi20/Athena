@@ -291,25 +291,6 @@ const UnifiedMentorshipScreen: React.FC = () => {
       case 'overview':
         return (
           <ScrollView showsVerticalScrollIndicator={false} style={styles.overviewContainer}>
-            {/* Welcome Section */}
-            <View style={styles.welcomeSection}>
-              <View style={styles.welcomeHeader}>
-                <View style={styles.welcomeIcon}>
-                  <Feather name="sun" size={24} color={COLORS.white} />
-                </View>
-                <View style={styles.welcomeText}>
-                  <Text style={styles.welcomeTitle}>
-                    {userRole === 'mentor' ? 'Welcome back, Mentor!' : 'Welcome back, Mentee!'}
-                  </Text>
-                  <Text style={styles.welcomeSubtitle}>
-                    {userRole === 'mentor' 
-                      ? 'Ready to inspire the next generation?' 
-                      : 'Ready to grow your skills today?'}
-                  </Text>
-                </View>
-              </View>
-            </View>
-
             {/* Progress Overview */}
             <View style={styles.progressSection}>
               <Text style={styles.sectionTitle}>Your Progress</Text>

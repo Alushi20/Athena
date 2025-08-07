@@ -1,7 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, ScrollView, ActivityIndicator, Animated, TextInput } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, ScrollView, ActivityIndicator, Animated, TextInput, Modal, Dimensions } from 'react-native';
 import { COLORS } from '../constants/Colors';
 import { Feather } from '@expo/vector-icons';
+import Video from 'react-native-video';
+
+const { width, height } = Dimensions.get('window');
 
 const TRACKS = [
   {
@@ -166,6 +169,10 @@ const LearningCenterScreen: React.FC = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showVideo, setShowVideo] = useState(false);
+  const [currentVideo, setCurrentVideo] = useState<any>(null);
+  const [videoLoading, setVideoLoading] = useState(false);
+  const [videoError, setVideoError] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -181,6 +188,19 @@ const LearningCenterScreen: React.FC = () => {
     setTimeout(() => setSuccess(false), 1200);
     setReflection('');
     setSelectedContent(null);
+  };
+
+  const handleContentPress = (content: any) => {
+    if (content.type === 'video' && content.id === 'vid1') {
+      // Show video for the first confidence bootcamp video
+      setCurrentVideo(content);
+      setShowVideo(true);
+      setVideoLoading(true);
+      setVideoError(false);
+    } else {
+      // Show reflection for other content
+      setSelectedContent(content);
+    }
   };
 
   // Filter tracks and content based on search query
@@ -237,7 +257,7 @@ const LearningCenterScreen: React.FC = () => {
                 <Text style={styles.contentType}>{item.type === 'video' ? 'Video' : 'Article'} • {item.duration}</Text>
                 <TouchableOpacity
                   style={styles.startBtn}
-                  onPress={() => setSelectedContent(item)}
+                  onPress={() => handleContentPress(item)}
                   activeOpacity={0.85}
                 >
                   <Text style={styles.startBtnText}>Start</Text>
@@ -273,6 +293,111 @@ const LearningCenterScreen: React.FC = () => {
           <Text style={styles.successText}>Reflection saved!</Text>
         </View>
       )}
+
+      {/* Video Modal */}
+      <Modal
+        visible={showVideo}
+        animationType="slide"
+        presentationStyle="fullScreen"
+      >
+        <View style={styles.videoContainer}>
+          {/* Video Header */}
+          <View style={styles.videoHeader}>
+            <View style={styles.videoHeaderContent}>
+              <TouchableOpacity 
+                style={styles.closeVideoBtn}
+                onPress={() => setShowVideo(false)}
+              >
+                <Feather name="x" size={24} color={COLORS.white} />
+              </TouchableOpacity>
+              <View style={styles.videoInfo}>
+                <Text style={styles.videoTitle}>{currentVideo?.title}</Text>
+                <Text style={styles.videoDuration}>{currentVideo?.duration}</Text>
+              </View>
+              <View style={styles.videoActions}>
+                <TouchableOpacity style={styles.actionBtn}>
+                  <Feather name="bookmark" size={20} color={COLORS.white} />
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.actionBtn}>
+                  <Feather name="share" size={20} color={COLORS.white} />
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+          
+          {/* Video Player */}
+          <View style={styles.videoPlayerContainer}>
+            {videoLoading && (
+              <View style={styles.videoLoading}>
+                <ActivityIndicator size="large" color={COLORS.white} />
+                <Text style={styles.loadingText}>Loading video...</Text>
+              </View>
+            )}
+            
+            {videoError ? (
+              <View style={styles.videoError}>
+                <Feather name="alert-circle" size={48} color={COLORS.error} />
+                <Text style={styles.errorTitle}>Video not available</Text>
+                <Text style={styles.videoErrorText}>Please try again later</Text>
+                <TouchableOpacity 
+                  style={styles.retryBtn}
+                  onPress={() => {
+                    setVideoError(false);
+                    setVideoLoading(true);
+                  }}
+                >
+                  <Text style={styles.retryBtnText}>Retry</Text>
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <Video
+                source={{ uri: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4' }}
+                style={styles.videoPlayer}
+                resizeMode="contain"
+                controls={true}
+                onLoad={() => setVideoLoading(false)}
+                onEnd={() => {
+                  setShowVideo(false);
+                  // Show reflection after video ends
+                  setSelectedContent(currentVideo);
+                }}
+                onError={(error) => {
+                  console.log('Video error:', error);
+                  setVideoLoading(false);
+                  setVideoError(true);
+                }}
+              />
+            )}
+          </View>
+
+          {/* Video Description */}
+          <View style={styles.videoDescription}>
+            <Text style={styles.descriptionTitle}>About this lesson</Text>
+            <Text style={styles.descriptionText}>
+              Learn essential techniques for speaking up confidently in meetings. 
+              This lesson covers preparation strategies, body language tips, and 
+              how to make your voice heard in professional settings.
+            </Text>
+            
+            {/* Key Takeaways */}
+            <View style={styles.keyTakeaways}>
+              <Text style={styles.takeawaysTitle}>Key Takeaways:</Text>
+              <View style={styles.takeawayItem}>
+                <Feather name="check-circle" size={16} color={COLORS.success} />
+                <Text style={styles.takeawayText}>Prepare your points in advance</Text>
+              </View>
+              <View style={styles.takeawayItem}>
+                <Feather name="check-circle" size={16} color={COLORS.success} />
+                <Text style={styles.takeawayText}>Use confident body language</Text>
+              </View>
+              <View style={styles.takeawayItem}>
+                <Feather name="check-circle" size={16} color={COLORS.success} />
+                <Text style={styles.takeawayText}>Practice active listening</Text>
+              </View>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </Animated.ScrollView>
   );
 };
@@ -429,6 +554,147 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 14,
     marginLeft: 8,
+  },
+  // Video Modal Styles
+  videoContainer: {
+    flex: 1,
+    backgroundColor: COLORS.black,
+  },
+  videoHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingTop: 50,
+    paddingBottom: 20,
+    backgroundColor: COLORS.black,
+  },
+  videoHeaderContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  closeVideoBtn: {
+    padding: 10,
+    marginRight: 15,
+  },
+  videoInfo: {
+    flex: 1,
+    marginLeft: 15,
+  },
+  videoTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: COLORS.white,
+  },
+  videoDuration: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    marginTop: 2,
+  },
+  videoActions: {
+    flexDirection: 'row',
+    marginLeft: 15,
+  },
+  actionBtn: {
+    marginLeft: 15,
+  },
+  videoPlayerContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: COLORS.black,
+  },
+  videoPlayer: {
+    flex: 1,
+    width: width,
+    height: height * 0.7,
+  },
+  videoDescription: {
+    padding: 18,
+    backgroundColor: COLORS.white,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    marginTop: -10,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 1,
+  },
+  descriptionTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: COLORS.primary,
+    marginBottom: 10,
+  },
+  descriptionText: {
+    fontSize: 15,
+    color: COLORS.textSecondary,
+    lineHeight: 22,
+    marginBottom: 15,
+  },
+  keyTakeaways: {
+    marginTop: 10,
+  },
+  takeawaysTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: COLORS.primary,
+    marginBottom: 8,
+  },
+  takeawayItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 5,
+  },
+  takeawayText: {
+    fontSize: 15,
+    color: COLORS.text,
+    marginLeft: 8,
+  },
+  // Video Loading and Error Styles
+  videoLoading: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: COLORS.black,
+  },
+  loadingText: {
+    color: COLORS.white,
+    fontSize: 16,
+    marginTop: 10,
+  },
+  videoError: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: COLORS.black,
+    padding: 20,
+  },
+  errorTitle: {
+    color: COLORS.white,
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginTop: 15,
+    marginBottom: 8,
+  },
+  videoErrorText: {
+    color: COLORS.textSecondary,
+    fontSize: 14,
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  retryBtn: {
+    backgroundColor: COLORS.primary,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 8,
+  },
+  retryBtnText: {
+    color: COLORS.white,
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 
